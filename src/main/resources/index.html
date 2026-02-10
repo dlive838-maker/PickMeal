@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Pick Meal - Full Screen Style</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden; /* 스크롤 방지 */
+        }
+
+        /* 1. 배경 이미지 설정: 화면 전체를 덮도록 설정 */
+        .bg-hero {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            /* 햄버거 등 고화질 음식 이미지 경로를 여기에 넣으세요 */
+            background-image: linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.2)),
+                              url('https://images.unsplash.com/photo-1568901346375-23c9450c58cd?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80');
+            background-size: cover;
+            background-position: center;
+            z-index: 1;
+        }
+
+        /* 2. 타이틀 3D 틸트 효과 및 애니메이션 */
+        .tilt-box {
+            transition: transform 0.1s ease-out;
+            perspective: 1000px;
+            z-index: 10;
+        }
+
+        @keyframes floating {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+        }
+
+        .animate-float {
+            animation: floating 4s ease-in-out infinite;
+        }
+
+        /* 텍스트 가독성을 위한 그림자 */
+        .text-shadow {
+            text-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+    </style>
+</head>
+<body class="font-sans">
+
+<div class="bg-hero"></div>
+
+<nav class="relative flex justify-between items-center px-12 py-8 z-20">
+    <div class="text-3xl font-black text-[#FF6B4A]">Pick Meal</div>
+
+    <div class="hidden md:flex space-x-12 text-white font-bold text-lg">
+        <a href="#" class="hover:text-[#FF6B4A] transition drop-shadow-md">게임</a>
+        <a href="#" class="hover:text-[#FF6B4A] transition drop-shadow-md">맛집 리스트</a>
+        <a href="#" class="hover:text-[#FF6B4A] transition drop-shadow-md">게시판</a>
+    </div>
+
+    <div class="flex items-center space-x-8">
+        <a href="#" class="text-white font-bold drop-shadow-md">Log in</a>
+        <button class="bg-[#FF6B4A] text-white px-10 py-3 rounded-full font-black shadow-2xl hover:scale-105 transition">
+            시작하기
+        </button>
+    </div>
+</nav>
+
+<main class="relative flex flex-col items-center justify-center h-[calc(100vh-120px)] z-10">
+
+    <div id="tilt-container" class="tilt-box text-center select-none">
+        <h1 class="text-[150px] font-black text-[#FF6B4A] leading-none animate-float text-shadow">
+            Pick Meal
+        </h1>
+        <p class="text-5xl text-[#A7D79F] font-black italic mt-6 drop-shadow-lg">
+            Play, Meal, Eat!
+        </p>
+    </div>
+
+</main>
+
+<script>
+    const container = document.getElementById('tilt-container');
+
+    // 마우스 움직임에 따른 미세한 3D 기울기 효과
+    document.addEventListener('mousemove', (e) => {
+        const xAxis = (window.innerWidth / 2 - e.clientX) / 45;
+        const yAxis = (window.innerHeight / 2 - e.clientY) / 45;
+        container.style.transform = `rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
+    });
+
+    // 마우스 이탈 시 복구
+    document.addEventListener('mouseleave', () => {
+        container.style.transform = `rotateY(0deg) rotateX(0deg)`;
+    });
+</script>
+</body>
+</html>
