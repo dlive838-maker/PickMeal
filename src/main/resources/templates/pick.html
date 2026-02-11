@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pick Meal - Random Game</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@700;800&display=swap" rel="stylesheet">
+    <style>
+        /* [1] 기본 설정: 스크롤 방지 및 레이아웃 고정 */
+        body {
+            font-family: 'Fredoka', sans-serif;
+            background-color: #FFF5F0;
+            margin: 0;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .nav-link { font-family: 'Fredoka', sans-serif; font-weight: 700; font-style: italic; }
+
+        /* [2] 핵심: 콘텐츠 영역 전용 상승 애니메이션 */
+        .content-slide-up {
+            animation: slideUp 0.8s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+            will-change: transform, opacity;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(100px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        /* 게임 카드 및 박스 디자인 */
+        .game-card { border-radius: 3rem; background: white; box-shadow: 0 20px 50px rgba(0,0,0,0.1); }
+
+        /* 가챠 흔들기 효과 */
+        @keyframes shake {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(5deg); }
+            75% { transform: rotate(-5deg); }
+        }
+        .shaking { animation: shake 0.2s infinite; }
+    </style>
+</head>
+<body>
+
+<nav class="flex justify-between items-center px-10 py-6 w-full bg-white shadow-sm z-50">
+    <div class="text-3xl font-bold text-[#FF8A5B] italic cursor-pointer" onclick="location.href='/'">Pick Meal</div>
+    <div class="hidden lg:flex space-x-12">
+        <button onclick="location.href='/game'" class="nav-link text-xl text-[#FF8A5B]">GAME</button>
+        <button onclick="location.href='/next'" class="nav-link text-xl text-gray-500 hover:text-[#FF8A5B]">HOT PLACE</button>
+        <button onclick="location.href='/next'" class="nav-link text-xl text-gray-500 hover:text-[#FF8A5B]">BOARD</button>
+    </div>
+    <div class="flex items-center space-x-6">
+        <button th:if="${session.loggedInUser == null}"
+                onclick="location.href='/users/login'"
+                class="nav-link text-gray-400 hover:text-[#FF8A5B]">Log in</button>
+
+        <button th:if="${session.loggedInUser != null}"
+                onclick="location.href='/users/mypage'"
+                class="bg-[#FF8A5B] text-white px-8 py-2 rounded-full font-bold shadow-md hover:scale-105 transition italic">My Page</button>
+
+        <button th:if="${session.loggedInUser != null}"
+                onclick="location.href='/logout'"
+                class="nav-link text-gray-400 hover:text-red-400 ml-4">Logout</button>
+    </div>
+</nav>
+
+<main class="flex-grow flex items-center justify-center content-slide-up">
+    <div class="game-card p-12 w-full max-w-lg text-center mx-4 border-2 border-gray-50">
+        <h2 class="text-4xl font-black text-[#FF8A5B] italic mb-8 uppercase tracking-tighter">Random Menu Pick!</h2>
+
+        <div id="pickBox" class="bg-[#FDF5E6] h-64 rounded-[2.5rem] mb-8 flex items-center justify-center text-9xl select-none">
+            🎁
+        </div>
+
+        <button onclick="startPick()" id="pickBtn" class="w-full bg-[#A8D5BA] text-white py-5 rounded-full font-black text-2xl shadow-lg hover:bg-[#8fc7a5] transition italic uppercase active:scale-95">
+            Push to Pick!
+        </button>
+
+        <p class="text-gray-400 mt-6 font-bold italic">Can't decide? Let the game choose!</p>
+    </div>
+</main>
+
+<script>
+    // 랜덤 메뉴 데이터
+    const foods = ["🍕", "🍔", "🍣", "🍝", "🥩", "🍗", "🍜", "🌮"];
+
+    function startPick() {
+        const btn = document.getElementById('pickBtn');
+        const box = document.getElementById('pickBox');
+
+        btn.disabled = true;
+        btn.innerText = "Picking...";
+        box.classList.add('shaking'); // 흔들기 효과 시작
+
+        // 1.5초 후 결과 표시
+        setTimeout(() => {
+            box.classList.remove('shaking');
+            const randomIdx = Math.floor(Math.random() * foods.length);
+            box.innerText = foods[randomIdx];
+            btn.innerText = "Try Again?";
+            btn.disabled = false;
+        }, 1500);
+    }
+</script>
+</body>
+</html>

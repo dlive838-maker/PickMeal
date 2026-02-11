@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Pick Meal - Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Fredoka', sans-serif; background-color: #FFF5F0; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
+        .content-slide-up { animation: slideUp 0.8s cubic-bezier(0.65, 0, 0.35, 1) forwards; }
+        @keyframes slideUp { from { transform: translateY(100px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .login-card { border-radius: 3rem; background: white; box-shadow: 0 20px 50px rgba(0,0,0,0.1); }
+        .input-field { border-radius: 1.5rem; transition: all 0.3s; border: 2px solid transparent; }
+        .input-field:focus { border-color: #FF8A5B; outline: none; background: white; }
+    </style>
+</head>
+<body>
+<nav class="flex justify-between items-center px-10 py-6 w-full bg-white shadow-sm z-50">
+    <div class="text-3xl font-bold text-[#FF8A5B] italic cursor-pointer" onclick="location.href='/'">Pick Meal</div>
+</nav>
+
+<main class="flex-grow flex items-center justify-center content-slide-up">
+    <div class="login-card p-12 w-full max-w-md text-center mx-4 border-2 border-gray-50">
+        <h2 class="text-5xl font-black text-[#FF8A5B] italic mb-10 uppercase tracking-tighter">Login</h2>
+
+        <form th:action="@{/users/login}" method="post" class="space-y-6">
+            <p th:if="${errorMessage}" th:text="${errorMessage}" class="text-red-400 font-bold text-sm italic mb-4"></p>
+
+            <input type="text" name="id" placeholder="YOUR ID"
+                   class="input-field w-full px-6 py-4 bg-gray-50 text-lg font-bold" required>
+            <input type="password" name="password" placeholder="PASSWORD"
+                   class="input-field w-full px-6 py-4 bg-gray-50 text-lg font-bold" required>
+
+            <button type="submit" class="w-full bg-[#FF8A5B] text-white py-5 rounded-full font-black text-xl shadow-lg hover:scale-105 transition italic uppercase active:scale-95">
+                Let's Eat!
+            </button>
+        </form>
+
+        <div class="mt-8 flex justify-center gap-6">
+            <a th:href="@{/oauth2/authorization/kakao}" class="hover:scale-110 transition">
+                <img src="https://developers.kakao.com/assets/img/about/logos/kakaotalksharing/kakaotalk_sharing_btn_medium.png" width="50" alt="K">
+            </a>
+            <a th:href="@{/oauth2/authorization/naver}" class="bg-[#03C75A] w-[50px] h-[50px] rounded-full flex items-center justify-center text-white font-black text-2xl hover:scale-110 transition">N</a>
+        </div>
+
+        <div class="mt-8 flex justify-center gap-6 text-sm font-bold text-gray-400 italic">
+            <a th:href="@{/users/signup}" class="hover:text-[#FF8A5B]">SIGN UP</a>
+            <span>|</span>
+            <a href="/forgot-pw" class="hover:text-[#FF8A5B]">FORGOT PW</a>
+        </div>
+    </div>
+</main>
+</body>
+</html>
