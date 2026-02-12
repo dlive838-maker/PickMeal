@@ -44,18 +44,22 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/", "/users/signup", "/users/login", "/css/**", "/js/**", "/images/**", "/upload.html", "/upload").permitAll()
+                        .requestMatchers("/", "/next", "/game", "/board", "/mypage",
+                                "/roulette", "/forgot-pw", "/board/write", "/signup", "/login",
+                                "/css/**", "/js/**", "/images/**", "/upload.html", "/upload",
+                                "/login/oauth2/code/kakao", "/oauth/token", "/hotplace").permitAll()
                         .anyRequest().authenticated()
                 )
                 .formLogin(formLogin -> formLogin
-                        .loginPage("/users/login")
+                        .loginPage("/login")
                         .usernameParameter("id")
+                        .passwordParameter("password")
                         .defaultSuccessUrl("/")
                         .failureHandler(loginFailureHandler)
                 )
                 .logout(logout -> logout
-                        .logoutUrl("/users/logout")
-                        .logoutSuccessUrl("/")
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/next")
                         .invalidateHttpSession(true)
                 );
         return http.build();

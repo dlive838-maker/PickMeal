@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pick Meal - Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@700;800&display=swap" rel="stylesheet">
+    <style>
+        /* [1] 기본 설정: 스크롤을 막고 화면 전체 높이 고정 */
+        body {
+            font-family: 'Fredoka', sans-serif;
+            background-color: #FFF5F0;
+            margin: 0;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .nav-link { font-family: 'Fredoka', sans-serif; font-weight: 700; font-style: italic; }
+
+        /* [2] 핵심: 콘텐츠 영역에만 적용할 상승 애니메이션 */
+        /* nav 아래에서 시작되도록 transform 위치를 조절했습니다. */
+        .content-slide-up {
+            animation: slideUp 0.8s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+            will-change: transform, opacity;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(100px); /* 목차 바로 아래 정도에서 시작 */
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        /* 카드 및 입력창 디자인 */
+        .login-card { border-radius: 3rem; background: white; box-shadow: 0 20px 50px rgba(0,0,0,0.1); }
+        .input-field { border-radius: 1.5rem; transition: all 0.3s; }
+        .input-field:focus { border-color: #FF8A5B; outline: none; box-shadow: 0 0 0 4px rgba(255, 138, 91, 0.1); }
+    </style>
+</head>
+<body>
+
+<nav class="flex justify-between items-center px-10 py-6 w-full bg-white shadow-sm z-50">
+    <div class="text-3xl font-bold text-[#FF8A5B] italic cursor-pointer" onclick="location.href='/'">Pick Meal</div>
+    <div class="hidden lg:flex space-x-12">
+        <button onclick="location.href='/game'" class="nav-link text-xl text-gray-500 hover:text-[#FF8A5B]">GAME</button>
+        <button onclick="location.href='/next'" class="nav-link text-xl text-gray-500 hover:text-[#FF8A5B]">HOT PLACE</button>
+        <button onclick="location.href='/board'" class="nav-link text-xl text-gray-500 hover:text-[#FF8A5B]">BOARD</button>
+
+    </div>
+    <div class="flex items-center space-x-6">
+        <button th:if="${session.loggedInUser == null}"
+                onclick="location.href='/login'"
+                class="nav-link text-gray-400 hover:text-[#FF8A5B]">Log in</button>
+
+        <button th:if="${session.loggedInUser != null}"
+                onclick="location.href='/mypage'"
+                class="bg-[#FF8A5B] text-white px-8 py-2 rounded-full font-bold shadow-md hover:scale-105 transition italic">My Page</button>
+
+        <button th:if="${session.loggedInUser != null}"
+                onclick="location.href='/logout'"
+                class="nav-link text-gray-400 hover:text-red-400 ml-4">Logout</button>
+    </div>
+</nav>
+<main class="flex-grow flex items-center justify-center content-slide-up">
+
+    <div class="login-card p-12 w-full max-w-md text-center mx-4 border-2 border-gray-50">
+        <h2 class="text-5xl font-black text-[#FF8A5B] italic mb-10 uppercase tracking-tighter">Login</h2>
+
+        <form id="loginForm" class="space-y-6" th:action = "@{/login}" method="get">
+            <input type="text" id="userId" placeholder="ID"
+                   class="input-field w-full px-6 py-4 bg-gray-50 border-2 border-transparent text-lg font-bold" required>
+            <input type="password" id="userPw" placeholder="PASSWORD"
+                   class="input-field w-full px-6 py-4 bg-gray-50 border-2 border-transparent text-lg font-bold" required>
+
+            <button type="submit" class="w-full bg-[#FF8A5B] text-white py-5 rounded-full font-black text-xl shadow-lg hover:scale-105 transition italic uppercase active:scale-95">
+                Let's Eat!
+            </button>
+        </form>
+
+        <div class="mt-8 flex justify-center gap-6 text-sm font-bold text-gray-400 italic">
+            <a href="/signup" class="hover:text-[#FF8A5B]">SIGN UP</a>
+            <span>|</span>
+            <a href="/forgot-pw" class="hover:text-[#FF8A5B]">FORGOT PW</a>
+        </div>
+    </div>
+</main>
+
+
+<script>
+<!--    // 로그인 폼 제출 시 간단한 확인 메시지 후 이동-->
+<!--    document.getElementById('loginForm').addEventListener('submit', function(e) {-->
+<!--        e.preventDefault();-->
+<!--        const id = document.getElementById('userId').value;-->
+<!--        alert(`Welcome, ${id}!`);-->
+<!--        location.href = '/next'; // 성공 시 메뉴 페이지로 이동-->
+<!--    });-->
+</script>
+</body>
+</html>

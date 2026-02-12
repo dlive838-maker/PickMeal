@@ -23,12 +23,13 @@ public class FileController {
     @Value("${file.upload-dir}")
     private String uploadDir;
 
-    @GetMapping("/")
+    @GetMapping("/file")
     public String index() {
         return "redirect:/upload.html";
     }
 
-    @GetMapping("/images/{filename}")
+    // [수정] 정적 리소스 경로(/images/**)와 충돌하지 않도록 경로 변경
+    @GetMapping("/uploaded/images/{filename}")
     public ResponseEntity<Resource> getImage(@PathVariable String filename) throws MalformedURLException {
         Resource resource = new UrlResource("file:" + uploadDir + filename);
 
