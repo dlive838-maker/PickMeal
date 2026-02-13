@@ -34,9 +34,22 @@ public class UserService implements UserDetailsService {
         userMapper.save(user); // DB 저장
     }
 
+    // 아이디 중복체크
     public boolean isIdDuplicate(String id) {
         return userMapper.findById(id) != null; // 존재 여부 반환
     }
+
+    /**
+     * 닉네임 중복 확인
+     *
+     * @param nickname 검사할 닉네임
+     * @return 중복이면 true, 사용 가능하면 false
+     */
+    public boolean existsByNickname(String nickname) {
+        int count = userMapper.countByNickname(nickname);
+        return count > 0; // 0보다 크면 이미 존재하는 닉네임입니다.
+    }
+
 
     @Override
     public UserDetails loadUserByUsername(String id) throws UsernameNotFoundException {
