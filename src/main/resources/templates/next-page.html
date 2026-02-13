@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,7 +8,16 @@
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
     <style>
-        body { font-family: 'Fredoka', sans-serif; background-color: #FDF5E6; margin: 0; cursor: pointer; }
+        /* 1. body를 flex 구조로 만들고 최소 높이를 화면 전체(100vh)로 설정 */
+        body {
+            font-family: 'Fredoka', sans-serif;
+            background-color: #FDF5E6;
+            margin: 0;
+            cursor: default;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
         .nav-link { font-family: 'Fredoka', sans-serif; font-weight: 700; font-style: italic; }
         .section-title { font-family: 'Fredoka', sans-serif; font-weight: 800; font-style: italic; letter-spacing: -2px; color: #1a1a1a; }
         .swiper-container-wrapper { position: relative; padding: 0 50px; max-width: 1400px; margin: 0 auto; }
@@ -19,33 +28,12 @@
     </style>
 </head>
 <body>
+<header th:replace="~{fragments/header :: headerFragment}"></header>
 
-<nav class="flex justify-between items-center px-10 py-6 w-full bg-white shadow-sm mb-8">
-    <div class="text-3xl font-bold text-[#FF8A5B] italic cursor-pointer" onclick="location.href='/'">Pick Meal</div>
-    <div class="hidden lg:flex space-x-12">
-        <button onclick="location.href='/game'" class="nav-link text-xl text-gray-500 hover:text-[#FF8A5B]">GAME</button>
-        <button class="nav-link text-xl text-gray-500 hover:text-[#FF8A5B]">HOT PLACE</button>
-        <button onclick="location.href='/board'" class="nav-link text-xl text-gray-500 hover:text-[#FF8A5B]">BOARD</button>
-    </div>
-    <div class="flex items-center space-x-6">
-        <button th:if="${session.loggedInUser == null}"
-                onclick="location.href='/login'"
-                class="nav-link text-gray-400 hover:text-[#FF8A5B]">Log in</button>
-
-        <button th:if="${session.loggedInUser != null}"
-                onclick="location.href='/mypage'"
-                class="bg-[#FF8A5B] text-white px-8 py-2 rounded-full font-bold shadow-md hover:scale-105 transition italic">My Page</button>
-
-        <button th:if="${session.loggedInUser != null}"
-                onclick="location.href='/logout'"
-                class="nav-link text-gray-400 hover:text-red-400 ml-4">Logout</button>
-    </div>
-</nav>
-
-<div class="px-10 pb-20">
+<div class="flex-grow px-10 pb-20 pt-32">
     <div class="flex justify-between items-end mb-12">
         <div>
-            <h2 class="section-title text-6xl uppercase tracking-tighter">인기 메뉴 슬라이드</h2>
+            <h2 class="text-5xl font-black text-[#FF8A5B] italic uppercase tracking-tighter mb-4">Hot List</h2>
             <p class="text-[#FF8A5B] mt-3 font-bold italic">What's your favorite meal today?</p>
         </div>
     </div>
@@ -93,5 +81,7 @@
         breakpoints: { 320: { slidesPerView: 1 }, 768: { slidesPerView: 2 }, 1024: { slidesPerView: 3 } }
     });
 </script>
+
+<footer th:replace="~{fragments/footer :: footerFragment}"></footer>
 </body>
 </html>
