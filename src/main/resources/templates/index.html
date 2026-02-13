@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>PickMeal - 메인 홈페이지</title>
+  <style>
+    /* 전체 배경과 부드러운 폰트 */
+    body {
+        background-color: #fff9f1;
+        font-family: 'Malgun Gothic', sans-serif;
+        text-align: center;
+        color: #576574;
+        padding: 40px;
+    }
+
+    /* 로고 느낌의 큰 제목 */
+    h1 { color: #ff9f43; font-size: 3rem; margin-bottom: 10px; }
+    hr { border: 0; height: 2px; background: #ffeaa7; margin: 30px 0; }
+
+    /* 메인 카드 박스 */
+    .menu-card {
+        background: white;
+        border: 2px solid #ffeaa7;
+        padding: 30px;
+        border-radius: 25px;
+        width: 320px;
+        margin: 0 auto;
+        box-shadow: 0 8px 15px rgba(0,0,0,0.05);
+        display: inline-block; /* 카드들이 옆으로 나열되게 함 */
+        margin: 10px;
+    }
+
+    /* 🍎 주황색 포인트 버튼 */
+    .btn {
+        display: inline-block;
+        padding: 12px 25px;
+        background-color: #ff9f43;
+        color: white;
+        text-decoration: none;
+        border-radius: 50px;
+        font-weight: bold;
+        transition: 0.3s;
+        border: none;
+    }
+
+    .btn:hover {
+        background-color: #ff6b6b; /* 마우스 올리면 분홍빛으로! */
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
+    }
+
+    /* 하단 랭킹 보기 버튼 별도 스타일 */
+    .btn-ranking {
+        background-color: #ffa502;
+        margin-top: 15px;
+    }
+
+    /* 네이버 로그인 영역 깔끔하게 */
+    .login-section { margin-bottom: 40px; }
+  </style>
+</head>
+<body>
+<h1>🏠 PickMeal 서비스 센터</h1>
+<hr>
+<div th:if="${userNickname != null}">
+  <h3>✨ <span th:text="${userNickname}" style="font-weight: bold; color: #ff4757;">별명</span>님, 홈페이지에 오신 것을 환영합니다!</h3>
+  <p style="color: #666; font-size: 0.9em;">(반갑습니다, <span th:text="${userName}">본명</span>님!)</p>
+
+  <hr>
+  <div style="background-color: #f8f9fa; padding: 20px; border-radius: 10px; margin: 20px 0; border: 1px solid #e9ecef;">
+    <h4 style="margin-top: 0;">🥗 나의 입맛 설정</h4>
+    <p style="font-size: 0.85em; color: #888;">좋아하거나 싫어하는 음식을 적어주시면 나중에 메뉴 추천에 활용할게요!</p>
+
+    <form th:action="@{/update-menu}" method="post">
+      <div style="margin-bottom: 10px;">
+        <label style="display: inline-block; width: 100px;">👍 선호 메뉴:</label>
+        <input type="text" name="likeMenu" th:value="${userLikeMenu}" placeholder="예: 제육볶음, 초밥" style="padding: 5px; width: 200px;">
+      </div>
+      <div style="margin-bottom: 15px;">
+        <label style="display: inline-block; width: 100px;">👎 불호 메뉴:</label>
+        <input type="text" name="disLikeMenu" th:value="${userDisLikeMenu}" placeholder="예: 오이, 가지" style="padding: 5px; width: 200px;">
+      </div>
+      <button type="submit" onclick="alert('취향이 저장되었습니다! 🥗');" style="background-color: #2ed573; color: white; border: none; padding: 8px 20px; border-radius: 5px; cursor: pointer; font-weight: bold;">취향 저장하기</button>
+    </form>
+  </div>
+  <hr>
+
+  <form th:action="@{/logout}" method="post">
+    <button type="submit" style="background-color: #f1f2f6; border: 1px solid #ced4da; padding: 5px 15px; border-radius: 5px; cursor: pointer;">로그아웃</button>
+  </form>
+</div>
+
+<div th:unless="${userNickname != null}">
+  <p>서비스를 이용하려면 로그인이 필요합니다.</p>
+  <a href="/oauth2/authorization/naver">
+    <img src="https://static.nid.naver.com/oauth/small_g_in.PNG" alt="네이버 로그인"
+    style="width: 150px; height: auto; border-radius: 10px;">
+  </a>
+</div>
+
+
+<hr>
+
+<h2>🚀 진행 중인 프로젝트 메뉴</h2>
+<div style="display: flex; gap: 20px;">
+  <div class="menu-card">
+    <h3>🍜 음식 월드컵</h3>
+    <p>오늘 뭐 먹을지 고민될 땐? 월드컵으로 결정하세요!</p>
+    <a href="/game" class="btn btn-danger">게임 시작하기</a>
+    <br><br> <a href="/ranking" style="padding: 10px; background: #ffa502; color: white; text-decoration: none; border-radius: 5px;">🏆 실시간 랭킹 보기</a>
+  </div>
+
+  <div class="menu-card" style="background-color: #f9f9f9; color: #aaa;">
+    <h3>🔍 맛집 검색 (준비 중)</h3>
+    <p>팀원이 병합하면 이 버튼이 활성화됩니다.</p>
+    <button disabled>커밍순</button>
+  </div>
+</div>
+</body>
+</html>
