@@ -19,6 +19,12 @@
         SELECT * FROM user WHERE id = #{id}
     </select>
 
+    <select id="countByNickname" parameterType="String" resultType="int">
+        SELECT COUNT(*)
+        FROM user
+        WHERE UPPER(TRIM(nickname)) = UPPER(TRIM(#{nickname}))
+    </select>
+
     <update id="edit" parameterType="PickMeal.PickMeal.domain.User">
         UPDATE user
         SET
