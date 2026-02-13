@@ -51,6 +51,7 @@
     </style>
 </head>
 <body>
+
 <nav class="flex justify-between items-center px-10 py-6 w-full bg-white shadow-sm z-50">
     <div class="text-3xl font-bold text-[#FF8A5B] italic cursor-pointer" onclick="location.href='/'">Pick Meal</div>
     <div class="hidden lg:flex space-x-12">
@@ -67,87 +68,37 @@
 <div class="wrapper">
 
 
-    <h1>핫 플레이스 연결 확인</h1>
+    <div id="map" style="height:400px;">
+        <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=24546b16104e0273c6d8c5c4cc508b44&libraries=services,clusterer,drawing"></script>
+    </div>
 
     <footer class="main-footer">
         <p>&copy; 2026 PickMeal AI Project. All rights reserved.</p>
     </footer>
 </div>
 
+
 <script>
-    // DOM 요소 가져오기
-    const loginForm = document.getElementById('loginForm');
-    const userId = document.getElementById('userId');
-    const userPw = document.getElementById('userPw');
-    const idError = document.getElementById('idError');
-    const pwError = document.getElementById('pwError');
 
-    // 1. 실시간 입력 감지 (간단한 유효성 검사)
-    loginForm.addEventListener('submit', function(e) {
-        e.preventDefault(); // 폼 제출 기본 동작(새로고침) 방지
+    var container = document.getElementById('map');
+            var options = {
+                center: new kakao.maps.LatLng(37.49027, 126.92753),
+                level: 3
+            };
 
-        let isValid = true;
+            var map = new kakao.maps.Map(container, options);
 
-        // 아이디 체크
-        if (userId.value.trim() === "") {
-            idError.style.display = 'block';
-            userId.style.borderColor = '#ff4d4f';
-            isValid = false;
-        } else {
-            idError.style.display = 'none';
-            userId.style.borderColor = '#dadada';
-        }
+            var mapTypeControl =new kakao.maps.MapTypeControl();
 
-        // 비밀번호 체크
-        if (userPw.value.trim() === "") {
-            pwError.style.display = 'block';
-            userPw.style.borderColor = '#ff4d4f';
-            isValid = false;
-        } else {
-            pwError.style.display = 'none';
-            userPw.style.borderColor = '#dadada';
-        }
+            map.addControl(mapTypeControl,kakao.maps.ControlPosition.TOPRIGHT);
+            var zoomControl =new kakao.maps.ZoomControl();
+            map.addControl(zoomControl,kakao.maps.ControlPosition.RIGHT);
+    var marker = new kakao.maps.Marker({ map: map, position: options.center });
+    map.setCursor('move');
+    map.setCursor('url(/cursor.ico), default':
 
-        // 모든 값이 입력되었다면 통신 시도
-        if (isValid) {
-            handleLogin();
-        }
-    });
 
-    // 2. 비동기 로그인 처리 (fetch API)
-    async function handleLogin() {
-        const loginData = {
-            username: userId.value,
-            password: userPw.value
-        };
 
-        console.log("서버로 보낼 데이터:", loginData);
-
-        /* 실제 Spring Boot 서버 연동 시 아래 주석을 해제하고 URL을 수정하세요.
-        */
-        /*
-        try {
-            const response = await fetch('/api/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(loginData)
-            });
-
-            if (response.ok) {
-                alert('로그인 성공!');
-                window.location.href = '/main'; // 성공 시 메인 페이지 이동
-            } else {
-                alert('로그인 실패: 아이디 또는 비밀번호를 확인하세요.');
-            }
-        } catch (error) {
-            console.error('통신 에러:', error);
-            alert('서버와 통신 중 오류가 발생했습니다.');
-        }
-        */
-
-        // 테스트용 알림
-        alert(`로그인 시도 중...\n아이디: ${loginData.username}`);
-    }
 </script>
 </body>
 </html>
