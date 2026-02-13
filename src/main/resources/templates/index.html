@@ -104,10 +104,39 @@
 <h2>🚀 진행 중인 프로젝트 메뉴</h2>
 <div style="display: flex; gap: 20px;">
   <div class="menu-card">
-    <h3>🍜 음식 월드컵</h3>
+    <h3>🍎 음식 월드컵</h3>
     <p>오늘 뭐 먹을지 고민될 땐? 월드컵으로 결정하세요!</p>
-    <a href="/game" class="btn btn-danger">게임 시작하기</a>
-    <br><br> <a href="/ranking" style="padding: 10px; background: #ffa502; color: white; text-decoration: none; border-radius: 5px;">🏆 실시간 랭킹 보기</a>
+
+    <form action="/game" method="get" style="margin-top: 15px;">
+
+      <div style="margin-bottom: 10px;">
+        <label style="display: block; font-size: 0.85em; color: #ff9f43; margin-bottom: 5px;">어떤 음식을 좋아하세요?</label>
+        <select name="category" style="padding: 8px; border-radius: 10px; border: 2px solid #ffeaa7; width: 85%;">
+          <option value="all">전체보기</option>
+          <option value="한식">한식</option>
+          <option value="중식">중식</option>
+          <option value="일식">일식</option>
+          <option value="양식">양식</option>
+          <option value="아시안식">아시안식</option>
+        </select>
+      </div>
+
+      <div style="margin-bottom: 15px;">
+        <label style="display: block; font-size: 0.85em; color: #ff9f43; margin-bottom: 5px;">몇 강으로 진행할까요?</label>
+        <select name="round" style="padding: 8px; border-radius: 10px; border: 2px solid #ffeaa7; width: 85%;">
+          <option value="64">64강</option>
+          <option value="32">32강</option>
+          <option value="16">16강</option>
+          <option value="8">8강</option>
+          <option value="4">4강</option>
+        </select>
+      </div>
+
+      <button type="submit" class="btn btn-danger" style="cursor: pointer; width: 100%;">게임 시작하기 🚀</button>
+    </form>
+
+    <br>
+    <a href="/ranking" class="btn btn-ranking" style="display: block; margin-top: 10px; background: #ffa502; color: white; text-decoration: none; border-radius: 5px; padding: 10px;">🏆 실시간 랭킹 보기</a>
   </div>
 
   <div class="menu-card" style="background-color: #f9f9f9; color: #aaa;">
@@ -116,5 +145,42 @@
     <button disabled>커밍순</button>
   </div>
 </div>
+</body>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+      // 1. 카테고리와 라운드 선택 상자를 변수로 저장.
+      const categorySelect = document.querySelector('select[name="category"]');
+      const roundSelect = document.querySelector('select[name="round"]');
+
+      // 2. 카테고리가 바뀔 때마다 실행될 감시 장치(EventListener)를 설치.
+      categorySelect.addEventListener('change', function() {
+          const selectedCategory = this.value; // 현재 선택된 값 (all, 한식 등)
+
+          // 기존의 라운드 옵션들을 싹 비워줍니다.
+          roundSelect.innerHTML = '';
+
+          if (selectedCategory === 'all') {
+              // 🌟 전체보기일 때: 64강부터 8강까지 메뉴 제공
+              addOption(roundSelect, "64", "64강");
+              addOption(roundSelect, "32", "32강");
+              addOption(roundSelect, "16", "16강");
+              addOption(roundSelect, "8", "8강");
+          } else {
+              // 🥗 특정 카테고리일 때: 사진 개수에 맞춰 16강부터 메뉴 제공
+              addOption(roundSelect, "16", "16강");
+              addOption(roundSelect, "8", "8강");
+              addOption(roundSelect, "4", "4강");
+          }
+      });
+
+      // 새로운 옵션 태그를 만들어주는 도구.
+      function addOption(target, val, txt) {
+          const opt = document.createElement("option");
+          opt.value = val;
+          opt.text = txt;
+          target.appendChild(opt);
+      }
+  });
+</script>
 </body>
 </html>

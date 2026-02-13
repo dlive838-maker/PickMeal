@@ -34,4 +34,10 @@ public class FoodService {
         // Repository에서 가져온 데이터(FoodEntity)를 그대로 돌려줌.
         return foodRepository.findTop10ByOrderByWinCountDesc();
     }
-}
+
+        public List<FoodEntity> getFoodsForWorldCup(String category, int round) {
+            // 1. 지배인에게 받은 주문(카테고리, 강수)을 들고 주방장(Repository)에게 갑니다.
+            // 2. 주방장이 DB에서 골라낸 음식 목록을 그대로 받아서 지배인에게 전달합니다.
+            return foodRepository.findRandomFoodsByCategory(category, round);
+        }
+    }

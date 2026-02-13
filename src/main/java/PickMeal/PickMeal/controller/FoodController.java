@@ -30,13 +30,16 @@ public class FoodController {
     private FoodService foodService;
 
     @GetMapping("/game")
-    public String startGame(Model model) {
-        // DB에서 무작위로 32개의 음식을 한꺼번에 가져온다!
-        // findRandom32Foods()는 아까 Repository에 만들었던 주문.
-        List<FoodEntity> foodList = foodRepository.findRandom32Foods();
+    public String startGame(
+            @RequestParam(value = "category", defaultValue = "all") String category, // 👈 카테고리 접수
+            @RequestParam(value = "round", defaultValue = "32") int round,           // 👈 라운드(강수) 접수
+            Model model
+    ) {
+        // 1. 주방 보조(Service)에게 주문서대로 음식을 가져오라고 시킵니다. [cite: 2026-01-28]
+        // (이때 카테고리와 강수 정보를 함께 보냅니다.)
+        List<FoodEntity> foodList = foodService.getFoodsForWorldCup(category, round);
 
-        // 2. 32명의 선수 명단을 쟁반(Model)에 담아 game.html로 보낸다.
-        // 이름을 'foodList'로 통일하면 자바스크립트에서 쓰기 편함.
+        // 2. 쟁반(Model)에 담아 게임 화면으로 보냅니다.
         model.addAttribute("foodList", foodList);
 
         return "game";
