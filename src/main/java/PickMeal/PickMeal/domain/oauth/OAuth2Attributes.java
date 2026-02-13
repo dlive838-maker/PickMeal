@@ -6,7 +6,6 @@ import lombok.Getter;
 import java.util.Map;
 
 @Getter
-@Builder
 public class OAuth2Attributes { // 소셜별로 제각각인 응답 데이터를 우리 서비스 규격으로 통일하는 DTO입니다.
     private Map<String, Object> attributes; // 소셜 서버에서 받은 전체 원본 데이터
     private String nameAttributeKey; // OAuth2 로그인 시 키가 되는 필드값 (PK 역할)
@@ -26,12 +25,13 @@ public class OAuth2Attributes { // 소셜별로 제각각인 응답 데이터를
      */
     public static OAuth2Attributes of(String registrationId, String userNameAttributeName, Map<String, Object> attributes) {
         if ("naver".equals(registrationId)) {
-            return ofNaver("id", attributes); // 네이버 로그인 처리 호출
+            // [수정] "id" 대신 userNameAttributeName(이미 properties에서 "response"로 설정됨)을 그대로 전달합니다.
+            return ofNaver(userNameAttributeName, attributes);
         }
         if ("kakao".equals(registrationId)) {
-            return ofKakao("id", attributes); // 카카오 로그인 처리 호출
+            return ofKakao("id", attributes);
         }
-        return ofGoogle(userNameAttributeName, attributes); // 기본값으로 구글 처리 호출
+        return ofGoogle(userNameAttributeName, attributes);
     }
 
     /**
@@ -48,16 +48,18 @@ public class OAuth2Attributes { // 소셜별로 제각각인 응답 데이터를
 
     /**
      * 네이버에서 받은 정보를 매핑합니다.
+     * application.properties의 'user-name-attribute=response' 설정 덕분에
+     * attributes 파라미터는 이미 'response' 객체 내부의 데이터 맵입니다.
      */
     private static OAuth2Attributes ofNaver(String userNameAttributeName, Map<String, Object> attributes) {
-        // 네이버는 유저 정보가 'response'라는 Map 안에 담겨서 옵니다.
         Map<String, Object> response = (Map<String, Object>) attributes.get("response");
 
         return OAuth2Attributes.builder()
-                .name((String) response.get("name")) // 네이버 응답 내 'name' 추출
-                .email((String) response.get("email")) // 네이버 응답 내 'email' 추출
-                .attributes(response) // 세션에는 response 안의 알맹이 데이터만 저장하도록 설정
-                .nameAttributeKey(userNameAttributeName)
+                .name((String) response.get("name"))
+                .email((String) response.get("email"))
+                // [중요] 반드시 원본 attributes를 넘겨주어야 SuccessHandler가 정상 작동합니다.
+                .attributes(attributes)
+                .nameAttributeKey(userNameAttributeName) // 여기에는 "response"가 담깁니다.
                 .build();
     }
 
@@ -65,14 +67,13 @@ public class OAuth2Attributes { // 소셜별로 제각각인 응답 데이터를
      * 카카오에서 받은 정보를 매핑합니다.
      */
     private static OAuth2Attributes ofKakao(String userNameAttributeName, Map<String, Object> attributes) {
-        // 카카오는 'kakao_account' 안에 'profile'과 'email'이 나누어져 있습니다.
         Map<String, Object> kakaoAccount = (Map<String, Object>) attributes.get("kakao_account");
-        Map<String, Object> profile = (Map<String, Object>) kakaoAccount.get("profile");
+        Map<String, Object> profile = (kakaoAccount != null) ? (Map<String, Object>) kakaoAccount.get("profile") : null;
 
         return OAuth2Attributes.builder()
-                .name((String) profile.get("nickname")) // 카카오 프로필의 닉네임 추출
-                .email((String) kakaoAccount.get("email")) // 카카오 계정의 이메일 추출
-                .attributes(attributes)
+                .name(profile != null ? (String) profile.get("nickname") : "카카오 사용자")
+                .email(kakaoAccount != null ? (String) kakaoAccount.get("email") : "")
+                .attributes(attributes) // 핸들러에서 kakao_account를 꺼낼 수 있도록 전체 원본 유지
                 .nameAttributeKey(userNameAttributeName)
                 .build();
     }
