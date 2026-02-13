@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>천하제일 음식 월드컵: 32강</title>
+  <style>
+    /* 전체 배경과 기본 폰트 설정 */
+    body {
+        background-color: #fff9f1; /* 포근한 아이보리 배경 */
+        font-family: 'Malgun Gothic', sans-serif;
+        color: #576574;
+        text-align: center;
+        padding-top: 50px;
+    }
+
+    /* 상단 제목 꾸미기 */
+    #roundTitle {
+        color: #ff9f43;
+        font-size: 2.5rem;
+        margin-bottom: 40px;
+        text-shadow: 2px 2px 0px white; /* 글자 뒤에 흰색 그림자 */
+    }
+
+    /* 음식 카드가 나란히 놓일 바구니 */
+    .container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 40px;
+    }
+
+    /* 🍔 음식 카드 디자인 (핵심!) */
+    .food-card {
+        cursor: pointer;
+        background: white;
+        border: 4px solid #ffeaa7; /* 연한 노란색 테두리 */
+        padding: 15px;
+        border-radius: 30px; /* 아주 둥글둥글하게 */
+        box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+        transition: all 0.3s ease; /*  부드러운 변화를 위한 주문 */
+        width: 380px;
+        overflow: hidden;
+        flex-direction: column; /* 사진과 이름을 세로로 배치 */
+        display: flex;
+    }
+
+    /* 마우스를 올렸을 때 살짝 커지는 효과 */
+    .food-card:hover {
+    transform: scale(1.08); /* 화면 쪽으로 8%만큼 살짝 커진다 */
+    border-color: #ff9f43;  /* 테두리가 진한 주황색으로 바뀐다 */
+    box-shadow: 0 20px 40px rgba(255, 159, 67, 0.3); /*  아래에 주황색 그림자가 생겨 붕 떠 보인다 */
+    z-index: 10; /* 다른 카드보다 위로 올라오게 한다 */
+    }
+
+    /* 🖱️ 마우스를 꾹 눌렀을 때 (클릭하는 순간) */
+    .food-card:active {
+    transform: scale(0.95); /* 살짝 눌리는 느낌을 주기 위해 5% 작아진다 */
+    background-color: #fff4e6; /* 카드 배경색이 살짝 주황빛으로 변한다 */
+    border-color: #ff6b6b; /*  테두리가 강렬한 분홍빛으로 반짝인다 */
+    box-shadow: inset 0 5px 10px rgba(0,0,0,0.1); /*  안쪽으로 그림자가 생겨 눌린 효과를 준다 */
+    }
+
+    /* 선택된 느낌을 강조하기 위한 애니메이션 (선택 사항) */
+    @keyframes clickEffect {
+    0% { opacity: 1; }
+    50% { opacity: 0.7; }
+    100% { opacity: 1; }
+    }
+
+    .food-card:active img {
+    animation: clickEffect 0.1s; /* 사진이 찰칵하는 느낌으로 깜빡입니다 */
+    }
+
+    /* 이미지 테두리 다듬기 */
+    img {
+        border-radius: 20px;
+        object-fit: cover;
+        border: 2px solid #ffeaa7;
+        width: 100%;
+        height: 300px;
+    }
+
+    /* 중간의 VS 글자 꾸미기 */
+    h1:not(#roundTitle) {
+        color: #ff6b6b;
+        font-size: 3rem;
+        font-style: italic;
+    }
+
+    /* 음식 이름 폰트 */
+    h2 { margin-top: 15px; font-size: 1.8rem; color: #2d3436;}
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+</head>
+<body>
+<h1 id="roundTitle">음식 월드컵: 32강 🏆</h1>
+
+<div class="container">
+  <div class="food-card" onclick="chooseFood(0)">
+    <img id="food1Img" src="" width="400" height="400">
+    <h2 id="food1Name">음식 1</h2>
+  </div>
+
+  <h1>VS</h1>
+
+  <div class="food-card" onclick="chooseFood(1)">
+    <img id="food2Img" src="" width="400" height="400">
+    <h2 id="food2Name">음식 2</h2>
+  </div>
+</div>
+
+<script th:inline="javascript">
+  /*<![CDATA[*/
+  // 1. 서버(Controller)가 보내준 32명 선수 명단을 리스트(Array)로 받는다.
+  let foods = /*[[${foodList}]]*/ [];
+  let winners = []; // 대결에서 이긴 선수들을 임시로 담아둘 바구니.
+  let index = 0;    // 현재 몇 번째 선수를 보여줄지 가리키는 손가락 번호.
+  let round = 32;   // 현재 진행 중인 라운드 정보.
+
+  // 2. 화면에 현재 대결 중인 두 음식을 그려주는 함수.
+  function showMatch() {
+      // 이번 라운드 대결이 모두 끝났을 때 (32강 종료 -> 16강 진출자 결정)
+      if (index >= foods.length) {
+          if (winners.length === 1) {
+              alert("🎉 축하합니다! 최종 우승은 [" + winners[0].foodName + "] 입니다!");
+              location.href = "/"; // 게임 종료 후 홈으로 이동
+              return;
+          }
+          // 다음 라운드 세팅: 승자 바구니를 새로운 선수 명단으로 교체.
+          foods = [...winners];
+          winners = [];
+          index = 0;
+          round = round / 2;
+         if (round === 2) {
+    // 2강(결승전)일 때만 실행되는 특별 멘트.
+    document.getElementById('roundTitle').innerText = "음식 월드컵: 결승전 🏆";
+    alert("🔥 드디어 결승전을 시작합니다! 🔥");
+} else {
+    // 평소(32, 16, 8, 4강)에는 원래대로 표시합니다.
+    document.getElementById('roundTitle').innerText = "음식 월드컵: " + round + "강 🏆";
+    alert(round + "강 대결을 시작합니다!");
+         }
+      }
+
+      // 화면의 이미지와 이름을 현재 순서(index)에 맞게 바꿈.
+   // 1번 음식 사진과 이름 교체
+    document.getElementById('food1Img').src = foods[index].imagePath;  // 👈 imagePath 입니다!
+    document.getElementById('food1Name').innerText = foods[index].foodName; // 👈 foodName 입니다!
+
+    // 2번 음식 사진과 이름 교체
+    document.getElementById('food2Img').src = foods[index+1].imagePath;
+    document.getElementById('food2Name').innerText = foods[index+1].foodName;
+}
+  // 그 아래에 클릭 함수(chooseFood)가 이어져야 한다.
+    function chooseFood(order) {
+    let winner = foods[index + order];
+    winners.push(winner);
+    index += 2;
+    // 🏆 우승자가 결정되었을 때!
+    // 🏆 우승자가 결정되었을 때!
+    if (index >= foods.length && winners.length === 1) {
+        let winnerName = winners[0].foodName; // 👈 [추가] 우승 음식 이름 저장
+        let winnerId = winners[0].foodId;
+
+        confetti({
+            particleCount: 150,
+            spread: 70,
+            origin: { y: 0.6 }
+        });
+
+        // 서버에 우승 기록 저장 (AJAX)
+        fetch('/game/win?id=' + winnerId, { method: 'POST' })
+            .then(response => {
+                // 💡 폭죽을 잠시 감상할 수 있게 1.5초(1500) 뒤에 알림을 띄움.
+                setTimeout(() => {
+         // 1. 사용자에게 맛집 검색 의사를 묻기.
+         if (confirm("🎉 최종 우승은 [" + winnerName + "] 입니다!\n주변 맛집을 검색해 드릴까요?")) {
+         // 2. [확인] 클릭 시: 카카오 맵 검색 창을 새 탭으로 띄웁니다.
+         let searchUrl = "https://map.kakao.com/link/search/" + encodeURIComponent(winnerName + " 맛집");
+         window.open(searchUrl, '_blank');
+
+         // 3. 지도를 띄운 후 메인으로 복귀합니다.
+         location.href = "/";
+    } else {
+        // 4. [취소] 클릭 시: 바로 메인으로 복귀합니다.
+        location.href = "/";
+    }
+}, 1500);
+            });
+        return;
+    }
+    showMatch();
+}
+  window.onload = showMatch; // 페이지 열리자마자 게임 시작!
+/*]]>*/
+</script>
+</body>
+</html>
