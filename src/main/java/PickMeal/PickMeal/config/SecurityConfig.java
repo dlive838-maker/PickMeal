@@ -47,7 +47,7 @@ public class SecurityConfig {
                         .requestMatchers("/", "/next", "/game", "/board", "/mypage",
                                 "/roulette", "/forgot-pw", "/board/write", "/signup", "/login",
                                 "/css/**", "/js/**", "/images/**", "/upload.html", "/upload",
-                                "/login/oauth2/code/kakao", "/oauth/token", "/hotplace").permitAll()
+                                "/login/oauth2/code/kakao", "/oauth/token", "/hotplace", "/Korea_city_List.json").permitAll()
                         .anyRequest().authenticated()
                 )
                 .formLogin(formLogin -> formLogin

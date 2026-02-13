@@ -54,23 +54,6 @@
         .scroller::-webkit-scrollbar { width: 6px; }
         .scroller::-webkit-scrollbar-thumb { background-color: #E5E7EB; border-radius: 3px; }
 
-        /* [버튼 스타일 추가] */
-        #showArea {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 100;
-            background-color: white;
-            border: 1px solid #ccc;
-            border-radius: 50%;
-            padding: 10px;
-            cursor: pointer;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
-        #showArea img {
-            width: 30px;
-            height: 30px;
-        }
     </style>
 </head>
 <body>
@@ -121,13 +104,12 @@
         <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=24546b16104e0273c6d8c5c4cc508b44&libraries=services,clusterer,drawing"></script>
     </div>
 
+    <button type = "button" id="showArea"><img src="/images/mapFilter.png" alt="showArea"></button>
 
     <footer class="main-footer">
         <p>&copy; 2026 PickMeal AI Project. All rights reserved.</p>
     </footer>
 </div>
-
-<button type = "button" id="showArea"><img src="/images/mapFilter.png" alt="showArea"></button>
 
 <div id="selectedTags" class="fixed bottom-20 right-20 flex gap-2 z-50"></div>
 
