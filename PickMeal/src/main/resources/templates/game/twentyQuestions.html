@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>스무고개 게임</title>
+    <link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Jua', sans-serif;
+            background-color: #FFF8E7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background-color: #FFFDF0;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 80%;
+            max-width: 600px;
+            text-align: center;
+            border: 5px solid #6D4C41;
+        }
+
+        .header h1 {
+            color: #FF7F50;
+            font-size: 3em;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 0 #fff, -2px -2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff;
+            -webkit-text-stroke: 2px #6D4C41;
+        }
+
+        .question-box {
+            background-color: #FFF;
+            border: 4px solid #6D4C41;
+            border-radius: 20px;
+            padding: 20px;
+            font-size: 1.5em;
+            color: #333;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        /* 말풍선 꼬리 */
+        .question-box::after {
+            content: '';
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-top: 20px solid #FFF;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+        }
+        .question-box::before {
+            content: '';
+            position: absolute;
+            bottom: -26px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-top: 26px solid #6D4C41;
+            border-left: 18px solid transparent;
+            border-right: 18px solid transparent;
+        }
+
+
+        .buttons-box {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            background-color: #FF7F50;
+            color: white;
+            border: 4px solid #6D4C41;
+            border-radius: 50px;
+            padding: 15px 30px;
+            font-size: 1.5em;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 4px 0 #C0392B;
+        }
+        .btn.no {
+            background-color: #4CAF50;
+            box-shadow: 0 4px 0 #388E3C;
+        }
+
+        .btn:hover {
+            transform: translateY(4px);
+            box-shadow: none;
+        }
+        .btn.yes:hover { background-color: #E64A19; }
+        .btn.no:hover { background-color: #2E7D32; }
+
+        .btn-icon {
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+        .btn-deco {
+            margin-left: 10px;
+            font-size: 0.8em;
+            color: #FFF;
+        }
+
+        .progress-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            height: 80px;
+            position: relative;
+        }
+
+        .character {
+            font-size: 3em;
+            position: absolute;
+            bottom: 20px;
+            left: 0;
+            transition: left 0.3s;
+        }
+
+        .progress-track {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            position: relative;
+        }
+
+        .progress-step {
+            width: 20px;
+            height: 20px;
+            background-color: #BDBDBD;
+            border-radius: 50%;
+            border: 3px solid #6D4C41;
+            z-index: 1;
+        }
+        .progress-step.active {
+            background-color: #FFEB3B;
+        }
+        .progress-step.current {
+            background-color: #FF9800;
+            transform: scale(1.2);
+        }
+        .progress-step.final {
+            background-color: #FFD700;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.2em;
+        }
+
+        .progress-line {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background-color: #6D4C41;
+            transform: translateY(-50%);
+            z-index: 0;
+        }
+
+        .progress-count {
+            position: absolute;
+            right: 0;
+            bottom: -25px;
+            font-size: 1.2em;
+            color: #6D4C41;
+        }
+    </style>
+</head>
+<body>
+<header th:replace="~{fragments/header :: headerFragment}"></header>
+<div class="container">
+    <div class="header">
+        <h1>스무고개</h1>
+    </div>
+    <div class="question-box">
+        <span id="question-text">Q.15: 매운 음식 좋아해요?</span>
+    </div>
+    <div class="buttons-box">
+        <button class="btn yes" onclick="nextQuestion(true)">
+            <span class="btn-icon">+</span> 네! <span class="btn-deco">∴</span>
+        </button>
+        <button class="btn no" onclick="nextQuestion(false)">
+            <span class="btn-icon">+</span> 아니요! <span class="btn-deco">∴</span>
+        </button>
+    </div>
+    <div class="progress-bar">
+        <div class="character" id="character">🌮</div>
+        <div class="progress-track">
+            <div class="progress-line"></div>
+        </div>
+        <div class="progress-count" id="progress-count">15/20</div>
+    </div>
+</div>
+
+<script>
+    let currentQuestion = 15;
+    const totalQuestions = 20;
+    const questions = [
+        "Q.1: 질문 1", "Q.2: 질문 2", "Q.3: 질문 3", "Q.4: 질문 4", "Q.5: 질문 5",
+        "Q.6: 질문 6", "Q.7: 질문 7", "Q.8: 질문 8", "Q.9: 질문 9", "Q.10: 질문 10",
+        "Q.11: 질문 11", "Q.12: 질문 12", "Q.13: 질문 13", "Q.14: 질문 14", "Q.15: 매운 음식 좋아해요?",
+        "Q.16: 질문 16", "Q.17: 질문 17", "Q.18: 질문 18", "Q.19: 질문 19", "Q.20: 질문 20"
+    ];
+
+    function nextQuestion(answer) {
+        if (currentQuestion < totalQuestions) {
+            currentQuestion++;
+            updateUI();
+        } else {
+            alert("게임 종료!");
+        }
+        console.log(`질문 ${currentQuestion-1}에 대한 답변: ${answer ? '네' : '아니요'}`);
+    }
+
+    function updateUI() {
+        document.getElementById('question-text').innerText = questions[currentQuestion - 1];
+        document.getElementById('progress-count').innerText = `${currentQuestion}/${totalQuestions}`;
+        updateProgressBar();
+    }
+
+    function updateProgressBar() {
+        const track = document.querySelector('.progress-track');
+        const character = document.getElementById('character');
+
+        track.innerHTML = '<div class="progress-line"></div>'; // 초기화
+
+        for (let i = 1; i <= totalQuestions; i++) {
+            const step = document.createElement('div');
+            step.classList.add('progress-step');
+            if (i <= currentQuestion) step.classList.add('active');
+            if (i === currentQuestion) step.classList.add('current');
+            if (i === totalQuestions) {
+                step.classList.add('final');
+                step.innerHTML = '🎁';
+            }
+            track.appendChild(step);
+        }
+
+        const stepWidth = track.offsetWidth / (totalQuestions - 1);
+        const characterPosition = (currentQuestion - 1) * stepWidth;
+        character.style.left = `${characterPosition}px`;
+    }
+
+    // 초기 로드 시 UI 업데이트
+    window.onload = () => {
+        updateUI();
+        // 초기 캐릭터 위치 설정
+        setTimeout(updateProgressBar, 100); // 레이아웃 잡힌 후 실행
+    };
+</script>
+</body>
+</html>
