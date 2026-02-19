@@ -60,21 +60,50 @@
     </div>
 </div>
 
+<div id = "foodSelectPage" style = "display:none;" class="max-w-4xl mx-auto bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden absolute top-20 left-0 right-0 z-50">
+    <div  class="flex h-[500px] text-sm">
+
+        <div class="w-1/3 border-r border-gray-100 flex flex-col">
+            <div class="p-3 bg-gray-50 font-bold text-gray-500 text-center border-b">음식 종류</div>
+            <ul id="foodCategoryList" class="scroller overflow-y-auto flex-1 p-2">
+            </ul>
+        </div>
+
+        <div class="w-1/3 border-r border-gray-100 flex flex-col">
+            <div class="p-3 bg-gray-50 font-bold text-gray-500 text-center border-b">음식 이름</div>
+            <ul id="foodNameList" class="scroller overflow-y-auto flex-1 p-2">
+                <li class="p-3 text-center text-gray-300">음식 종류를 먼저 선택하세요</li>
+            </ul>
+        </div>
+
+    </div>
+</div>
+
 <main class="map-container">
-    <div id="map" style="height:600px; width: 100%;">
+    <div id="map" style="height:100%; width: 100%;">
         <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=24546b16104e0273c6d8c5c4cc508b44&libraries=services,clusterer,drawing"></script>
     </div>
 
-    <button type = "button" id="showArea"><img src="/images/mapFilter.png" alt="showArea"></button>
+    <div id="selectedTags" class="absolute top-5 left-5 z-20 flex flex-wrap gap-2"></div>
+
+    <div class="absolute bottom-10 right-5 z-20 flex gap-3">
+        <button type="button" id="showArea" class="w-14 h-14 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-50 transition transform hover:scale-105">
+            <img src="/images/mapFilter.png" alt="showArea" class="w-8 h-8">
+        </button>
+        <button type="button" id="showFood" style = "display:none;" class="w-14 h-14 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-50 transition transform hover:scale-105">
+            <img src="/images/foodFilter.png" alt="showFood" class="w-8 h-8">
+        </button>
+    </div>
 
 </main>
+
 
 <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=24546b16104e0273c6d8c5c4cc508b44&libraries=services,clusterer,drawing"></script>
 
 <script>
     var container = document.getElementById('map');
     var options = {
-        center: new kakao.maps.LatLng(37.49027, 126.92753), // 신림역 부근 좌표
+        center: new kakao.maps.LatLng(37.49027, 126.92753),
         level: 3
     };
 
@@ -86,29 +115,47 @@
 
     var zoomControl = new kakao.maps.ZoomControl();
     map.addControl(zoomControl, kakao.maps.ControlPosition.RIGHT);
-var marker = new kakao.maps.Marker({ map: map, position: options.center });
+
+    // var marker = new kakao.maps.Marker({ map: map, position: options.center });
+
     // 창 크기 변경 시 지도 크기 재조정
     window.onresize = function() {
         map.relayout();
     };
 
-        var imageSrc = '/images/location.png';
-var imageSize = new kakao.maps.Size(64, 69);
-var imageOption = {offset: new kakao.maps.Point(27, 69)};
+    var markers = [];
 
-var markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize, imageOption);
+    var imageSrc = '/images/location.png';
+    var imageSize = new kakao.maps.Size(64, 69);
+    var imageOption = {offset: new kakao.maps.Point(27, 69)};
+
+    var markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize, imageOption);
 
     var marker = new kakao.maps.Marker({
-    map: map,
-    position: options.center,
-    image: markerImage
-     });
+        map: map,
+        position: options.center,
+        image: markerImage
+    });
 
-// 주소 필터 페이지 부분 js
+    markers.push(marker);
+
+    function removeMarker(){
+        for (var i = 0; i < markers.length; i++) {
+          markers[i].setMap(null);
+        }
+    }
+
+    // 주소 필터 페이지 부분 js
     var areaData = {};
     var ps = new kakao.maps.services.Places();
 
-    let currentSelection = { sido: null, sigugun: null, dong: null };
+    let currentSelection = {
+        sido: null,
+        sigugun: null,
+        dong: null,
+        foodCategory: null,
+        foodName: null
+    };
 
     const showAreaButton = document.getElementById('showArea');
     const areaPage = document.getElementById('areaPage');
@@ -199,17 +246,14 @@ var markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize, imageOption);
     }
 
     function selectDong(element, sido, sigugun, dong) {
-
         resetActive('dongList');
         element.classList.add('active-item');
 
         currentSelection.dong = dong;
 
-        const fullAddress = `${sido} ${sigugun} ${dong}`;
-        addTag(fullAddress);
-        searchMapLocation(fullAddress);
-
         areaPage.style.display = 'none';
+        updateSearch();
+        showFoodButton.style.display = 'block';
     }
 
     function resetActive(listId) {
@@ -217,15 +261,71 @@ var markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize, imageOption);
         Array.from(list.children).forEach(li => li.classList.remove('active-item'));
     }
 
-    function addTag(text) {
-        const container = document.getElementById('selectedTags');
-        if (container) {
-            container.innerHTML = '';
-            const tag = document.createElement('div');
-            tag.className = "bg-[#FF8A5B] text-white px-3 py-1 rounded-full text-xs font-bold shadow-sm flex items-center gap-2";
-            tag.innerHTML = `${text} <button onclick="this.parentElement.remove()" class="hover:text-red-200">✕</button>`;
-            container.appendChild(tag);
+    var isIncludeFood = false;
+
+    function updateSearch() {
+        let keyword = "";
+        const tags = [];
+
+        if (currentSelection.dong) {
+            const address = `${currentSelection.sido} ${currentSelection.sigugun} ${currentSelection.dong}`;
+            keyword += address;
+            tags.push({ text: address, type: 'address' });
         }
+
+        if (currentSelection.foodName) {
+            const food = currentSelection.foodName;
+            if (keyword) keyword += " ";
+            keyword += food;
+            tags.push({ text: food, type: 'food' });
+            isIncludeFood = true;
+        }
+
+        renderTags(tags);
+
+        if (keyword) {
+            searchMapLocation(keyword);
+        }
+    }
+
+    function renderTags(tags) {
+        const container = document.getElementById('selectedTags');
+        if (!container) return;
+
+        container.innerHTML = '';
+        tags.forEach(tag => {
+            const tagElement = document.createElement('div');
+            tagElement.className = "bg-[#FF8A5B] text-white px-3 py-1 rounded-full text-xs font-bold shadow-sm flex items-center gap-2 cursor-pointer hover:bg-[#FF7043] transition";
+            tagElement.innerHTML = `${tag.text} <span class="text-white/80 hover:text-white">✕</span>`;
+
+            tagElement.onclick = (e) => {
+                e.stopPropagation();
+                removeSelection(tag.type);
+            };
+
+            container.appendChild(tagElement);
+        });
+    }
+
+    function removeSelection(type) {
+        if (type === 'address') {
+            currentSelection.sido = null;
+            currentSelection.sigugun = null;
+            currentSelection.dong = null;
+            resetActive('sidoList');
+            resetActive('sigugunList');
+            resetActive('dongList');
+            document.getElementById('sigugunList').innerHTML = '<li class="p-3 text-center text-gray-300">시/도를 먼저 선택하세요</li>';
+            document.getElementById('dongList').innerHTML = '<li class="p-3 text-center text-gray-300">시/군/구를 먼저 선택하세요</li>';
+
+        } else if (type === 'food') {
+            currentSelection.foodCategory = null;
+            currentSelection.foodName = null;
+            resetActive('foodCategoryList');
+            resetActive('foodNameList');
+            document.getElementById('foodNameList').innerHTML = '<li class="p-3 text-center text-gray-300">음식 종류를 먼저 선택하세요</li>';
+        }
+        updateSearch();
     }
 
     function searchMapLocation(keyword) {
@@ -233,15 +333,128 @@ var markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize, imageOption);
     }
 
     function placesSearchCB(data, status, pagination) {
+        removeMarker();
         if (status === kakao.maps.services.Status.OK) {
             var bounds = new kakao.maps.LatLngBounds();
 
-            var center = new kakao.maps.LatLng(data[0].y, data[0].x);
-            map.setCenter(center);
-            map.setLevel(3);
+            for(var i = 0; i < data.length; i++){
+                var placePosition = new kakao.maps.LatLng(data[i].y, data[i].x);
+                bounds.extend(placePosition);
+            }
+            if(isIncludeFood) {
+                for(var i = 0; i < 5; i++){
+                    var placePosition = new kakao.maps.LatLng(data[i].y, data[i].x);
+                    var foodImageSrc = '/images/foodLocation.png';
+                    var foodImageSize = new kakao.maps.Size(32, 35);
+                    var foodImageOption = {offset: new kakao.maps.Point(16, 35)};
 
-            marker.setPosition(center);
+                    var foodMarkerImage = new kakao.maps.MarkerImage(foodImageSrc, foodImageSize, foodImageOption);
+
+                    var foodMarker = new kakao.maps.Marker({
+                        map: map,
+                        position: placePosition,
+                        image: foodMarkerImage
+                    });
+
+                    var iwContent = '<div style="padding:5px;">' + data[i].place_name + ' <br><a href="' + data[i].place_url + '" style="color:blue" target="_blank">상세페이지</a><a href="https://map.kakao.com/link/to/' + data[i].place_name + ',' + data[i].y + ',' + data[i].x + '" style="color:blue" target="_blank">길찾기</a></div>';
+
+                    var infoWindow = new kakao.maps.InfoWindow({
+                        position : placePosition,
+                        content : iwContent
+                    });
+
+                    infoWindow.open(map, foodMarker);
+
+                    markers.push(foodMarker);
+                }
+                isIncludeFood = false;
+            }
+
+
+            map.setBounds(bounds);
         }
+    }
+
+    // 음식 선택 페이지 부분 js
+    var foodData = {};
+
+    var currentSelectFood = null;
+
+    const showFoodButton = document.getElementById('showFood');
+    const foodSelectPage = document.getElementById('foodSelectPage');
+
+    showFoodButton.addEventListener('click', function() {
+        if (foodSelectPage.style.display === 'none') {
+            foodSelectPage.style.display = 'block';
+            loadFoodData();
+        } else {
+            foodSelectPage.style.display = 'none';
+        }
+
+    });
+
+    async function loadFoodData() {
+        if (Object.keys(foodData).length > 0) return;
+
+        try {
+            const response = await fetch('/Food_List.json');
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            foodData = await response.json();
+            renderFoodCategory();
+        } catch (error) {
+            console.error("음식 데이터 로딩 실패:", error);
+            alert("음식 데이터를 불러오는데 실패했습니다.");
+        }
+    }
+
+    function renderFoodCategory() {
+            const list = document.getElementById('foodCategoryList');
+            list.innerHTML = '';
+
+            Object.keys(foodData).forEach(foodCategory => {
+                const li = document.createElement('li');
+                li.className = "p-3 cursor-pointer hover:bg-gray-50 rounded transition text-gray-700";
+                li.innerText = foodCategory;
+                li.onclick = () => selectFoodCategory(li, foodCategory);
+                list.appendChild(li);
+        });
+    }
+
+    function selectFoodCategory(element, foodCategory) {
+        resetActive('foodCategoryList');
+        element.classList.add('active-item');
+
+        currentSelection.foodCategory = foodCategory;
+
+        renderFoodName(foodCategory);
+    }
+
+    function renderFoodName(foodCategory) {
+            const list = document.getElementById('foodNameList');
+            list.innerHTML = '';
+
+            const foods = foodData[foodCategory];
+            foods.forEach(food => {
+                const li = document.createElement('li');
+                li.className = "p-3 cursor-pointer hover:bg-gray-50 rounded transition text-gray-700";
+                li.innerText = food.name;
+
+                li.onclick = () => selectFoodName(li, foodCategory, food.name);
+                list.appendChild(li);
+        });
+    }
+
+    function selectFoodName(element, foodCategory, foodName) {
+        resetActive('foodNameList');
+        element.classList.add('active-item');
+        currentSelection.foodName = foodName;
+
+        foodSelectPage.style.display = 'none';
+        updateSearch();
+
+
     }
 
 </script>
