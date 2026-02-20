@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="PickMeal.PickMeal.mapper.FoodMapper">
+    <select id="getRandomFoodByCategory" resultType="PickMeal.PickMeal.domain.Food">
+        SELECT * FROM food
+        <where>
+            <if test="category != '전체'">
+                AND category = #{category}
+            </if>
+        </where>
+        ORDER BY RAND()
+        LIMIT 1
+    </select>
+</mapper>

@@ -19,11 +19,6 @@ public class MainController {
         return "next-page"; // 메뉴 슬라이드 화면
     }
 
-    @GetMapping("/game")
-    public String gamePage() {
-        return "game/game"; // templates/game.html 파일을 찾아서 보여줌
-    }
-
 
     @GetMapping("/board")
     public String boardPage() {
@@ -41,10 +36,6 @@ public class MainController {
 
         model.addAttribute("user", user); // 'user'라는 이름으로 객체를 넘겨줌
         return "users/mypage";
-    }
-    @GetMapping("/roulette")
-    public String roulettePage() {
-        return "game/roulette"; // templates/roulette.html 반환
     }
 
     @GetMapping("/forgot-pw")
