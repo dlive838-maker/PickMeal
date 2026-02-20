@@ -7,5 +7,34 @@
         SELECT foodId, foodName, category, description, imagePath
         FROM food
     </select>
+    <select id = "getFilteredFoods" parameterType="PickMeal.PickMeal.dto.GameRequestDto" resultType="String">
+        SELECT
+        f.foodName
+        FROM food f
+        JOIN twenty_attribute t ON f.foodId = t.foodId
+        WHERE 1=1
+
+        <if test="category_korean == 1"> AND f.category = '한식' </if>
+        <if test="category_korean == 0"> AND f.category != '한식' </if>
+
+        <if test="category_western == 1"> AND f.category = '양식' </if>
+        <if test="category_western == 0"> AND f.category != '양식' </if>
+
+        <if test="category_chinese == 1"> AND f.category = '중식' </if>
+        <if test="category_chinese == 0"> AND f.category != '중식' </if>
+
+        <if test="category_japanese == 1"> AND f.category = '일식' </if>
+        <if test="category_japanese == 0"> AND f.category != '일식' </if>
+
+        <if test="category_asian == 1"> AND f.category = '아시안식' </if>
+        <if test="category_asian == 0"> AND f.category != '아시안식' </if>
+
+        <if test="is_soup != null"> AND t.is_soup = #{is_soup} </if>
+        <if test="is_spicy != null"> AND t.is_spicy = #{is_spicy} </if>
+        <if test="is_fried != null"> AND t.is_fried = #{is_fried} </if>
+        <if test="is_roasted != null"> AND t.is_roasted = #{is_roasted} </if>
+        <if test="has_pork != null"> AND t.has_pork = #{has_pork} </if>
+        <if test="has_beef != null"> AND t.has_beef = #{has_beef} </if>
+    </select>
 
 </mapper>
