@@ -29,12 +29,12 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, OAuth2SuccessHandler oauth2SuccessHandler) throws Exception {
         http
-                .csrf(csrf -> csrf.ignoringRequestMatchers("/mail/**"))
+                .csrf(csrf -> csrf.ignoringRequestMatchers("/mail/**", "/worldcup/win/**"))
                 .authorizeHttpRequests(authorize -> authorize
                         // [수정] /next 경로를 추가하여 인트로에서 넘어갈 수 있게 허용합니다.
-                        .requestMatchers("/", "/next", "/users/signup", "/users/signup/social", "/users/login",
+                        .requestMatchers("/", "/next-page", "/users/signup", "/users/signup/social", "/users/login",
                                 "/users/check-id", "/users/check-nickname", "/users/mypage", "/mail/**",
-                                "/oauth2/**", "/css/**", "/js/**", "/images/**", "/next-page").permitAll()
+                                "/oauth2/**", "/css/**", "/js/**", "/images/**", "/worldcup/win/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .formLogin(formLogin -> formLogin
@@ -51,7 +51,7 @@ public class SecurityConfig {
                 .logout(logout -> logout
                         // [수정] 로그아웃 주소 통일
                         .logoutUrl("/users/logout")
-                        .logoutSuccessUrl("/next") // [수정 완료] 로그아웃 후 /next 페이지로 이동합니다
+                        .logoutSuccessUrl("/next-page") // [수정 완료] 로그아웃 후 /next 페이지로 이동합니다
                         .invalidateHttpSession(true)
                         .clearAuthentication(true)
                         .deleteCookies("JSESSIONID")
