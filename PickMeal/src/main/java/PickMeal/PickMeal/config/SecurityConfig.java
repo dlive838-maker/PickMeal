@@ -32,7 +32,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.ignoringRequestMatchers("/mail/**", "/worldcup/win/**", "/users/login"))
                 .authorizeHttpRequests(authorize -> authorize
                         // [수정] /next 경로를 추가하여 인트로에서 넘어갈 수 있게 허용합니다.
-                        .requestMatchers("/", "/next", "/users/signup", "/users/signup/social", "/users/login",
+                        .requestMatchers("/", "/next-page", "/users/signup", "/users/signup/social", "/users/login",
                                 "/users/check-id", "/users/check-nickname", "/users/mypage", "/mail/**",
                                 "/oauth2/**", "/css/**", "/js/**", "/images/**", "/worldcup/win/**").permitAll()
                         .anyRequest().authenticated()
@@ -42,7 +42,7 @@ public class SecurityConfig {
                         // ★ 추가: 문지기에게 "여기(/users/login)로 들어오는 POST 요청이 진짜 로그인 서류야!"라고 확실히 알려줍니다.
                         .loginProcessingUrl("/users/login")
                         .usernameParameter("id")
-                        .defaultSuccessUrl("/")
+                        .defaultSuccessUrl("/next-page", true)
                         .failureHandler(loginFailureHandler)
                 )
                 .oauth2Login(oauth2 -> oauth2
@@ -53,7 +53,7 @@ public class SecurityConfig {
                 .logout(logout -> logout
                         // [수정] 로그아웃 주소 통일
                         .logoutUrl("/users/logout")
-                        .logoutSuccessUrl("/next") // [수정 완료] 로그아웃 후 /next 페이지로 이동합니다
+                        .logoutSuccessUrl("/next-page") // [수정 완료] 로그아웃 후 /next 페이지로 이동합니다
                         .invalidateHttpSession(true)
                         .clearAuthentication(true)
                         .deleteCookies("JSESSIONID")
