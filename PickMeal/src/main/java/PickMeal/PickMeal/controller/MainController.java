@@ -47,6 +47,11 @@ public class MainController {
         return "game/roulette"; // templates/roulette.html 반환
     }
 
+    @GetMapping("/twentyQuestions")
+    public String twentyQuestionsPage() {
+        return "game/twentyQuestions"; // templates/twentyQuestions.html 반환
+    }
+
     @GetMapping("/forgot-pw")
     public String forgotPwPage() {
         return "users/forgot-pw"; // templates/forgot-pw.html 파일을 반환

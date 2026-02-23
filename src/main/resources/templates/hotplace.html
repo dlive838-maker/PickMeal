@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PickMeal - Hot Place</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@700;800&display=swap" rel="stylesheet">
+    <style>
+        /* [공통 스타일 - 이전과 동일] */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary-color: #4A90E2;
+            --bg-color: #f9fafb;
+            --border-color: #e1e4e6;
+            --white: #ffffff;
+        }
+        body { font-family: 'Pretendard', sans-serif; background-color: var(--bg-color); }
+
+        .wrapper { display: flex; flex-direction: column; min-height: 100vh; }
+        .container { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+
+        /* [헤더] */
+        .main-header { background: var(--white); border-bottom: 1px solid var(--border-color); padding: 15px 0; }
+        .header-content { display: flex; justify-content: space-between; align-items: center; }
+        .header-logo { font-size: 24px; font-weight: 800; color: var(--primary-color); text-decoration: none; }
+
+        /* [로그인 카드] */
+        .main-content { flex: 1; display: flex; justify-content: center; align-items: center; padding: 40px 0; }
+        .login-card { background: var(--white); width: 100%; max-width: 400px; padding: 40px; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: 0 10px 25px rgba(0,0,0,0.05); text-align: center; }
+        .login-title { font-size: 28px; font-weight: 700; color: var(--primary-color); margin-bottom: 30px; }
+
+        .input-group { margin-bottom: 12px; position: relative; }
+        .input-group input { width: 100%; padding: 14px; border: 1px solid #dadada; border-radius: 6px; font-size: 16px; outline: none; }
+        .input-group input:focus { border-color: var(--primary-color); }
+
+        /* 에러 메시지 스타일 */
+        .error-msg { color: #ff4d4f; font-size: 12px; text-align: left; margin-top: 4px; display: none; }
+
+        .btn-login { width: 100%; padding: 15px; background-color: var(--primary-color); color: var(--white); border: none; border-radius: 6px; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 10px; }
+        .btn-login:disabled { background-color: #ccc; cursor: not-allowed; }
+
+        .divider { margin: 25px 0; border-bottom: 1px solid #eee; position: relative; }
+        .divider span { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: var(--white); padding: 0 10px; font-size: 12px; color: #aaa; }
+
+        .link-group { display: flex; justify-content: center; gap: 15px; list-style: none; font-size: 13px; margin-top: 20px; }
+        .link-group a { color: #888; text-decoration: none; }
+
+        /* [푸터] */
+        .main-footer { background-color: #333; color: #bbb; padding: 30px 0; text-align: center; font-size: 13px; }
+
+        /* 스크롤바 스타일 */
+        .active-item { color: #FF8A5B; font-weight: 800; background-color: #FFF5EF; }
+        .scroller::-webkit-scrollbar { width: 6px; }
+        .scroller::-webkit-scrollbar-thumb { background-color: #E5E7EB; border-radius: 3px; }
+
+    </style>
+</head>
+<body>
+
+<nav class="flex justify-between items-center px-10 py-6 w-full bg-white shadow-sm z-50">
+    <div class="text-3xl font-bold text-[#FF8A5B] italic cursor-pointer" onclick="location.href='/'">Pick Meal</div>
+    <div class="hidden lg:flex space-x-12">
+        <button onclick="location.href='/game'" class="nav-link text-xl text-gray-500 hover:text-[#FF8A5B]">GAME</button>
+        <button onclick="location.href='/next'" class="nav-link text-xl text-gray-500 hover:text-[#FF8A5B]">HOT PLACE</button>
+        <button onclick="location.href='/board'" class="nav-link text-xl text-gray-500 hover:text-[#FF8A5B]">BOARD</button>
+    </div>
+    <div class="flex items-center space-x-6">
+        <button onclick="location.href='/login'" class="nav-link text-gray-400 hover:text-[#FF8A5B]">Log in</button>
+        <button onclick="location.href='/mypage'" class="bg-[#FF8A5B] text-white px-8 py-2 rounded-full font-bold shadow-md hover:scale-105 transition italic">My Page</button>
+    </div>
+</nav>
+
+<div id = "areaPage" style = "display:none;" class="max-w-4xl mx-auto bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden absolute top-20 left-0 right-0 z-50">
+
+    <div  class="flex h-[500px] text-sm">
+
+        <div class="w-1/3 border-r border-gray-100 flex flex-col">
+            <div class="p-3 bg-gray-50 font-bold text-gray-500 text-center border-b">시/도</div>
+            <ul id="sidoList" class="scroller overflow-y-auto flex-1 p-2">
+            </ul>
+        </div>
+
+        <div class="w-1/3 border-r border-gray-100 flex flex-col">
+            <div class="p-3 bg-gray-50 font-bold text-gray-500 text-center border-b">시/군/구</div>
+            <ul id="sigugunList" class="scroller overflow-y-auto flex-1 p-2">
+                <li class="p-3 text-center text-gray-300">시/도를 먼저 선택하세요</li>
+            </ul>
+        </div>
+
+        <div class="w-1/3 flex flex-col">
+            <div class="p-3 bg-gray-50 font-bold text-gray-500 text-center border-b">읍/면/동</div>
+            <ul id="dongList" class="scroller overflow-y-auto flex-1 p-2">
+                <li class="p-3 text-center text-gray-300">시/군/구를 먼저 선택하세요</li>
+            </ul>
+        </div>
+
+    </div>
+</div>
+
+<div class="wrapper">
+
+    <div id="map" style="height:600px; width: 100%;">
+        <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=24546b16104e0273c6d8c5c4cc508b44&libraries=services,clusterer,drawing"></script>
+    </div>
+
+    <button type = "button" id="showArea"><img src="/images/mapFilter.png" alt="showArea"></button>
+
+    <footer class="main-footer">
+        <p>&copy; 2026 PickMeal AI Project. All rights reserved.</p>
+    </footer>
+</div>
+
+<div id="selectedTags" class="fixed bottom-20 right-20 flex gap-2 z-50"></div>
+
+<script>
+
+    var container = document.getElementById('map');
+            var options = {
+                center: new kakao.maps.LatLng(37.49027, 126.92753),
+                level: 3
+            };
+
+    var map = new kakao.maps.Map(container, options);
+
+    var mapTypeControl =new kakao.maps.MapTypeControl();
+
+    map.addControl(mapTypeControl,kakao.maps.ControlPosition.TOPRIGHT);
+    var zoomControl =new kakao.maps.ZoomControl();
+    map.addControl(zoomControl,kakao.maps.ControlPosition.RIGHT);
+
+    var imageSrc = '/images/location.png';
+var imageSize = new kakao.maps.Size(64, 69);
+var imageOption = {offset: new kakao.maps.Point(27, 69)};
+
+var markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize, imageOption);
+
+    var marker = new kakao.maps.Marker({
+    map: map,
+    position: options.center,
+    image: markerImage
+     });
+
+// 주소 필터 페이지 부분 js
+    var areaData = {};
+    var ps = new kakao.maps.services.Places();
+
+    let currentSelection = { sido: null, sigugun: null, dong: null };
+
+    const showAreaButton = document.getElementById('showArea');
+    const areaPage = document.getElementById('areaPage');
+
+    showAreaButton.addEventListener('click', function() {
+        if (areaPage.style.display === 'none') {
+            areaPage.style.display = 'block';
+            loadAreaData();
+        } else {
+            areaPage.style.display = 'none';
+        }
+    });
+
+    async function loadAreaData() {
+        if (Object.keys(areaData).length > 0) return;
+
+        try {
+            const response = await fetch('/Korea_city_List.json');
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            areaData = await response.json();
+            renderSido();
+        } catch (error) {
+            console.error("행정구역 데이터 로딩 실패:", error);
+            alert("지역 데이터를 불러오는데 실패했습니다.");
+        }
+    }
+
+    function renderSido() {
+            const list = document.getElementById('sidoList');
+            list.innerHTML = '';
+
+            Object.keys(areaData).forEach(sido => {
+                const li = document.createElement('li');
+                li.className = "p-3 cursor-pointer hover:bg-gray-50 rounded transition text-gray-700";
+                li.innerText = sido;
+                li.onclick = () => selectSido(li, sido);
+                list.appendChild(li);
+        });
+    }
+
+    function selectSido(element, sido) {
+
+        resetActive('sidoList');
+        element.classList.add('active-item');
+
+        currentSelection.sido = sido;
+
+        renderSigugun(sido);
+        document.getElementById('dongList').innerHTML = '<li class="p-3 text-center text-gray-300">시/군/구를 먼저 선택하세요</li>';
+    }
+
+    function renderSigugun(sido) {
+            const list = document.getElementById('sigugunList');
+            list.innerHTML = '';
+
+            const siguguns = Object.keys(areaData[sido]);
+            siguguns.forEach(sigugun => {
+                const li = document.createElement('li');
+                li.className = "p-3 cursor-pointer hover:bg-gray-50 rounded transition text-gray-700";
+                li.innerText = sigugun;
+                li.onclick = () => selectSigugun(li, sido, sigugun);
+                list.appendChild(li);
+        });
+    }
+
+    function selectSigugun(element, sido, sigugun) {
+
+        resetActive('sigugunList');
+        element.classList.add('active-item');
+        currentSelection.sigugun = sigugun;
+        renderDong(sido, sigugun);
+    }
+
+    function renderDong(sido, sigugun) {
+            const list = document.getElementById('dongList');
+            list.innerHTML = '';
+
+            const dongs = areaData[sido][sigugun];
+            dongs.forEach(dong => {
+                const li = document.createElement('li');
+                li.className = "p-3 cursor-pointer hover:bg-gray-50 rounded transition text-gray-700";
+                li.innerText = dong;
+                li.onclick = () => selectDong(li, sido, sigugun, dong);
+                list.appendChild(li);
+        });
+    }
+
+    function selectDong(element, sido, sigugun, dong) {
+
+        resetActive('dongList');
+        element.classList.add('active-item');
+
+        currentSelection.dong = dong;
+
+        const fullAddress = `${sido} ${sigugun} ${dong}`;
+        addTag(fullAddress);
+        searchMapLocation(fullAddress);
+
+        areaPage.style.display = 'none';
+    }
+
+    function resetActive(listId) {
+        const list = document.getElementById(listId);
+        Array.from(list.children).forEach(li => li.classList.remove('active-item'));
+    }
+
+    function addTag(text) {
+        const container = document.getElementById('selectedTags');
+        if (container) {
+            container.innerHTML = '';
+            const tag = document.createElement('div');
+            tag.className = "bg-[#FF8A5B] text-white px-3 py-1 rounded-full text-xs font-bold shadow-sm flex items-center gap-2";
+            tag.innerHTML = `${text} <button onclick="this.parentElement.remove()" class="hover:text-red-200">✕</button>`;
+            container.appendChild(tag);
+        }
+    }
+
+    function searchMapLocation(keyword) {
+        ps.keywordSearch(keyword, placesSearchCB);
+    }
+
+    function placesSearchCB(data, status, pagination) {
+        if (status === kakao.maps.services.Status.OK) {
+            var bounds = new kakao.maps.LatLngBounds();
+
+            var center = new kakao.maps.LatLng(data[0].y, data[0].x);
+            map.setCenter(center);
+            map.setLevel(3);
+
+            marker.setPosition(center);
+        }
+    }
+
+</script>
+</body>
+</html>

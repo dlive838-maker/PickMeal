@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -57,17 +57,38 @@
     </style>
 </head>
 <body>
-<header th:replace="~{fragments/header :: headerFragment}"></header>
+
+<nav class="flex justify-between items-center px-10 py-6 w-full bg-white shadow-sm z-50">
+    <div class="text-3xl font-bold text-[#FF8A5B] italic cursor-pointer" onclick="location.href='/'">Pick Meal</div>
+    <div class="hidden lg:flex space-x-12">
+        <button onclick="location.href='/game'" class="nav-link text-xl text-[#FF8A5B]">GAME</button>
+        <button onclick="location.href='/next'" class="nav-link text-xl text-gray-500 hover:text-[#FF8A5B]">HOT PLACE</button>
+        <button onclick="location.href='/board'" class="nav-link text-xl text-gray-500 hover:text-[#FF8A5B]">BOARD</button>
+    </div>
+    <div class="flex items-center space-x-6">
+        <button th:if="${session.loggedInUser == null}"
+                onclick="location.href='/login'"
+                class="nav-link text-gray-400 hover:text-[#FF8A5B]">Log in</button>
+
+        <button th:if="${session.loggedInUser != null}"
+                onclick="location.href='/mypage'"
+                class="bg-[#FF8A5B] text-white px-8 py-2 rounded-full font-bold shadow-md hover:scale-105 transition italic">My Page</button>
+
+        <button th:if="${session.loggedInUser != null}"
+                onclick="location.href='/logout'"
+                class="nav-link text-gray-400 hover:text-red-400 ml-4">Logout</button>
+    </div>
+</nav>
 
 <main class="flex-grow flex flex-col items-center justify-center content-slide-up px-10">
     <div class="text-center mb-12">
-        <h2 class="text-5xl font-black text-[#FF8A5B] italic uppercase tracking-tighter mb-4">Choose Your Game</h2>
+        <h2 class="text-5xl font-black text-gray-800 italic uppercase tracking-tighter mb-4">Choose Your Game</h2>
         <p class="text-[#FF8A5B] font-bold italic">Which way do you want to pick your meal?</p>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl w-full">
 
-        <div class="game-selection-card p-8 flex flex-col items-center shadow-lg" onclick="location.href='/worldcup'">
+        <div class="game-selection-card p-8 flex flex-col items-center shadow-lg" onclick="alert('월드컵 시작!')">
             <div class="emoji-box w-full h-40 flex items-center justify-center text-7xl mb-6">🏆</div>
             <h3 class="text-2xl font-black text-gray-800 italic mb-2 uppercase">월드컵</h3>
             <p class="text-gray-400 font-bold text-sm italic">Best 1 of 16</p>
@@ -85,7 +106,7 @@
             <p class="text-gray-400 font-bold text-sm italic">Spin the Wheel</p>
         </div>
 
-        <div class="game-selection-card p-8 flex flex-col items-center shadow-lg" onclick="location.href='/twentyQuestions'">
+        <div class="game-selection-card p-8 flex flex-col items-center shadow-lg" onclick="alert('스무고개 시작!')">
             <div class="emoji-box w-full h-40 flex items-center justify-center text-7xl mb-6">🤔</div>
             <h3 class="text-2xl font-black text-gray-800 italic mb-2 uppercase">스무고개</h3>
             <p class="text-gray-400 font-bold text-sm italic">AI Guessing Game</p>
@@ -93,6 +114,6 @@
 
     </div>
 </main>
-<footer th:replace="~{fragments/footer :: footerFragment}"></footer>
+
 </body>
 </html>

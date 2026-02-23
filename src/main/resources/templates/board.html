@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pick Meal - Community Board</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Fredoka', sans-serif;
+            background-color: #FFF5F0;
+            margin: 0;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .nav-link { font-family: 'Fredoka', sans-serif; font-weight: 700; font-style: italic; }
+
+        /* [통일된 애니메이션] 콘텐츠 영역 전용 상승 효과 */
+        .content-slide-up {
+            animation: slideUp 0.8s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+            will-change: transform, opacity;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* 게시판 카드 스타일 */
+        .board-card {
+            border-radius: 2.5rem;
+            background: white;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.05);
+            border: 2px solid #FDF5E6;
+        }
+
+        /* 테이블 행 호버 효과 */
+        .board-row { transition: background-color 0.2s; cursor: pointer; }
+        .board-row:hover { background-color: #FFF5F0; }
+
+        /* 테이블 헤더 텍스트 줄바꿈 방지 */
+        th { white-space: nowrap; }
+    </style>
+</head>
+<body>
+
+<nav class="flex justify-between items-center px-10 py-6 w-full bg-white shadow-sm z-50">
+    <div class="text-3xl font-bold text-[#FF8A5B] italic cursor-pointer" onclick="location.href='/'">Pick Meal</div>
+    <div class="hidden lg:flex space-x-12">
+        <button onclick="location.href='/game'" class="nav-link text-xl text-gray-500 hover:text-[#FF8A5B]">GAME</button>
+        <button onclick="location.href='/next'" class="nav-link text-xl text-gray-500 hover:text-[#FF8A5B]">HOT PLACE</button>
+        <button onclick="location.href='/board'" class="nav-link text-xl text-[#FF8A5B]">BOARD</button>
+    </div>
+    <div class="flex items-center space-x-6">
+        <button th:if="${session.loggedInUser == null}"
+                onclick="location.href='/login'"
+                class="nav-link text-gray-400 hover:text-[#FF8A5B]">Log in</button>
+
+        <button th:if="${session.loggedInUser != null}"
+                onclick="location.href='/mypage'"
+                class="bg-[#FF8A5B] text-white px-8 py-2 rounded-full font-bold shadow-md hover:scale-105 transition italic">My Page</button>
+
+        <button th:if="${session.loggedInUser != null}"
+                onclick="location.href='/logout'"
+                class="nav-link text-gray-400 hover:text-red-400 ml-4">Logout</button>
+    </div>
+</nav>
+
+<main class="flex-grow flex flex-col items-center justify-start pt-12 content-slide-up px-10">
+    <div class="max-w-7xl w-full">
+        <div class="flex justify-between items-end mb-8">
+            <div>
+                <h2 class="text-5xl font-black text-gray-800 italic uppercase tracking-tighter mb-2">Community Board</h2>
+                <p class="text-[#FF8A5B] font-bold italic">Share your tasty experiences!</p>
+            </div>
+            <button onclick="location.href='/board/write'"
+                    class="bg-[#FF8A5B] text-white px-8 py-3 rounded-full font-black shadow-md hover:bg-[#e67a4d] transition italic uppercase active:scale-95">
+                Write Post
+            </button>
+        </div>
+
+        <div class="board-card overflow-hidden">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                <tr class="bg-gray-50 border-b-2 border-[#FDF5E6]">
+                    <th class="px-6 py-5 text-[#FF8A5B] italic font-black text-sm uppercase text-center">No</th>
+                    <th class="px-4 py-5 text-[#FF8A5B] italic font-black text-sm uppercase text-center">Pic</th>
+                    <th class="px-8 py-5 text-[#FF8A5B] italic font-black text-sm uppercase">Title</th>
+                    <th class="px-6 py-5 text-[#FF8A5B] italic font-black text-sm uppercase text-center">Author</th>
+                    <th class="px-6 py-5 text-[#FF8A5B] italic font-black text-sm uppercase text-center">Date</th>
+                    <th class="px-4 py-5 text-[#FF8A5B] italic font-black text-sm uppercase text-center">Views</th>
+                    <th class="px-4 py-5 text-[#FF8A5B] italic font-black text-sm uppercase text-center">Like</th>
+                </tr>
+                </thead>
+                <tbody class="text-gray-700 font-bold">
+                <tr class="board-row border-b border-gray-100">
+                    <td class="px-6 py-6 text-center text-gray-400 text-sm">03</td>
+                    <td class="px-4 py-6 text-center text-xl">🖼️</td>
+                    <td class="px-8 py-6">
+                        <span class="hover:underline">신림역 근처 최고의 쌀국수 맛집 추천! 🍜</span>
+                        <span class="text-[#FF8A5B] text-sm ml-2">[5]</span>
+                    </td>
+                    <td class="px-6 py-6 text-center text-sm text-gray-600 italic">Foodie_King</td>
+                    <td class="px-6 py-6 text-center text-xs text-gray-400">2026-02-11</td>
+                    <td class="px-4 py-6 text-center text-sm">124</td>
+                    <td class="px-4 py-6 text-center text-sm text-red-400">❤️ 12</td>
+                </tr>
+                <tr class="board-row border-b border-gray-100">
+                    <td class="px-6 py-6 text-center text-gray-400 text-sm">02</td>
+                    <td class="px-4 py-6 text-center text-xl text-gray-200">⚊</td>
+                    <td class="px-8 py-6">
+                        <span class="hover:underline">오늘 랜덤 뽑기 게임으로 피자 당첨됐어요 🍕</span>
+                        <span class="text-[#FF8A5B] text-sm ml-2">[2]</span>
+                    </td>
+                    <td class="px-6 py-6 text-center text-sm text-gray-600 italic">User_99</td>
+                    <td class="px-6 py-6 text-center text-xs text-gray-400">2026-02-10</td>
+                    <td class="px-4 py-6 text-center text-sm">89</td>
+                    <td class="px-4 py-6 text-center text-sm text-red-400">❤️ 5</td>
+                </tr>
+                <tr class="board-row">
+                    <td class="px-6 py-6 text-center text-gray-400 text-sm">01</td>
+                    <td class="px-4 py-6 text-center text-xl">🖼️</td>
+                    <td class="px-8 py-6">
+                        <span class="hover:underline">Pick Meal 앱 디자인 너무 귀엽네요!</span>
+                        <span class="text-[#FF8A5B] text-sm ml-2">[12]</span>
+                    </td>
+                    <td class="px-6 py-6 text-center text-sm text-gray-600 italic">Admin</td>
+                    <td class="px-6 py-6 text-center text-xs text-gray-400">2026-02-09</td>
+                    <td class="px-4 py-6 text-center text-sm">342</td>
+                    <td class="px-4 py-6 text-center text-sm text-red-400">❤️ 48</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="mt-8 flex justify-center space-x-4">
+            <button class="w-10 h-10 rounded-full bg-white border-2 border-[#FF8A5B] text-[#FF8A5B] font-black italic shadow-sm hover:bg-[#FF8A5B] hover:text-white transition">1</button>
+            <button class="w-10 h-10 rounded-full bg-white border-2 border-gray-100 text-gray-400 font-black italic shadow-sm hover:border-[#FF8A5B] hover:text-[#FF8A5B] transition">2</button>
+            <button class="w-10 h-10 rounded-full bg-white border-2 border-gray-100 text-gray-400 font-black italic shadow-sm hover:border-[#FF8A5B] hover:text-[#FF8A5B] transition">3</button>
+        </div>
+    </div>
+</main>
+
+</body>
+</html>
