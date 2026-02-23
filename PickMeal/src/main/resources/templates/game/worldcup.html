@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>천하제일 음식 월드컵: </title>
+    <style>
+        /* 전체 배경과 기본 폰트 설정 */
+        body {
+            background-color: #fff9f1; /* 포근한 아이보리 배경 */
+            font-family: 'Malgun Gothic', sans-serif;
+            color: #576574;
+            text-align: center;
+            padding-top: 50px;
+        }
+
+        /* 상단 제목 꾸미기 */
+        #roundTitle {
+            color: #ff9f43;
+            font-size: 2.5rem;
+            margin-bottom: 40px;
+            text-shadow: 2px 2px 0px white; /* 글자 뒤에 흰색 그림자 */
+        }
+
+        /* 음식 카드가 나란히 놓일 바구니 */
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 40px;
+        }
+
+        /* 🍔 음식 카드 디자인 (핵심!) */
+        .food-card {
+            cursor: pointer;
+            background: white;
+            border: 4px solid #ffeaa7; /* 연한 노란색 테두리 */
+            padding: 15px;
+            border-radius: 30px; /* 아주 둥글둥글하게 */
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+            transition: all 0.3s ease; /*  부드러운 변화를 위한 주문 */
+            width: 380px;
+            overflow: hidden;
+            flex-direction: column; /* 사진과 이름을 세로로 배치 */
+            display: flex;
+        }
+
+        /* 마우스를 올렸을 때 살짝 커지는 효과 */
+        .food-card:hover {
+        transform: scale(1.08); /* 화면 쪽으로 8%만큼 살짝 커진다 */
+        border-color: #ff9f43;  /* 테두리가 진한 주황색으로 바뀐다 */
+        box-shadow: 0 20px 40px rgba(255, 159, 67, 0.3); /*  아래에 주황색 그림자가 생겨 붕 떠 보인다 */
+        z-index: 10; /* 다른 카드보다 위로 올라오게 한다 */
+        }
+
+        /* 🖱️ 마우스를 꾹 눌렀을 때 (클릭하는 순간) */
+        .food-card:active {
+        transform: scale(0.95); /* 살짝 눌리는 느낌을 주기 위해 5% 작아진다 */
+        background-color: #fff4e6; /* 카드 배경색이 살짝 주황빛으로 변한다 */
+        border-color: #ff6b6b; /*  테두리가 강렬한 분홍빛으로 반짝인다 */
+        box-shadow: inset 0 5px 10px rgba(0,0,0,0.1); /*  안쪽으로 그림자가 생겨 눌린 효과를 준다 */
+        }
+
+        /* 선택된 느낌을 강조하기 위한 애니메이션 (선택 사항) */
+        @keyframes clickEffect {
+        0% { opacity: 1; }
+        50% { opacity: 0.7; }
+        100% { opacity: 1; }
+        }
+
+        .food-card:active img {
+        animation: clickEffect 0.1s; /* 사진이 찰칵하는 느낌으로 깜빡입니다 */
+        }
+
+        /* 이미지 테두리 다듬기 */
+        img {
+            border-radius: 20px;
+            object-fit: cover;
+            border: 2px solid #ffeaa7;
+            width: 100%;
+            height: 300px;
+        }
+
+        /* 중간의 VS 글자 꾸미기 */
+        h1:not(#roundTitle) {
+            color: #ff6b6b;
+            font-size: 3rem;
+            font-style: italic;
+        }
+
+        /* 음식 이름 폰트 */
+        h2 { margin-top: 15px; font-size: 1.8rem; color: #2d3436;}
+
+        /* 🌟 카드가 나타날 때 오른쪽에서 왼쪽으로 밀려오는 효과 설정 */
+        @keyframes slideIn {
+        from { transform: translateX(50px); opacity: 0; } /* 50px 옆에서 투명하게 시작 */
+        to { transform: translateX(0); opacity: 1; }      /* 제자리로 오면서 선명해짐 */
+       }
+
+       /* 애니메이션을 실행할 때 사용할 이름표(클래스) */
+        .fade-in {
+        animation: slideIn 0.5s ease-out forwards;
+       }
+
+       /* 링크 복사 알림창 디자인 */
+        .copy-alert {
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: rgba(0, 0, 0, 0.8);
+        color: white;
+        padding: 10px 25px;
+        border-radius: 30px;
+        z-index: 9999; /* 다른 화면보다 가장 위에 뜨게 설정 */
+        display: none; /* 평소에는 숨김 */
+    }
+
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+</head>
+<body>
+<div id="game-board">
+    <h1 id="roundTitle">음식 월드컵:  🏆</h1>
+    <div id="progress-info" style="font-size: 1.5rem; color: #ff6b6b; margin-bottom: 20px; font-weight: bold;">
+        현재 진행: <span id="currentMatch">1</span> / <span id="totalMatches">16</span>
+    </div>
+    <div class="container">
+        <div class="food-card" onclick="chooseFood(0)">
+            <img id="food1Img" src="" width="400" height="400">
+            <h2 id="food1Name">음식 1</h2>
+        </div>
+        <h1>VS</h1>
+        <div class="food-card" onclick="chooseFood(1)">
+            <img id="food2Img" src="" width="400" height="400">
+            <h2 id="food2Name">음식 2</h2>
+        </div>
+    </div>
+</div>
+
+<div id="result-screen" style="display: none; padding-top: 50px;">
+    <h1 style="color: #ff9f43; font-size: 3.5rem; margin-bottom: 20px;">🎊 최종 우승 🎊</h1>
+    <div class="food-card" style="margin: 0 auto; cursor: default; transform: scale(1.1); border-color: #ff9f43;">
+        <img id="winnerImg" src="" style="width: 100%; height: 400px; object-fit: cover;">
+        <h2 id="winnerName" style="font-size: 2.5rem; color: #ff6b6b;">음식 이름</h2>
+    </div>
+    <div style="margin-top: 50px; display: flex; justify-content: center; gap: 20px;">
+        <button onclick="location.href='/'" style="padding: 15px 30px; font-size: 1.2rem; border-radius: 15px; border: none; background: #ee5253; color: white; cursor: pointer;">홈으로 가기</button>
+        <button id="searchBtn" style="padding: 15px 30px; font-size: 1.2rem; border-radius: 15px; border: none; background: #feca57; color: #222f3e; cursor: pointer; font-weight: bold;">주변 맛집 검색</button>
+        <button onclick="location.href='/game'" style="padding: 15px 30px; font-size: 1.2rem; border-radius: 15px; border: none; background: #ee5253; color: white; cursor: pointer;"> 다시 시작</button>
+        <button onclick="location.href='/ranking'" style="padding: 15px 30px; font-size: 1.2rem; border-radius: 15px; border: none; background: #54a0ff; color: white; cursor: pointer;">랭킹 보기</button>
+        <button onclick="copyToClipboard()" style="padding: 15px 30px; font-size: 1.2rem; border-radius: 15px; border: none; background: #1dd1a1; color: white; cursor: pointer;"> 공유하기</button>
+    </div>
+    <div id="copyAlert" class="copy-alert">링크가 복사되었습니다!</div>
+</div>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    // 1. 데이터 준비 (비유: 선수 명단 작성)
+    let foods = /*[[${foodList}]]*/ [];
+    let winners = [];
+    let index = 0;
+    let round = foods.length;
+
+    // 2. 화면에 선수들을 배치하는 함수 (비유: 무대 연출)
+  function showMatch() {
+      // 🌟 [추가] URL에서 카테고리와 초기 라운드 정보를 읽어옵니다.
+      const urlParams = new URLSearchParams(window.location.search);
+      const categoryParam = urlParams.get('category') || 'all'; // URL에 없으면 'all'
+
+      // 카테고리 영문명을 예쁜 한글로 바꿔주는 통역사 명단입니다.
+      const categoryMap = {
+          'all': '전체',
+          'korean': '한식', '한식': '한식',
+          'chinese': '중식', '중식': '중식',
+          'japanese': '일식', '일식': '일식',
+          'western': '양식', '양식': '양식',
+          'asian': '아시안식', '아시안식': '아시안식'
+      };
+      const categoryKorean = categoryMap[categoryParam] || '음식';
+
+      // 라운드가 끝났는지 확인
+      if (index >= foods.length) {
+          if (winners.length === 1) {
+              return;
+          }
+          foods = [...winners];
+          winners = [];
+          index = 0;
+          round = round / 2;
+
+          // 🌟 [수정] 알림창(alert)에도 카테고리 정보를 넣어준다.
+          const roundText = (round === 2) ? "결승전" : round + "강";
+          alert(`[${categoryKorean}] ${roundText} 대결을 시작합니다!`);
+      }
+
+      // 🌟 [핵심 수정] 상단 제목 전광판에 카테고리와 몇 강인지 모두 표시.
+      const displayRound = (round === 2) ? "결승전" : round + "강";
+      document.getElementById('roundTitle').innerText = `음식 월드컵 [${categoryKorean}]: ${displayRound} 🏆`;
+
+      // 진행 횟수 업데이트 (ex: 1 / 16)
+      document.getElementById('currentMatch').innerText = (index / 2) + 1;
+      document.getElementById('totalMatches').innerText = foods.length / 2;
+
+      // 사진과 이름 교체 (전광판 갈아 끼우기)
+      document.getElementById('food1Img').src = foods[index].imagePath;
+      document.getElementById('food1Name').innerText = foods[index].foodName;
+      document.getElementById('food2Img').src = foods[index+1].imagePath;
+      document.getElementById('food2Name').innerText = foods[index+1].foodName;
+  }
+
+    // 3. 음식을 클릭했을 때 실행되는 함수 (비유: 승자 판정 및 화면 이동)
+    function chooseFood(order) {
+        let winner = foods[index + order];
+        winners.push(winner);
+        index += 2;
+
+        const container = document.querySelector('.container');
+        container.style.opacity = '0'; // 🌟 다음 장면 준비를 위해 잠시 어둡게 (암전)
+
+        setTimeout(() => {
+            // 🏆 [핵심] 최종 우승자가 결정되었을 때!
+            if (index >= foods.length && winners.length === 1) {
+                const finalWinner = winners[0];
+
+                // 폭죽 팡팡!
+                confetti({ particleCount: 200, spread: 100, origin: { y: 0.6 } });
+
+                // 🌟 시상대 화면으로 교체 (중요!)
+                document.getElementById('game-board').style.display = 'none'; // 게임판 숨김
+                document.getElementById('result-screen').style.display = 'block'; // 시상대 보임
+
+                // 시상대에 우승자 정보 기록
+                document.getElementById('winnerImg').src = finalWinner.imagePath;
+                document.getElementById('winnerName').innerText = finalWinner.foodName;
+
+                // 맛집 검색 버튼 기능 연결
+                document.getElementById('searchBtn').onclick = function() {
+                    window.open("https://map.kakao.com/link/search/" + encodeURIComponent(finalWinner.foodName + " 맛집"), '_blank');
+                };
+
+                // 서버에 결과 전송
+                fetch('/game/win?id=' + finalWinner.foodId, { method: 'POST' });
+                return;
+            }
+
+            // ⚔️ 다음 대결 진행
+            showMatch();
+
+            // 🌟 애니메이션 효과 (슬라이드처럼 밀려오기)
+            container.style.opacity = '1';
+            container.classList.remove('fade-in');
+            void container.offsetWidth; // 무대 장치 리셋 (브라우저 강제 새로고침)
+            container.classList.add('fade-in');
+
+        }, 300); // 0.3초 뒤에 다음 대결 등장
+    }
+
+    window.onload = showMatch; // 페이지 열리면 첫 대결 시작
+
+    // 🔗 현재 페이지의 주소를 복사하는 함수입니다.
+     function copyToClipboard() {
+      // 1. 현재 브라우저의 주소창 URL을 가져옵니다.
+      const currentUrl = window.location.href;
+
+      // 2. 클립보드에 주소를 복사합니다. (비유: 메모장에 주소를 적어 컴퓨터에 저장)
+      navigator.clipboard.writeText(currentUrl).then(() => {
+          // 3. 복사가 성공하면 사용자에게 알려줍니다.
+          const alertBox = document.getElementById('copyAlert');
+          alertBox.style.display = 'block'; // 숨겨진 메시지 보이기
+
+          // 2초 뒤에 메시지를 다시 숨깁니다.
+          setTimeout(() => {
+              alertBox.style.display = 'none';
+          }, 2000);
+      }).catch(err => {
+          // 복사 실패 시 알림 (예외 처리)
+          alert("링크 복사에 실패했습니다. 주소창을 직접 복사해주세요!");
+      });
+  }
+  /*]]>*/
+
+</script>
+</body>
+</html>
