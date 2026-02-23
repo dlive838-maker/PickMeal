@@ -1,5 +1,6 @@
 package PickMeal.PickMeal.service;
 
+import PickMeal.PickMeal.domain.Food;
 import PickMeal.PickMeal.domain.User;
 import PickMeal.PickMeal.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
@@ -9,6 +10,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service // 서비스 빈 등록
 @RequiredArgsConstructor // final 필드 생성자 주입
@@ -81,5 +84,20 @@ public class UserService implements UserDetailsService {
     @Transactional
     public void remove(Long user_id) {
         userMapper.updateStatus(user_id, "WITHDRAWN"); // 탈퇴 시 상태값만 변경
+    }
+
+    public List<Food> getMixedFoods(List<String> types, int round) {
+        return userMapper.getMixedFoods(types, round);
+    }
+
+    // 랭킹 페이지용 데이터 가져오기
+    public List<Food> getTop10Foods() {
+        return userMapper.getTop10Foods();
+    }
+
+    @Transactional
+    public void updateFoodWinCount(Long foodId) {
+        // [비유] 일꾼이 실제 장부(Mapper)를 들고 가서 숫자를 하나 올립니다.
+        userMapper.updateWinCount(foodId);
     }
 }
