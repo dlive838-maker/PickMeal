@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
@@ -22,6 +23,7 @@ import java.text.SimpleDateFormat;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
+    private final PasswordEncoder passwordEncoder;
 
     @GetMapping("/signup")
     public String signupForm(Model model) {
@@ -74,6 +76,7 @@ public class UserController {
         model.addAttribute("isSocial", true); // 프론트에서 소셜 유저임을 판별
         return "users/signup";
     }
+
 
     @InitBinder
     public void initBinder(WebDataBinder binder) {
@@ -164,17 +167,63 @@ public class UserController {
         return "users/mypage";
     }
 
+    // UserController.java
+
     @GetMapping("/edit") // 수정 폼 호출
-    public String editForm(@AuthenticationPrincipal User user, Model model) {
+    public String editForm(Authentication authentication, Model model) {
+        // 1. 로그인 여부 및 인증 객체 체크 (마이페이지와 동일한 안전 로직)
+        if (authentication == null || !authentication.isAuthenticated()
+                || "anonymousUser".equals(authentication.getPrincipal())) {
+            return "redirect:/users/login";
+        }
+
+        String userId = "";
+
+        // 2. 인증 객체 타입에 따라 DB 조회용 ID 추출
+        if (authentication instanceof OAuth2AuthenticationToken) {
+            OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
+            String registrationId = oauthToken.getAuthorizedClientRegistrationId();
+            OAuth2User oAuth2User = oauthToken.getPrincipal();
+
+            if ("naver".equals(registrationId)) {
+                java.util.Map<String, Object> response = (java.util.Map<String, Object>) oAuth2User.getAttribute("response");
+                userId = registrationId + "_" + (String) response.get("id");
+            } else {
+                userId = registrationId + "_" + oAuth2User.getName();
+            }
+        } else {
+            userId = authentication.getName();
+        }
+
+        // 3. DB에서 최신 유저 정보 조회하여 폼에 전달
+        User user = userService.findById(userId);
         model.addAttribute("user", user);
+
         return "users/edit";
     }
 
-    @PostMapping("/edit") // 수정 실행
-    public String edit(User user, RedirectAttributes rttr) {
+    @PostMapping("/edit")
+    public String edit(@ModelAttribute User user,
+                       @RequestParam(value = "newPassword", required = false) String newPassword,
+                       RedirectAttributes rttr) {
+
+        // 1. DB에서 현재 저장된 유저의 정보를 먼저 가져옵니다 (기존 비밀번호 확인용)
+        User existingUser = userService.findById(user.getId());
+
+        // 2. 새 비밀번호가 실제로 입력되었는지 검사 (null이 아니고, 공백이 아닐 때만)
+        if (newPassword != null && !newPassword.trim().isEmpty()) {
+            // 사용자가 새 비밀번호를 입력했다면 암호화해서 세팅
+            user.setPassword(passwordEncoder.encode(newPassword));
+        } else {
+            // 입력하지 않았다면 DB에 있던 기존 암호화된 비밀번호를 그대로 다시 세팅
+            user.setPassword(existingUser.getPassword());
+        }
+
+        // 3. 서비스 호출 (이제 비밀번호가 안전하게 보존된 상태로 업데이트됩니다)
         userService.edit(user);
+
         rttr.addFlashAttribute("msg", "정보 수정이 완료되었습니다.");
-        return "redirect:/";
+        return "redirect:/users/mypage";
     }
 
     @PostMapping("/remove") // 회원 탈퇴 요청

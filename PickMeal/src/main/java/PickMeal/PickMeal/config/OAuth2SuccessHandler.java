@@ -62,6 +62,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                 email = (String) naverResponse.get("email"); // 주머니 내 이메일 추출
                 name = (String) naverResponse.get("name"); // 주머니 내 이름 추출
             }
+
         } else { // Google 등 기타 서비스 처리
             socialId = oAuth2User.getName(); // 구글은 getName()이 고유 ID를 반환합니다.
             email = oAuth2User.getAttribute("email");
@@ -76,7 +77,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         if (findUser != null) {
             // 7-1. 이미 회원이라면 환영하며 메인 페이지('/')로 바로 보냅니다.
-            getRedirectStrategy().sendRedirect(request, response, "/");
+            getRedirectStrategy().sendRedirect(request, response, "/next-page");
         } else {
             // 7-2. 처음 방문한 사람이라면 추가 정보를 받기 위해 회원가입 페이지로 정보를 들고 이동시킵니다.
             String targetUrl = UriComponentsBuilder.fromUriString("/users/signup/social")

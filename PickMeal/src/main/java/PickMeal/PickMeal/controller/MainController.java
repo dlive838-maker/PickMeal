@@ -14,9 +14,9 @@ public class MainController {
         return "index"; // 인트로 화면
     }
 
-    @GetMapping("/next")
+    @GetMapping("/next-page") //
     public String next() {
-        return "next-page"; // 메뉴 슬라이드 화면
+        return "next-page";
     }
 
     @GetMapping("/game")

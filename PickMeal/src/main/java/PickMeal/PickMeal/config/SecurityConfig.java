@@ -34,13 +34,13 @@ public class SecurityConfig {
                         // [수정] /next 경로를 추가하여 인트로에서 넘어갈 수 있게 허용합니다.
                         .requestMatchers("/", "/next", "/users/signup", "/users/signup/social", "/users/login",
                                 "/users/check-id", "/users/check-nickname", "/users/mypage", "/mail/**",
-                                "/oauth2/**", "/css/**", "/js/**", "/images/**").permitAll()
+                                "/oauth2/**", "/css/**", "/js/**", "/images/**", "/next-page").permitAll()
                         .anyRequest().authenticated()
                 )
                 .formLogin(formLogin -> formLogin
                         .loginPage("/users/login")
                         .usernameParameter("id")
-                        .defaultSuccessUrl("/")
+                        .defaultSuccessUrl("/next-page", true)
                         .failureHandler(loginFailureHandler)
                 )
                 .oauth2Login(oauth2 -> oauth2
