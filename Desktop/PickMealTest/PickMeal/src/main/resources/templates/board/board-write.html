@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ko"xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pick Meal - Write Post</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@700;800&family=Jua&family=Nanum+Gothic:wght@700;800&family=Gamja+Flower&family=Black+Han+Sans&display=swap" rel="stylesheet">
+  <style>
+    body {
+        font-family: 'Fredoka', sans-serif;
+        background-color: #FFF5F0;
+        margin: 0;
+        overflow: hidden;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .nav-link { font-family: 'Fredoka', sans-serif; font-weight: 700; font-style: italic; }
+
+    .content-slide-up {
+        animation: slideUp 0.8s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+        will-change: transform, opacity;
+    }
+
+    @keyframes slideUp {
+        from { transform: translateY(100px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+
+    .write-card {
+        border-radius: 3rem;
+        background: white;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+    }
+
+    /* 툴바 드롭다운 스타일 최적화 */
+    .toolbar-btn {
+        background-color: #FFF5EF;
+        color: #FF8A5B;
+        padding: 0.5rem 0.8rem;
+        border-radius: 0.8rem;
+        font-weight: 800;
+        transition: all 0.2s;
+        font-size: 0.8rem;
+        border: none;
+        outline: none;
+        cursor: pointer;
+    }
+    .toolbar-btn:hover {
+        background-color: #FF8A5B;
+        color: white;
+    }
+
+    .input-field {
+        border-radius: 1.5rem;
+        transition: all 0.3s;
+        border: 2px solid #FDF5E6;
+        width: 100%;
+    }
+
+    .input-field:focus {
+        border-color: #FF8A5B;
+        outline: none;
+        background: white;
+    }
+
+    textarea.input-field {
+        resize: none;
+        height: 300px;
+        font-family: 'Fredoka', sans-serif;
+    }
+  </style>
+</head>
+<body>
+<header th:replace="~{fragments/header :: headerFragment}"></header>
+
+<div class="overflow-y-auto flex-grow" >
+  <main class="flex items-center justify-center content-slide-up py-10">
+    <div class="write-card p-12 w-full max-w-4xl mx-4 border-2 border-gray-50">
+      <div class="mb-8 text-center md:text-left">
+        <h2 class="text-4xl font-black text-[#FF8A5B] italic uppercase tracking-tighter">New Post</h2>
+        <p class="text-gray-400 font-bold italic">Express your taste in your own style!</p>
+      </div>
+
+      <form id="writeForm" th:action="@{/board/write}" method="post" enctype="multipart/form-data" class="space-y-6">
+        <div class="space-y-2">
+          <label for = "postTitle" class="font-black text-gray-700 italic ml-2 uppercase text-sm">Title</label>
+          <input type="text" id="postTitle" name="title" placeholder="제목" class="input-field px-6 py-4 bg-gray-50 font-bold" required>
+        </div>
+
+        <div class="space-y-2">
+          <label class="font-black text-gray-700 italic ml-2 uppercase text-sm">Content Editor</label>
+
+          <div class="flex flex-wrap gap-2 mb-2 p-2 bg-[#FDF5E6] rounded-[1.2rem] items-center">
+            <select onchange="changeFont(this.value)" class="toolbar-btn bg-white">
+              <option value="Fredoka">Fredoka (Basic)</option>
+              <option value="Jua">Jua (Round)</option>
+              <option value="Nanum Gothic">Nanum (Clean)</option>
+              <option value="Gamja Flower">Gamja (Handwriting)</option>
+              <option value="Black Han Sans">Black (Heavy Title)</option>
+            </select>
+
+            <select onchange="changeSize(this.value)" class="toolbar-btn bg-white">
+              <option value="14px">Smallest</option>
+              <option value="16px">Small</option>
+              <option value="20px" selected>Normal</option>
+              <option value="24px">Big</option>
+              <option value="30px">Large</option>
+              <option value="40px">Huge</option>
+            </select>
+
+            <div class="w-[2px] h-6 bg-gray-200 mx-1"></div>
+            <button type="button" onclick="formatText('bold')" class="toolbar-btn">BOLD</button>
+            <button type="button" onclick="formatText('italic')" class="toolbar-btn italic">ITALIC</button>
+
+            <div class="w-[2px] h-6 bg-gray-200 mx-1"></div>
+            <button type="button" onclick="alignText('left')" class="toolbar-btn">L</button>
+            <button type="button" onclick="alignText('center')" class="toolbar-btn">C</button>
+            <button type="button" onclick="alignText('right')" class="toolbar-btn">R</button>
+          </div>
+
+          <textarea id="postContent" placeholder="글 작성" name="content" class="input-field px-6 py-6 bg-gray-50 font-bold leading-relaxed" style="font-size: 20px;" required></textarea>
+        </div>
+
+        <div class="space-y-2">
+          <label class="font-black text-gray-700 italic ml-2 uppercase text-sm">Attach Image</label>
+          <input type="file" name="attach_image" class="block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-black file:bg-[#FFF5EF] file:text-[#FF8A5B] hover:file:bg-[#FF8A5B] hover:file:text-white transition cursor-pointer">
+        </div>
+
+        <div class="flex gap-4 pt-6">
+          <button type="button" onclick="location.href='/board'" class="flex-1 bg-gray-100 text-gray-400 py-4 rounded-full font-black text-xl shadow-sm hover:bg-gray-200 transition italic uppercase active:scale-95">
+            Cancel
+          </button>
+          <button type="submit" class="flex-[2] bg-[#FF8A5B] text-white py-4 rounded-full font-black text-xl shadow-lg hover:scale-105 transition italic uppercase active:scale-95">
+            Post it!
+          </button>
+        </div>
+      </form>
+    </div>
+  </main>
+</div>
+
+<script>
+  // 폰트 변경
+  function changeFont(fontName) {
+      document.getElementById('postContent').style.fontFamily = `'${fontName}', sans-serif`;
+  }
+
+  // 세분화된 글자 크기 변경
+  function changeSize(size) {
+      document.getElementById('postContent').style.fontSize = size;
+  }
+
+  // 굵기/기울임 토글
+  function formatText(command) {
+      const textarea = document.getElementById('postContent');
+      if (command === 'bold') {
+          textarea.style.fontWeight = (textarea.style.fontWeight === '900' || textarea.style.fontWeight === 'bold') ? '700' : '900';
+      } else if (command === 'italic') {
+          textarea.style.fontStyle = (textarea.style.fontStyle === 'italic') ? 'normal' : 'italic';
+      }
+  }
+
+  // 정렬 변경
+  function alignText(mode) {
+      document.getElementById('postContent').style.textAlign = mode;
+  }
+
+  document.getElementById('writeForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      alert("게시글이 성공적으로 등록되었습니다! 📝");
+      location.href = '/board';
+  });
+</script>
+</body>
+</html>
