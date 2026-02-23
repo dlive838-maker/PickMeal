@@ -59,18 +59,25 @@ public class TwentyQuestionsService {
             return getNextAttributeQuestion(request);
         }
 
+        if (request.getCategory_asian() == null) {
+            return questionsMapper.getQuestionsByAttributeName("category_asian");
+        }
+        if (request.getCategory_asian() == 1) {
+            return getNextAttributeQuestion(request);
+        }
+
 
         return getNextAttributeQuestion(request);
     }
 
     private Questions getNextAttributeQuestion(GameRequestDto request) {
 
-        if (request.getIsSoup() == null) return questionsMapper.getQuestionsByAttributeName("is_soup");
-        if (request.getIsSpicy() == null) return questionsMapper.getQuestionsByAttributeName("is_spicy");
-        if (request.getIsFried() == null) return questionsMapper.getQuestionsByAttributeName("is_fried");
-        if (request.getIsRoasted() == null) return questionsMapper.getQuestionsByAttributeName("is_roasted");
-        if (request.getHasPork() == null) return questionsMapper.getQuestionsByAttributeName("has_pork");
-        if (request.getHasBeef() == null) return questionsMapper.getQuestionsByAttributeName("has_beef");
+        if (request.getIs_soup() == null) return questionsMapper.getQuestionsByAttributeName("is_soup");
+        if (request.getIs_spicy() == null) return questionsMapper.getQuestionsByAttributeName("is_spicy");
+        if (request.getIs_fried() == null) return questionsMapper.getQuestionsByAttributeName("is_fried");
+        if (request.getIs_roasted() == null) return questionsMapper.getQuestionsByAttributeName("is_roasted");
+        if (request.getHas_pork() == null) return questionsMapper.getQuestionsByAttributeName("has_pork");
+        if (request.getHas_beef() == null) return questionsMapper.getQuestionsByAttributeName("has_beef");
 
         return questionsMapper.getQuestionsByAttributeName("final_recommendation");
     }

@@ -14,11 +14,11 @@ public class GameRequestDto {
     private Integer category_japanese;
     private Integer category_asian;
 
-    private Integer isSpicy;
-    private Integer isSoup;
-    private Integer isFried;
-    private Integer isRoasted;
-    private Integer hasPork;
-    private Integer hasBeef;
+    private Integer is_spicy;
+    private Integer is_soup;
+    private Integer is_fried;
+    private Integer is_roasted;
+    private Integer has_pork;
+    private Integer has_beef;
     private List<Integer> askedQuestionIds;
 }

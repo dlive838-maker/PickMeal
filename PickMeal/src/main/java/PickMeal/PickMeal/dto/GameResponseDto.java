@@ -10,7 +10,7 @@ import java.util.List;
 @Setter
 public class GameResponseDto {
     private String status;
-    private String nextQuestion_id;
+    private long nextQuestion_id;
     private String nextQuestion_text;
     private String nextAttribute_name;
     private List<String> remain_foodList;
