@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="PickMeal.PickMeal.mapper.FileMapper">
+    <insert id = "save" parameterType="PickMeal.PickMeal.domain.File">
+        INSERT INTO file (boardId, filePath, originalName, storedName)
+        VALUES(#{boardId}, #{filePath}, #{originalName}, #{storedName})
+    </insert>
+    <select id="findByBoardId" parameterType="long" resultType="PickMeal.PickMeal.domain.File">
+        SELECT fileId, boardId, originalName, storedName, filePath
+        FROM file
+        WHERE boardId = #{boardId}
+    </select>
+
+    <delete id="deleteByBoardId" parameterType="long">
+        DELETE FROM file
+        WHERE boardId = #{bno}
+    </delete>
+
+    <select id = "findById" parameterType="long" resultType="PickMeal.PickMeal.domain.File">
+        SELECT fileId, boardId, originalName, storedName, filePath
+        FROM file
+        WHERE fileId = #{fileId}
+    </select>
+</mapper>

@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Pick Meal - 월드컵 진행중</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@700;800&display=swap" rel="stylesheet">
+    <style>
+        /* [2] 기본 설정: 로그인/설정창과 통일 */
+        body {
+            font-family: 'Fredoka', sans-serif;
+            background-color: #FFF5F0;
+            margin: 0;
+            overflow-x: hidden;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* 음식 카드 애니메이션 효과 */
+        .food-card {
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .food-card:hover {
+            transform: translateY(-15px) scale(1.02);
+            box-shadow: 0 25px 50px -12px rgba(255, 138, 91, 0.3);
+        }
+
+        /* 대결 애니메이션 클래스 */
+        .selected-left {
+            transform: translateX(250px) scale(1.1) rotate(5deg) !important;
+            opacity: 0;
+            pointer-events: none;
+        }
+        .selected-right {
+            transform: translateX(-250px) scale(1.1) rotate(-5deg) !important;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* VS 텍스트 그림자 */
+        .vs-badge {
+            text-shadow: 3px 3px 0px rgba(255, 138, 91, 0.15);
+        }
+
+        /* [비유] 탈락한 카드는 연기처럼 사라지며 자리(공간)도 차지하지 않게 됩니다. */
+        .eliminated {
+        opacity: 0;
+        transform: scale(0.5); /* 작아지면서 사라지는 효과 */
+        display: none;        /* [핵심] 화면 구성에서 아예 제외시켜 공간을 지웁니다. */
+        transition: all 0.4s ease;
+    }
+    </style>
+</head>
+<body>
+
+<div class="text-center mt-12 mb-8">
+    <h1 id="roundTitle" class="text-6xl font-black text-[#FF8A5B] italic mb-2 uppercase tracking-tighter" th:text="${totalRound} + '강'">라운드</h1>
+    <div id="matchStatus" class="text-gray-400 font-bold italic text-xl">경기진행 정보</div>
+</div>
+
+<div class="match-container flex flex-col md:flex-row items-center justify-center gap-10 md:gap-20 w-full max-w-6xl px-4">
+    <div class="food-card bg-white p-6 rounded-[3.5rem] shadow-xl w-full max-w-sm text-center border-4 border-transparent hover:border-[#FF8A5B] cursor-pointer" id="cardA" onclick="selectFood(0)">
+        <div class="overflow-hidden rounded-[2.5rem] mb-6 h-80 shadow-inner">
+            <img id="imgA" th:src="${foods[0].imagePath}" class="w-full h-full object-cover">
+        </div>
+        <div class="bg-[#FFF5F0] py-4 rounded-2xl">
+            <span id="nameA" class="text-2xl font-black text-gray-700 italic" th:text="${foods[0].foodName}">음식이름A</span>
+        </div>
+    </div>
+
+    <div class="vs-badge text-6xl md:text-8xl font-black text-[#FF8A5B] italic tracking-tighter">VS</div>
+
+    <div class="food-card bg-white p-6 rounded-[3.5rem] shadow-xl w-full max-w-sm text-center border-4 border-transparent hover:border-[#FF8A5B] cursor-pointer" id="cardB" onclick="selectFood(1)">
+        <div class="overflow-hidden rounded-[2.5rem] mb-6 h-80 shadow-inner">
+            <img id="imgB" th:src="${foods[1].imagePath}" class="w-full h-full object-cover">
+        </div>
+        <div class="bg-[#FFF5F0] py-4 rounded-2xl">
+            <span id="nameB" class="text-2xl font-black text-gray-700 italic" th:text="${foods[1].foodName}">음식이름B</span>
+        </div>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    // [1] 데이터 초기화
+    let foods = [[${foods}]];
+    let winners = [];
+    let currentIndex = 0;
+    let currentRoundTotal = [[${totalRound}]];
+
+    // [2] 화면 업데이트 함수 (이미지, 라운드 텍스트 갱신)
+    function updateUI() {
+        if (!foods[currentIndex] || !foods[currentIndex + 1]) return;
+
+        let titleText = currentRoundTotal + "강";
+        if (currentRoundTotal === 2) titleText = "FINAL 🏆";
+        document.getElementById('roundTitle').innerText = titleText;
+
+        const currentMatch = (currentIndex / 2) + 1;
+        const totalMatches = currentRoundTotal / 2;
+        document.getElementById('matchStatus').innerText = `MATCH: ${currentMatch} / ${totalMatches}`;
+
+        document.getElementById('imgA').src = foods[currentIndex].imagePath;
+        document.getElementById('nameA').innerText = foods[currentIndex].foodName;
+        document.getElementById('imgB').src = foods[currentIndex + 1].imagePath;
+        document.getElementById('nameB').innerText = foods[currentIndex + 1].foodName;
+
+        document.getElementById('cardA').classList.remove('selected-left');
+        document.getElementById('cardB').classList.remove('selected-right');
+        document.getElementById('cardA').style.opacity = "1";
+        document.getElementById('cardB').style.opacity = "1";
+        document.getElementById('cardA').style.pointerEvents = "auto";
+        document.getElementById('cardB').style.pointerEvents = "auto";
+    }
+
+    // [3] 음식 선택 함수 (클릭 이벤트)
+    function selectFood(offset) {
+        const selectedCard = (offset === 0) ? document.getElementById('cardA') : document.getElementById('cardB');
+        const rejectedCard = (offset === 0) ? document.getElementById('cardB') : document.getElementById('cardA');
+
+        if(offset === 0) selectedCard.classList.add('selected-left');
+        else selectedCard.classList.add('selected-right');
+
+        rejectedCard.style.opacity = "0";
+        rejectedCard.style.transition = "all 0.4s ease";
+        rejectedCard.style.pointerEvents = "none";
+
+        setTimeout(() => {
+            winners.push(foods[currentIndex + offset]);
+            currentIndex += 2;
+
+            if (currentIndex >= foods.length) {
+                if (winners.length === 1) {
+                    const winnerFood = winners[0];
+                    const foodIdForServer = winnerFood.foodId;
+
+                    fetch('/worldcup/win/' + foodIdForServer, { method: 'POST' })
+                    .then(response => {
+                        alert(`🏆 축하합니다! \n치열한 대결 끝에 '${winnerFood.foodName}'이(가) 최종 우승했습니다!`);
+                        showWinnerEffect(winnerFood);
+                    })
+                    .catch(err => {
+                        console.error("기록 실패:", err);
+                        showWinnerEffect(winnerFood);
+                    });
+                    return;
+                }
+
+                let nextRoundNum = winners.length;
+                let nextRoundText = nextRoundNum === 2 ? "결승(FINAL)" : nextRoundNum + "강";
+                alert(`🎊 ${currentRoundTotal}강 경기가 종료되었습니다! \n${nextRoundText}으로 진출합니다!`);
+
+                foods = winners;
+                winners = [];
+                currentIndex = 0;
+                currentRoundTotal = foods.length;
+            }
+            updateUI();
+        }, 500);
+    }
+
+    // [4] 클립보드 복사 함수 (독립적으로 선언)
+    // worldcup.html의 스크립트 수정
+    window.copyToClipboard = function(foodName) {
+    // [비유] 랭킹 주소만 보내는 게 아니라, 내가 뽑은 우승자 이름도 함께 적어 보냅니다.
+    const currentUrl = window.location.origin + "/worldcup/ranking";
+    const textToCopy = `🏆 Pick Meal 월드컵 최종 우승! 🏆\n오늘 제가 선택한 메뉴는 '${foodName}'입니다!\n\n전체 랭킹 확인하기 👇\n${currentUrl}`;
+
+    navigator.clipboard.writeText(textToCopy).then(() => {
+        alert(`✨ '${foodName}' 우승을 축하합니다!\n\n1. 랭킹 주소가 복사되었습니다.\n2. 현재 우승 화면을 캡처해서 친구에게 보내보세요! 📸`);
+    });
+};
+
+    // [5] 우승 효과 함수
+    function showWinnerEffect(winner) {
+        const body = document.querySelector('body');
+        body.innerHTML = `
+        <div class="flex flex-col items-center justify-center min-h-screen p-6 text-center">
+            <div class="mb-6">
+                <h2 class="text-[#FF8A5B] font-black text-3xl mb-2 animate-bounce">🏆 CHAMPION 🏆</h2>
+            </div>
+            <div class="bg-white p-8 rounded-[4rem] shadow-2xl border-4 border-[#FF8A5B] max-w-md w-full">
+                <div class="overflow-hidden rounded-[3rem] mb-6 h-80 shadow-md">
+                    <img src="${winner.imagePath}" class="w-full h-full object-cover">
+                </div>
+                <h1 class="text-5xl font-black text-gray-800 italic mb-2">${winner.foodName}</h1>
+                <div class="grid grid-cols-2 gap-3 mb-6">
+                    <button onclick="location.href='/game'" class="py-3 bg-gray-100 rounded-2xl font-bold">HOME 🏠</button>
+                    <button onclick="location.href='/worldcup/setup'" class="py-3 bg-gray-100 rounded-2xl font-bold">RESTART 🔄</button>
+                    <button onclick="location.href='/worldcup/ranking'" class="py-3 bg-gray-100 rounded-2xl font-bold">RANK 🏆</button>
+                    <button onclick="window.copyToClipboard('${winner.foodName}')" class="py-3 bg-gray-100 rounded-2xl font-bold">SHARE 🔗</button>
+                </div>
+                <button onclick="window.open('https://map.kakao.com/link/search/' + encodeURIComponent('${winner.foodName}'))"
+                        class="w-full py-5 bg-[#FAE100] rounded-full font-black text-xl">
+                    주변 맛집 찾기 📍
+                </button>
+            </div>
+        </div>
+        `;
+        setTimeout(() => {
+            if (typeof confetti === 'function') {
+                confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, zIndex: 9999 });
+            }
+        }, 100);
+    }
+
+    // [6] 마지막: 게임 시작!
+    updateUI();
+</script>
+</body>
+</html>
