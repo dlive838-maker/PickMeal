@@ -19,7 +19,7 @@ import java.util.List;
 public class MainController {
 
     @Autowired
-    private UserService userService; // 이제 주방장이 userService라는 일꾼을 쓸 수 있게 됩니다!
+    private UserService userService;
 
     @GetMapping("/")
     public String index() {

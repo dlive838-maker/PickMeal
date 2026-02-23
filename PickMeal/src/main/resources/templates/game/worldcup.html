@@ -55,7 +55,8 @@
     </style>
 </head>
 <body>
-
+<header th:replace="~{fragments/header :: headerFragment}"></header>
+<main>
 <div class="text-center mt-12 mb-8">
     <h1 id="roundTitle" class="text-6xl font-black text-[#FF8A5B] italic mb-2 uppercase tracking-tighter" th:text="${totalRound} + '강'">라운드</h1>
     <div id="matchStatus" class="text-gray-400 font-bold italic text-xl">경기진행 정보</div>
@@ -82,7 +83,8 @@
         </div>
     </div>
 </div>
-
+</main>
+<footer th:replace="~{fragments/footer :: footerFragment}"></footer>
 <script th:inline="javascript">
     // [1] 데이터 초기화
     let foods = [[${foods}]];
@@ -209,5 +211,6 @@
     // [6] 마지막: 게임 시작!
     updateUI();
 </script>
+
 </body>
 </html>
