@@ -92,15 +92,20 @@
     </div>
   </div>
 
-  <div class="mt-16 flex justify-center gap-6">
-    <a th:href="@{/users/edit}" class="px-12 py-5 bg-[#FF8A5B] text-white rounded-full font-black text-xl shadow-xl hover:bg-[#e67a4d] hover:scale-105 transition italic uppercase">
+  <div class="mt-20 flex flex-col items-center gap-6">
+
+    <a th:href="@{/users/edit}"
+       class="px-16 py-5 bg-[#FF8A5B] text-white rounded-full font-black text-xl shadow-xl hover:bg-[#e67a4d] hover:scale-105 transition-all duration-300 italic uppercase">
       Edit Profile
     </a>
+
     <form th:action="@{/users/remove}" method="post" onsubmit="return confirm('정말 탈퇴하시겠습니까?');">
-      <button type="submit" class="px-12 py-5 bg-slate-200 text-slate-500 rounded-full font-black text-xl hover:bg-red-50 hover:text-red-500 transition italic uppercase">
-        Withdraw
+      <button type="submit"
+              class="px-6 py-2 bg-transparent text-slate-400 rounded-full font-bold text-sm hover:text-red-400 hover:bg-red-50 transition-all duration-300 italic uppercase">
+        Account Withdrawal
       </button>
     </form>
+
   </div>
 </main>
 
