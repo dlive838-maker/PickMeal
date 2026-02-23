@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pick Meal - Menu Slide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+    <style>
+        body { font-family: 'Fredoka', sans-serif; background-color: #FDF5E6; margin: 0; cursor: pointer; }
+        .nav-link { font-family: 'Fredoka', sans-serif; font-weight: 700; font-style: italic; }
+        .section-title { font-family: 'Fredoka', sans-serif; font-weight: 800; font-style: italic; letter-spacing: -2px; color: #1a1a1a; }
+        .swiper-container-wrapper { position: relative; padding: 0 50px; max-width: 1400px; margin: 0 auto; }
+        .swiper { width: 100%; padding-bottom: 60px !important; padding-top: 20px !important; }
+        .food-card { transition: all 0.3s ease; height: 100%; cursor: pointer; border-radius: 3rem; }
+        .food-card:hover { transform: translateY(-10px); }
+        .swiper-button-next, .swiper-button-prev { color: #FF8A5B !important; }
+    </style>
+</head>
+<body>
+
+<nav class="flex justify-between items-center px-10 py-6 w-full bg-white shadow-sm mb-8">
+    <div class="text-3xl font-bold text-[#FF8A5B] italic cursor-pointer" onclick="location.href='/'">Pick Meal</div>
+    <div class="hidden lg:flex space-x-12">
+        <button onclick="location.href='/game'" class="nav-link text-xl text-gray-500 hover:text-[#FF8A5B]">GAME</button>
+        <button onclick = "location.href = '/hotplace'"class="nav-link text-xl text-gray-500 hover:text-[#FF8A5B]">HOT PLACE</button>
+        <button onclick="location.href='/board'" class="nav-link text-xl text-gray-500 hover:text-[#FF8A5B]">BOARD</button>
+    </div>
+    <div class="flex items-center space-x-6">
+        <button th:if="${session.loggedInUser == null}"
+                onclick="location.href='/login'"
+                class="nav-link text-gray-400 hover:text-[#FF8A5B]">Log in</button>
+
+        <button th:if="${session.loggedInUser != null}"
+                onclick="location.href='/mypage'"
+                class="bg-[#FF8A5B] text-white px-8 py-2 rounded-full font-bold shadow-md hover:scale-105 transition italic">My Page</button>
+
+        <button th:if="${session.loggedInUser != null}"
+                onclick="location.href='/logout'"
+                class="nav-link text-gray-400 hover:text-red-400 ml-4">Logout</button>
+    </div>
+</nav>
+
+<div class="px-10 pb-20">
+    <div class="flex justify-between items-end mb-12">
+        <div>
+            <h2 class="section-title text-6xl uppercase tracking-tighter">인기 메뉴 슬라이드</h2>
+            <p class="text-[#FF8A5B] mt-3 font-bold italic">What's your favorite meal today?</p>
+        </div>
+    </div>
+
+    <div class="swiper-container-wrapper">
+        <div class="swiper mySwiper">
+            <div class="swiper-wrapper" id="menuWrapper"></div>
+        </div>
+        <div class="swiper-button-next"></div>
+        <div class="swiper-button-prev"></div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+<script>
+    const menuItems = [
+        { name: "Pepperoni Pizza", price: "15,000", emoji: "🍕" },
+        { name: "Cheese Burger", price: "12,000", emoji: "🍔" },
+        { name: "Premium Sushi", price: "18,000", emoji: "🍣" },
+        { name: "Cream Pasta", price: "14,000", emoji: "🍝" },
+        { name: "Beef Steak", price: "35,000", emoji: "🥩" },
+        { name: "Fried Chicken", price: "20,000", emoji: "🍗" }
+    ];
+
+    document.getElementById('menuWrapper').innerHTML = menuItems.map(item => `
+        <div class="swiper-slide p-2">
+            <div class="food-card bg-white overflow-hidden shadow-lg border-2 border-gray-50 p-6">
+                <div class="bg-[#FFF5F0] h-56 rounded-[2.5rem] mb-5 flex items-center justify-center text-7xl select-none">${item.emoji}</div>
+                <div class="px-4 text-center">
+                    <h3 class="text-2xl font-black text-gray-800 italic uppercase">${item.name}</h3>
+                    <div class="flex justify-between items-center mt-6">
+                        <span class="text-[#FF8A5B] text-xl font-black">${item.price} KRW</span>
+                        <button class="bg-[#A8D5BA] text-white px-6 py-2 rounded-full font-black shadow-md hover:bg-[#8fc7a5] transition uppercase text-sm">Add</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `).join('');
+
+    new Swiper(".mySwiper", {
+        slidesPerView: 3,
+        spaceBetween: 25,
+        loop: true,
+        navigation: { nextEl: ".swiper-button-next", prevEl: ".swiper-button-prev" },
+        breakpoints: { 320: { slidesPerView: 1 }, 768: { slidesPerView: 2 }, 1024: { slidesPerView: 3 } }
+    });
+</script>
+</body>
+</html>

@@ -1,2 +1,1 @@
-# PickMeal
-한끼뚝딱 프로젝트
+PickMeal 프로젝트

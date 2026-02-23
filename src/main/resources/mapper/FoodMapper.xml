@@ -9,6 +9,9 @@
         foodName,
         category,
         imagePath
+    </select>
+    <select id = "getFoodInfo" resultType="PickMeal.PickMeal.domain.Food">
+        SELECT foodId, foodName, category, description, imagePath
         FROM food
     </select>
 

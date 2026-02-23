@@ -1,0 +1,12 @@
+package PickMeal.PickMeal.domain;
+
+import lombok.Data;
+
+@Data
+public class Food {
+    private Long foodId;
+    private String foodName;
+    private String category;
+    private String description;
+    private String imagePath;
+}
