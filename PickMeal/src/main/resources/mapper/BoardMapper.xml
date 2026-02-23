@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="PickMeal.PickMeal.mapper.BoardMapper">
+    <select id="showBoard" resultType="PickMeal.PickMeal.domain.Board">
+        SELECT (boardId, title, user_id, createDate, viewCount, likeCount) FROM board;
+    </select>
+    <insert id="writeBoard" parameterType="PickMeal.PickMeal.domain.Board">
+            INSERT INTO board(user_id, title, content, createDate, updateDate, likeCount, dislikeCount, viewCount)
+            VALUES(#{user_id}, #{title}, #{content}, #{createDate},
+            #{updateDate}, #{likeCount}, #{dislikeCount}, #{viewCount})
+    </insert>
+    <delete id="removeBoard">
+        DELETE FROM board
+        WHERE boardId = #{boardId}
+    </delete>
+</mapper>

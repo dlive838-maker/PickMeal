@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pick Meal - Roulette</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@700;800&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Fredoka', sans-serif; background-color: #FFF5F0; margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+    .nav-link { font-family: 'Fredoka', sans-serif; font-weight: 700; font-style: italic; }
+
+    /* 통일된 애니메이션 */
+    .content-slide-up {
+        animation: slideUp 0.8s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+    }
+    @keyframes slideUp {
+        from { transform: translateY(100px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+
+    /* 룰렛 스타일 */
+    #roulette-container { position: relative; width: 400px; height: 400px; }
+    #canvas { width: 100%; height: 100%; transform: rotate(-90deg); transition: transform 4s cubic-bezier(0.15, 0, 0.15, 1); }
+
+    /* 룰렛 화살표 (바늘) */
+    .arrow {
+        position: absolute; top: -20px; left: 50%; transform: translateX(-50%);
+        width: 0; height: 0;
+        border-left: 15px solid transparent; border-right: 15px solid transparent; border-top: 30px solid #FF8A5B;
+        z-index: 10;
+    }
+
+    .input-field { border-radius: 1rem; border: 2px solid #FDF5E6; transition: all 0.3s; }
+    .input-field:focus { border-color: #FF8A5B; outline: none; }
+  </style>
+</head>
+<body>
+<header th:replace="~{fragments/header :: headerFragment}"></header>
+
+<main class="flex-grow flex items-center justify-center content-slide-up px-10 gap-20">
+  <div class="flex flex-col items-center">
+    <div id="roulette-container">
+      <div class="arrow"></div>
+      <canvas id="canvas" width="400" height="400"></canvas>
+    </div>
+    <button onclick="spin()" id="spin-btn" class="mt-10 bg-[#FF8A5B] text-white px-12 py-4 rounded-full font-black text-2xl shadow-lg hover:scale-105 transition italic uppercase">Spin!</button>
+  </div>
+
+  <div class="bg-white p-10 rounded-[3rem] shadow-xl w-full max-w-md border-2 border-gray-50">
+    <h2 class="text-3xl font-black text-[#FF8A5B] italic mb-6 uppercase">Menu List</h2>
+    <div id="item-list" class="space-y-3 mb-6 max-h-[300px] overflow-y-auto pr-2">
+    </div>
+    <div class="flex gap-2">
+      <input type="text" id="new-item" placeholder="Add menu..." class="input-field flex-grow px-4 py-3 font-bold">
+      <button onclick="addItem()" class="bg-[#A8D5BA] text-white px-6 py-3 rounded-2xl font-black shadow-md hover:bg-[#8fc7a5] transition">+</button>
+    </div>
+    <p class="text-gray-400 mt-4 text-sm font-bold italic text-center">Min 2, Max 12 items recommended!</p>
+  </div>
+</main>
+
+<script>
+  const canvas = document.getElementById("canvas");
+  const ctx = canvas.getContext("2d");
+  let items = ["Pizza", "Sushi", "Burger", "Pasta"]; // 기본 항목
+  const colors = ["#FF8A5B", "#A8D5BA", "#FFD93D", "#6BCB77", "#4D96FF", "#FF6B6B", "#9575CD", "#4DB6AC"];
+
+  let isSpinning = false;
+  let currentRotation = 0;
+
+  function drawRoulette() {
+      const numSegments = items.length;
+      const angleStep = (2 * Math.PI) / numSegments;
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      items.forEach((item, i) => {
+          const angle = i * angleStep;
+          ctx.beginPath();
+          ctx.fillStyle = colors[i % colors.length];
+          ctx.moveTo(200, 200);
+          ctx.arc(200, 200, 200, angle, angle + angleStep);
+          ctx.fill();
+
+          // 텍스트 그리기
+          ctx.save();
+          ctx.translate(200, 200);
+          ctx.rotate(angle + angleStep / 2);
+          ctx.textAlign = "right";
+          ctx.fillStyle = "white";
+          ctx.font = "bold 18px Fredoka";
+          ctx.fillText(item, 180, 10);
+          ctx.restore();
+      });
+  }
+
+  function updateList() {
+      const listContainer = document.getElementById("item-list");
+      listContainer.innerHTML = items.map((item, i) => `
+          <div class="flex justify-between items-center bg-gray-50 p-3 rounded-xl">
+              <span class="font-bold text-gray-700">${item}</span>
+              <button onclick="removeItem(${i})" class="text-red-400 hover:text-red-600 font-black">X</button>
+          </div>
+      `).join("");
+      drawRoulette();
+  }
+
+  function addItem() {
+      const input = document.getElementById("new-item");
+      if (input.value.trim() && items.length < 12) {
+          items.push(input.value.trim());
+          input.value = "";
+          updateList();
+      }
+  }
+
+  function removeItem(index) {
+      if (items.length > 2) {
+          items.splice(index, 1);
+          updateList();
+      } else {
+          alert("최소 2개의 항목이 필요해요!");
+      }
+  }
+
+  function spin() {
+      if (isSpinning) return;
+      isSpinning = true;
+
+      const spinBtn = document.getElementById("spin-btn");
+      spinBtn.disabled = true;
+      spinBtn.style.opacity = "0.5";
+
+      const randomSpin = Math.floor(Math.random() * 360) + 1440; // 최소 4바퀴 회전
+      currentRotation += randomSpin;
+
+      canvas.style.transform = `rotate(${currentRotation - 90}deg)`;
+
+      setTimeout(() => {
+          isSpinning = false;
+          spinBtn.disabled = false;
+          spinBtn.style.opacity = "1";
+
+          // 결과 계산
+          const actualRotation = currentRotation % 360;
+          const segmentAngle = 360 / items.length;
+          const winIdx = Math.floor((360 - actualRotation) / segmentAngle) % items.length;
+
+          alert(`오늘의 추천 메뉴는 바로... [${items[winIdx]}] 입니다! 🥳`);
+      }, 4000);
+  }
+
+  updateList(); // 초기 리스트 렌더링
+</script>
+<footer th:replace="~{fragments/footer :: footerFragment}"></footer>
+</body>
+</html>
