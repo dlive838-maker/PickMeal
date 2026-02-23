@@ -43,4 +43,27 @@
         WHERE user_id = #{user_id}
     </update>
 
+    <select id="getMixedFoods" resultType="PickMeal.PickMeal.domain.Food">
+        SELECT * FROM food
+        WHERE category IN
+        <foreach item="type" collection="types" open="(" separator="," close=")">
+            #{type}
+        </foreach>
+        ORDER BY RAND()
+        LIMIT #{round}
+    </select>
+
+    <select id="getTop10Foods" resultType="PickMeal.PickMeal.domain.Food">
+        SELECT * FROM food
+        ORDER BY winCount DESC
+        LIMIT 10
+    </select>
+
+    <update id="updateWinCount">
+        /* [비유] food 테이블에서 foodId가 일치하는 음식을 찾아 winCount를 1 올립니다. */
+        UPDATE food
+        SET winCount = winCount + 1
+        WHERE foodId = #{foodId}
+    </update>
+
 </mapper>
