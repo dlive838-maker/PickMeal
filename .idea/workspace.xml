@@ -4,6 +4,149 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
+    <list default="true" id="c6539557-ad06-46b2-bc58-d5bb10ffc0a7" name="변경" comment="">
+      <change afterPath="$PROJECT_DIR$/PickMeal/src/main/java/PickMeal/PickMeal/config/SecurityConfig.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/templates/game/game_setup.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/templates/game/ranking.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/java/PickMeal/PickMeal/domain/Food.java" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/java/PickMeal/PickMeal/domain/Food.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/java/PickMeal/PickMeal/mapper/UserMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/java/PickMeal/PickMeal/mapper/UserMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/PickMealTestApplicationTests.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/SecurityConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/아시안식/나시고랭.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Asian food/Nasi Goreng.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/아시안식/똠양꿍.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Asian food/Tom Yum Goong.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/아시안식/랭쌥.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Asian food/Leng Saap.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/아시안식/미고랭.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Asian food/Mie Goreng.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/아시안식/반미.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Asian food/Banh Mi.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/아시안식/반쎄오.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Asian food/Banh Xeo.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/아시안식/분짜.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Asian food/Bun Cha.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/아시안식/사모사.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Asian food/Samosa.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/아시안식/샤슬릭.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Asian food/Shashlik.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/아시안식/스프링롤.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Asian food/Spring Roll.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/아시안식/쌀국수.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Asian food/Rice Noodle Soup.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/아시안식/아목.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Asian food/Amok.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/아시안식/월남쌈.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Asian food/Fresh Spring Rolls.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/아시안식/인도커리난.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Asian food/Indian Curry &amp; Naan.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/아시안식/짜조.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Asian food/Cha Gio.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/아시안식/칠리크랩.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Asian food/Chili Crab.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/아시안식/카오카무.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Asian food/Khao Kha Mu.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/아시안식/카오팟.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Asian food/Khao Pad.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/아시안식/케밥.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Asian food/Kebab.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/아시안식/탄두리치킨.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Asian food/Tandoori Chicken.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/아시안식/팟타이.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Asian food/Pad Thai.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/아시안식/푸팟퐁커리.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Asian food/Pu Phat Phong Kari.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/아시안식/허르헉.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Asian food/Khorkhog.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/양식/감바스.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Western food/Gambas al Ajillo.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/양식/고르곤졸라피자.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Western food/Gorgonzola Pizza.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/양식/까르보나라.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Western food/Carbonara.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/양식/뇨끼.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Western food/Gnocchi.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/양식/라자냐.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Western food/Lasagna.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/양식/로제파스타.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Western food/Rose Pasta.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/양식/마르게리따피자.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Western food/Margherita Pizza.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/양식/미트볼스파게티.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Western food/Meatball Spaghetti.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/양식/바비큐폭립.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Western food/BBQ Pork Ribs.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/양식/봉골레파스타.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Western food/Vongole Pasta.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/양식/부리또.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Western food/Burrito.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/양식/비프스튜.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Western food/Beef Stew.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/양식/샌드위치.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Western food/Sandwich.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/양식/수제버거.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Western food/Handmade Burger.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/양식/슈바인학센.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Western food/Schweinshaxen.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/양식/스프.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Western food/Soup.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/양식/시카고피자.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Western food/Chicago Pizza.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/양식/안심스테이크.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Western food/Tenderloin Steak.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/양식/알리오올리오.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Western food/Aglio e Olio.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/양식/양갈비스테이크.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Western food/Lamb Chop Steak.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/양식/잠봉뵈르.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Western food/Jambon Beurre.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/양식/칠리콘카르네.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Western food/Chili Con Carne.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/양식/퀘사디아.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Western food/Quesadilla.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/양식/타코.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Western food/Taco.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/양식/토마토파스타.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Western food/Tomato Pasta.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/양식/투움바파스타.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Western food/Toowoomba Pasta.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/양식/티본스테이크.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Western food/T-bone Steak.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/양식/페퍼로니피자.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Western food/Pepperoni Pizza.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/양식/포테이토피자.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Western food/Potato Pizza.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/양식/프렌치토스트.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Western food/French Toast.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/양식/피쉬앤칩스.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Western food/Fish and Chips.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/양식/하와이안피자.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Western food/Hawaiian Pizza.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/양식/함박스테이크.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Western food/Salisbury Steak.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/양식/화이트라구파스타.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Western food/White Ragu Pasta.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/일식/가츠동.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Japanese food/Katsudon.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/일식/규동.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Japanese food/Gyudon.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/일식/나베.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Japanese food/Nabe.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/일식/덴푸라.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Japanese food/Tempura.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/일식/돈카츠.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Japanese food/Tonkatsu.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/일식/돈코츠라멘.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Japanese food/Tonkotsu Ramen.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/일식/라멘.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Japanese food/Ramen.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/일식/마제소바.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Japanese food/Mazesoba.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/일식/메밀소바.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Japanese food/Soba Noodles.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/일식/모츠나베.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Japanese food/Motsunabe.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/일식/몬자야키.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Japanese food/Monjayaki.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/일식/사케동.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Japanese food/Salmon Donburi.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/일식/샤브샤브.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Japanese food/Shabu Shabu.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/일식/소유라멘.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Japanese food/Shoyu Ramen.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/일식/스시.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Japanese food/Sushi.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/일식/스키야키.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Japanese food/Sukiyaki.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/일식/야키소바.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Japanese food/Yakisoba.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/일식/야키토리.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Japanese food/Yakitori.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/일식/에비후라이.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Japanese food/Fried Shrimp.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/일식/오니기리.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Japanese food/Onigiri.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/일식/오코노미야키.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Japanese food/Okonomiyaki.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/일식/우동.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Japanese food/Udon.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/일식/치킨가라아게.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Japanese food/Chicken Karaage.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/일식/카레라이스.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Japanese food/Curry Rice.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/일식/카이센동.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Japanese food/Kaisendon.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/일식/타코야키.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Japanese food/Takoyaki.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/일식/텐동.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Japanese food/Tendon.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/일식/회덮밥.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Japanese food/Raw Fish Rice Bowl.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/일식/후토마키.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Japanese food/Futomaki.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/중식/고추잡채.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Chinese food/Stir-fried Pork and Peppers.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/중식/군만두.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Chinese food/Fried Dumplings.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/중식/깐풍기.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Chinese food/Kkanpunggi.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/중식/꿔바로우.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Chinese food/Guobaorou.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/중식/난자완스.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Chinese food/Nanjawans.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/중식/딤섬.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Chinese food/Dim Sum.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/중식/라조기.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Chinese food/Lajogi.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/중식/마라탕.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Chinese food/Malatang.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/중식/마파두부.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Chinese food/Mapo Tofu.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/중식/볶음밥.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Chinese food/Fried Rice.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/중식/북경오리구이.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Chinese food/Peking Duck.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/중식/사천탕수육.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Chinese food/Szechuan Sweet and Sour Pork.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/중식/양꼬치.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Chinese food/Lamb Skewers.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/중식/유린기.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Chinese food/Yuringi.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/중식/유산슬.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Chinese food/Yusanseul.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/중식/잡채밥.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Chinese food/Japchae-bap.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/중식/짜장면.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Chinese food/Jajangmyeon.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/중식/짬뽕.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Chinese food/Jjamppong.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/중식/칠리새우.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Chinese food/Chili Shrimp.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/중식/탄탄면.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Chinese food/Dan Dan Noodles.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/중식/탕수육.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Chinese food/Tangsuyuk.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/중식/탕후루.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Chinese food/Tanghulu.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/중식/팔보채.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Chinese food/Palbochae.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/한식/갈비찜.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Korean food/Galbi-jjim.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/한식/감자탕.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Korean food/Gamja-tang.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/한식/곱창전골.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Korean food/Gopchang-jeongol.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/한식/김치찌개.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Korean food/Kimchi-jjigae.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/한식/냉면.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Korean food/Naengmyeon.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/한식/닭볶음탕.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Korean food/Dak-bokkeum-tang.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/한식/된장찌개.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Korean food/Doenjang-jjigae.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/한식/떡볶이.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Korean food/Tteokbokki.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/한식/보쌈.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Korean food/Bossam.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/한식/부대찌개.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Korean food/Budae-jjigae.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/한식/불고기.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Korean food/Bulgogi.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/한식/비빔밥.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Korean food/Bibimbap.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/한식/삼겹살.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Korean food/Samgyeopsal.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/한식/삼계탕.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Korean food/Samgye-tang.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/한식/설렁탕.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Korean food/Seolleong-tang.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/한식/소머리국밥.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Korean food/Sommeori-gukbap.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/한식/순대국밥.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Korean food/Sundae-gukbap.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/한식/순대볶음.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Korean food/Sundae-bokkeum.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/한식/순두부찌개.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Korean food/Sundubu-jjigae.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/한식/육개장.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Korean food/Yukgaejang.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/한식/제육볶음.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Korean food/Jeyuk-bokkeum.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/한식/족발.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Korean food/Jokbal.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/한식/칼국수.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Korean food/Kalguksu.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/한식/해물파전.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/static/images/Korean food/Haemul-pajeon.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/templates/game/worldcup.html" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/templates/game/worldcup.html" afterDir="false" />
     <list default="true" id="78f8d33b-6691-42f3-a6fe-27000348bd62" name="변경" comment="">
       <change afterPath="$PROJECT_DIR$/PickMeal/src/main/java/PickMeal/PickMeal/controller/CapsuleController.java" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/PickMeal/src/main/java/PickMeal/PickMeal/service/FoodService.java" afterDir="false" />
@@ -18,15 +161,83 @@
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+        <option value="HTML File" />
+      </list>
+    </option>
+  </component>
   <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="main" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "lastFilter": {
+    "state": "OPEN",
+    "assignee": "juno1007"
+  }
+}]]></component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/dlive838-maker/PickMeal.git",
+    "accountId": "453e9330-37b0-4881-b769-ab3dfe353017"
+  }
+}]]></component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "associatedIndex": 2
+}]]></component>
+  <component name="ProjectId" id="3A3fHWaJskurp5rLiPFUbXbCQDW" />
+  <component name="ProjectViewState">
+    <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "git-widget-placeholder": "main 병합 중"
+    "DefaultHtmlFileTemplate": "HTML File",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "junho",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/SpringFrame_workspace/PickMeal/PickMeal/src/main/resources/static/images"
   }
 }]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\SpringFrame_workspace\PickMeal\PickMeal\src\main\resources\static\images" />
+    </key>
+  </component>
+  <component name="RunManager">
+    <configuration default="true" type="JetRunConfigurationType">
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
+      <option name="filePath" />
+      <method v="2" />
+    </configuration>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-30f59d01ecdd-2fc7cc6b9a17-intellij.indexing.shared.core-IU-253.30387.90" />
+      </set>
+    </attachedChunks>
+  </component>
   <component name="TaskManager">
+    <task active="true" id="Default" summary="디폴트 작업">
+      <changelist id="c6539557-ad06-46b2-bc58-d5bb10ffc0a7" name="변경" comment="" />
+      <created>1771826087840</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1771826087840</updated>
+    </task>
     <servers />
   </component>
 </project>

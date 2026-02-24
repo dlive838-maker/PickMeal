@@ -29,7 +29,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, OAuth2SuccessHandler oauth2SuccessHandler) throws Exception {
         http
-                .csrf(csrf -> csrf.ignoringRequestMatchers("/mail/**", "/worldcup/win/**"))
+                .csrf(csrf -> csrf.ignoringRequestMatchers("/mail/**", "/worldcup/win/**", "/users/login"))
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/", "/next-page", "/users/signup", "/users/signup/social", "/users/login",
                                 "/users/check-id", "/users/check-nickname", "/users/mypage","/users/forgot-pw", "/mail/**",
@@ -38,6 +38,8 @@ public class SecurityConfig {
                 )
                 .formLogin(formLogin -> formLogin
                         .loginPage("/users/login")
+                        // ★ 추가: 문지기에게 "여기(/users/login)로 들어오는 POST 요청이 진짜 로그인 서류야!"라고 확실히 알려줍니다.
+                        .loginProcessingUrl("/users/login")
                         .usernameParameter("id")
                         .defaultSuccessUrl("/next-page", true)
                         .failureHandler(loginFailureHandler) // 일반 로그인 실패 핸들러
