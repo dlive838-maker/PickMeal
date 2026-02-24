@@ -100,7 +100,7 @@
 
 <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=24546b16104e0273c6d8c5c4cc508b44&libraries=services,clusterer,drawing"></script>
 
-<script>
+<script th:inline="javascript"> // 수정
     var container = document.getElementById('map');
     var options = {
         center: new kakao.maps.LatLng(37.49027, 126.92753),
@@ -108,6 +108,67 @@
     };
 
     var map = new kakao.maps.Map(container, options);
+
+    const myDbRestaurants = /*[[${restaurantList}]]*/ [];
+
+    // 핀(마커)의 모양과 이미지 설정하기 - 추가
+    const myImageSrc = '/images/foodLocation.png';
+    const myImageSize = new kakao.maps.Size(35, 35);
+    const myMarkerImage = new kakao.maps.MarkerImage(myImageSrc, myImageSize);
+
+    var markers = []; // 추가
+    const overlay = new kakao.maps.CustomOverlay({
+    zIndex: 3,
+    yAnchor: 1.2
+   });
+
+   // 지도에 핀 꽂기 시작 - 추가
+    myDbRestaurants.forEach(res => {
+    const position = new kakao.maps.LatLng(res.lat, res.lon);
+
+    // 마커 생성 - 추가
+    const marker = new kakao.maps.Marker({
+        map: map,
+        position: position,
+        // title은 기본 이름표 방지를 위해 넣지 않습니다.
+        image: myMarkerImage
+    });
+
+    // 정보창 디자인 정의 - 추가
+    // 정보창 디자인 정의
+    const content =
+        '<div style="padding:20px; line-height:1.8; font-family: sans-serif; min-width: 240px; ' +
+        '            background-color: white; border-radius: 15px; border: 1px solid #ccc; ' +
+        '            box-shadow: 0px 4px 10px rgba(0,0,0,0.1); box-sizing: border-box;">' +
+        '   <div style="margin-bottom: 8px;">' +
+        '       <span style="color:#FF5722; font-size:17px; font-weight:bold; display: block;">' + res.res_name + '</span>' +
+        '   </div>' +
+        '   <div style="font-size:13px; color:#888; margin-bottom: 5px; word-break: keep-all;">' +
+        '       📍 ' + (res.address || '주소 정보 없음') +
+        '   </div>' +
+        '   <div style="font-size:14px; color:#666; word-break: break-all; margin-bottom: 5px;">' +
+        '       <span style="font-weight:bold; color:#333;">추천:</span> ' + (res.representative_menu || '정보없음') +
+        '   </div>' +
+        '   <div style="font-size:14px; color:#666;">' +
+        '       <span style="font-weight:bold; color:#333;">가격:</span> ' + (res.menu_price > 0 ? res.menu_price + '원' : '가격 정보 없음') +
+        '   </div>' +
+        '</div>';
+
+    // [센서 연결] 마우스를 올렸을 때 - 추가
+    kakao.maps.event.addListener(marker, 'mouseover', function() {
+        overlay.setContent(content);
+        overlay.setPosition(marker.getPosition());
+        overlay.setMap(map);
+    });
+
+    // [센서 연결] 마우스가 벗어났을 때 - 추가
+    kakao.maps.event.addListener(marker, 'mouseout', function() {
+        overlay.setMap(null);
+    });
+
+    // 마커를 리스트에 담기 - 추가
+    markers.push(marker);
+    });
 
     // 지도 컨트롤 추가
     var mapTypeControl = new kakao.maps.MapTypeControl();
