@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${board.title} + ' - PickMeal'">게시글 상세 - PickMeal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@700;800&family=Jua&family=Nanum+Gothic:wght@700;800&family=Gamja+Flower&family=Black+Han+Sans&display=swap" rel="stylesheet">
+  <style>
+    body {
+        font-family: 'Fredoka', sans-serif;
+        background-color: #FFF5F0;
+        margin: 0;
+        overflow: hidden;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .nav-link { font-family: 'Fredoka', sans-serif; font-weight: 700; font-style: italic; }
+
+    main {
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* 메인 타이틀 영역 스타일 (목록 화면과 통일) */
+        .main-title-area {
+            text-align: left;
+            width: 100%;
+            max-width: 900px;
+            margin-bottom: 20px;
+        }
+        .main-title-area h1 {
+            color: #FF7F50; /* 주황색 포인트 컬러 */
+            font-size: 3em;
+            margin: 0;
+            /* 텍스트 테두리 효과 (선택 사항) */
+            /* -webkit-text-stroke: 1px #6D4C41; */
+        }
+        .main-title-area p {
+            color: #FF7F50;
+            font-size: 1.2em;
+            margin-top: 10px;
+        }
+
+        /* 게시글 상세 카드 컨테이너 스타일 */
+        .board-container {
+            background-color: #fff;
+            border-radius: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            padding: 40px;
+            width: 100%;
+            max-width: 900px;
+            box-sizing: border-box;
+        }
+
+        /* 게시글 헤더 (제목, 정보) */
+        .board-header {
+            margin-bottom: 20px;
+            border-bottom: 2px solid #FF7F50; /* 하단 주황색 선 */
+            padding-bottom: 20px;
+        }
+        .board-title {
+            font-size: 2.2em;
+            color: #FF7F50; /* 주황색 제목 */
+            margin: 0 0 15px 0;
+            word-break: break-all; /* 긴 제목 줄바꿈 */
+        }
+        .board-meta {
+            display: flex;
+            justify-content: space-between;
+            color: #777; /* 메타 정보는 회색으로 */
+            font-size: 1em;
+            flex-wrap: wrap; /* 좁은 화면에서 줄바꿈 */
+            gap: 10px;
+        }
+        .board-meta span {
+            margin-right: 15px;
+        }
+        .like-count {
+            color: #FF7F50;
+            font-weight: bold;
+        }
+
+        /* 게시글 본문 영역 */
+        .board-content {
+            padding: 30px 0;
+            min-height: 300px; /* 최소 높이 확보 */
+            font-size: 1.1em;
+            line-height: 1.8;
+            color: #444;
+            white-space: pre-wrap; /* 줄바꿈, 공백 유지 */
+        }
+        .board-content img {
+            max-width: 100%; /* 이미지 넘침 방지 */
+            height: auto;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        /* 하단 버튼 영역 */
+        .board-buttons {
+            display: flex;
+            justify-content: flex-end; /* 오른쪽 정렬 */
+            gap: 15px;
+            margin-top: 30px;
+            border-top: 1px solid #eee; /* 상단 회색 선 */
+            padding-top: 30px;
+        }
+
+        /* 버튼 공통 스타일 */
+        .btn {
+            padding: 12px 25px;
+            border-radius: 30px; /* 둥근 버튼 */
+            font-size: 1.1em;
+            font-family: 'Jua', sans-serif;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        /* 주황색 버튼 스타일 (수정 버튼 등) */
+        .btn-orange {
+            background-color: #FF7F50;
+            color: white;
+            box-shadow: 0 4px 0 #E64A19; /* 입체감 그림자 */
+        }
+        .btn-orange:hover {
+            background-color: #FF6337;
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #E64A19;
+        }
+
+        /* 회색 버튼 스타일 (목록 버튼) */
+        .btn-light {
+            background-color: #f0f0f0;
+            color: #555;
+            box-shadow: 0 4px 0 #d0d0d0;
+        }
+        .btn-light:hover {
+            background-color: #e0e0e0;
+            color: #333;
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #d0d0d0;
+        }
+
+        /* 빨간색 버튼 스타일 (삭제 버튼) */
+        .btn-danger {
+            background-color: #FF5252;
+            color: white;
+            box-shadow: 0 4px 0 #D32F2F;
+        }
+        .btn-danger:hover {
+             background-color: #FF1744;
+             transform: translateY(2px);
+             box-shadow: 0 2px 0 #D32F2F;
+        }
+  </style>
+</head>
+<body>
+
+<header th:replace="~{fragments/header :: headerFragment}"></header>
+<div class="overflow-y-auto flex-grow" >
+  <main class="flex items-center justify-center content-slide-up py-10">
+    <div class="main-title-area">
+      <h1>COMMUNITY BOARD</h1>
+      <p>Share your tasty experiences!</p>
+    </div>
+
+    <div class="board-container">
+      <div class="board-header">
+        <h2 class="board-title" th:text="${board.title}">게시글 제목</h2>
+
+        <div class="board-meta">
+          <div>
+            <span th:text="'AUTHOR : ' + ${board.nickname}">작성자</span>
+            <span th:text="'DATE : ' + ${#dates.format(board.createDate, 'yyyy-MM-dd HH:mm')}">날짜</span>
+          </div>
+          <div>
+            <span th:text="'VIEWS : ' + ${board.viewCount}">조회수</span>
+            <span class="like-count">❤️ <span th:text="${board.likeCount}">15</span></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="board-content" th:text="${board.content}">글 내용</div>
+
+      <div th:if="${not #lists.isEmpty(files)}" class="mb-3">
+        <strong>첨부 파일: </strong>
+        <ul>
+          <li th:each="file : ${files}">
+            <div th:if="${#strings.endsWith(file.originalName,'.jpg')
+                        or #strings.endsWith(file.originalName,'.png')
+                        or #strings.endsWith(file.originalName,'.gif')}">
+              <img width="33%" th:src="@{/image/{filename}(filename=${file.storedName})}"
+                   class="img-fluid rounded mb-3" alt="첨부된 파일">
+              <a th:href="@{/files/download/{fileId}(fileId=${file.fileId})}"
+                 th:text="${file.originalName}"></a>
+            </div>
+          </li>
+        </ul>
+      </div>
+
+      <div class="board-buttons">
+        <a href="/board/list" class="btn btn-light">목록으로</a>
+
+        <th:block th:if="${isWriter}">
+          <a th:href="@{/board/edit/{id}(id=${board.boardId})}" class="btn btn-orange">수정</a>
+          <button type="button" class="btn btn-danger" th:data-id="${board.boardId}" onclick="deleteBoard(this.getAttribute('data-id'))">삭제</button>
+        </th:block>
+      </div>
+
+    </div>
+  </main>
+  <footer th:replace="~{fragments/footer :: footerFragment}"></footer>
+</div>
+
+<script th:inline="javascript">
+    function deleteBoard(boardId) {
+        if (confirm('정말 삭제하시겠습니까?')) {
+            const form = document.createElement('form');
+            form.method = 'post';
+            form.action = '/board/remove/' + boardId;
+            alert(boardId);
+
+            // 1. 타임리프를 통해 스프링 시큐리티의 CSRF 토큰 값 가져오기
+            const csrfToken = /*[[${_csrf.token}]]*/ '';
+            const csrfParameter = /*[[${_csrf.parameterName}]]*/ '_csrf';
+
+            // 2. 폼 안에 숨겨진 input으로 CSRF 토큰 쏙 집어넣기
+            if (csrfToken) {
+                const csrfInput = document.createElement('input');
+                csrfInput.type = 'hidden';
+                csrfInput.name = csrfParameter;
+                csrfInput.value = csrfToken;
+                form.appendChild(csrfInput);
+            }
+
+            document.body.appendChild(form);
+            form.submit();
+        }
+    }
+</script>
+</body>
+</html>

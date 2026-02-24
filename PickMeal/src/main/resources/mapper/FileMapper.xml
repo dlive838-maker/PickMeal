@@ -23,4 +23,9 @@
         FROM file
         WHERE fileId = #{fileId}
     </select>
+    <select id = "findByFilePath" parameterType="String" resultType="PickMeal.PickMeal.domain.File">
+        SELECT fileId, boardId, originalName, storedName, filePath
+        FROM file
+        WHERE filePath = #{filepath}
+    </select>
 </mapper>

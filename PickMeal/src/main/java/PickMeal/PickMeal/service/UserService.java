@@ -149,6 +149,8 @@ public class UserService implements UserDetailsService {
         userMapper.updateWinCount(foodId);
     }
 
+    public String findByUser_id(Long user_id) {return userMapper.findByUser_id(user_id);}
+
     /**
      * 이메일 즉시 변경
      */

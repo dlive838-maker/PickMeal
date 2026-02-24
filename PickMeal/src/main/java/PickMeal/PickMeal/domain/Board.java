@@ -15,4 +15,6 @@ public class Board {
     private long likeCount;
     private long dislikeCount;
     private long viewCount;
+    private long commentCount;
+    private String nickname;
 }

@@ -74,9 +74,9 @@
   </style>
 </head>
 <body>
-<header th:replace="~{fragments/header :: headerFragment}"></header>
 
 <div class="overflow-y-auto flex-grow" >
+  <header th:replace="~{fragments/header :: headerFragment}"></header>
   <main class="flex items-center justify-center content-slide-up py-10">
     <div class="write-card p-12 w-full max-w-4xl mx-4 border-2 border-gray-50">
       <div class="mb-8 text-center md:text-left">
@@ -126,7 +126,7 @@
 
         <div class="space-y-2">
           <label class="font-black text-gray-700 italic ml-2 uppercase text-sm">Attach Image</label>
-          <input type="file" name="attach_image" class="block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-black file:bg-[#FFF5EF] file:text-[#FF8A5B] hover:file:bg-[#FF8A5B] hover:file:text-white transition cursor-pointer">
+          <input type="file" name="file" class="block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-black file:bg-[#FFF5EF] file:text-[#FF8A5B] hover:file:bg-[#FF8A5B] hover:file:text-white transition cursor-pointer">
         </div>
 
         <div class="flex gap-4 pt-6">
@@ -140,6 +140,7 @@
       </form>
     </div>
   </main>
+  <footer th:replace="~{fragments/footer :: footerFragment}"></footer>
 </div>
 
 <script>
@@ -168,11 +169,6 @@
       document.getElementById('postContent').style.textAlign = mode;
   }
 
-  document.getElementById('writeForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      alert("게시글이 성공적으로 등록되었습니다! 📝");
-      location.href = '/board';
-  });
 </script>
 </body>
 </html>

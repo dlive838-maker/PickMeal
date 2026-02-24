@@ -14,20 +14,20 @@
         JOIN twenty_attribute t ON f.foodId = t.foodId
         WHERE 1=1
 
-        <if test="category_korean == 1"> AND f.category = '한식' </if>
-        <if test="category_korean == 0"> AND f.category != '한식' </if>
+        <if test="category_korean == 1"> AND f.category = 'Korean food' </if>
+        <if test="category_korean == 0"> AND f.category != 'Korean food' </if>
 
-        <if test="category_western == 1"> AND f.category = '양식' </if>
-        <if test="category_western == 0"> AND f.category != '양식' </if>
+        <if test="category_western == 1"> AND f.category = 'Western food' </if>
+        <if test="category_western == 0"> AND f.category != 'Western food' </if>
 
-        <if test="category_chinese == 1"> AND f.category = '중식' </if>
-        <if test="category_chinese == 0"> AND f.category != '중식' </if>
+        <if test="category_chinese == 1"> AND f.category = 'Chinese food' </if>
+        <if test="category_chinese == 0"> AND f.category != 'Chinese food' </if>
 
-        <if test="category_japanese == 1"> AND f.category = '일식' </if>
-        <if test="category_japanese == 0"> AND f.category != '일식' </if>
+        <if test="category_japanese == 1"> AND f.category = 'Japanese food' </if>
+        <if test="category_japanese == 0"> AND f.category != 'Japanese food' </if>
 
-        <if test="category_asian == 1"> AND f.category = '아시안식' </if>
-        <if test="category_asian == 0"> AND f.category != '아시안식' </if>
+        <if test="category_asian == 1"> AND f.category = 'Asian food' </if>
+        <if test="category_asian == 0"> AND f.category != 'Asian food' </if>
 
         <if test="is_soup != null"> AND t.is_soup = #{is_soup} </if>
         <if test="is_spicy != null"> AND t.is_spicy = #{is_spicy} </if>
@@ -46,4 +46,11 @@
         ORDER BY RAND()
         LIMIT 1
     </select>
+
+    <select id="findImagePathByName" resultType="string">
+        SELECT imagePath
+        FROM food
+        WHERE foodName = #{foodName}
+    </select>
+
 </mapper>

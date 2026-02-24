@@ -3,16 +3,34 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="PickMeal.PickMeal.mapper.BoardMapper">
-    <select id="showBoard" resultType="PickMeal.PickMeal.domain.Board">
-        SELECT (boardId, title, user_id, createDate, viewCount, likeCount) FROM board;
+    <select id="findBoardAll" resultType="PickMeal.PickMeal.domain.Board">
+        SELECT b.boardId, b.title, b.content, b.user_id, b.createDate, b.updateDate, b.viewCount, b.likeCount, b.commentCount, u.nickname
+        FROM board b
+        JOIN user u ON b.user_id = u.user_id
+        ORDER BY b.boardId DESC
+        LIMIT #{offset}, #{pageSize}
     </select>
-    <insert id="writeBoard" parameterType="PickMeal.PickMeal.domain.Board">
+    <select id="countBoard" resultType="int">
+        SELECT COUNT(*) FROM board
+    </select>
+    <insert id="writeBoard" parameterType="PickMeal.PickMeal.domain.Board" useGeneratedKeys="true" keyProperty="boardId">
             INSERT INTO board(user_id, title, content, createDate, updateDate, likeCount, dislikeCount, viewCount)
-            VALUES(#{user_id}, #{title}, #{content}, #{createDate},
-            #{updateDate}, #{likeCount}, #{dislikeCount}, #{viewCount})
+            VALUES(#{user_id}, #{title}, #{content}, NOW(),
+            NOW(), 0, 0, 0)
     </insert>
     <delete id="removeBoard">
         DELETE FROM board
         WHERE boardId = #{boardId}
     </delete>
+    <select id="getBoardIdByUser_id" parameterType="long" resultType="long">
+        SELECT boardId
+        FROM board
+        WHERE user_id = #{userId}
+    </select>
+    <select id="getBoardByBoardId" parameterType="long" resultType="PickMeal.PickMeal.domain.Board">
+        SELECT b.boardId, b.title, b.content, b.user_id, b.createDate, b.updateDate, b.viewCount, b.likeCount, b.commentCount, u.nickname
+        FROM board b
+        JOIN user u ON b.user_id = u.user_id
+        WHERE b.boardId = #{boardId}
+    </select>
 </mapper>

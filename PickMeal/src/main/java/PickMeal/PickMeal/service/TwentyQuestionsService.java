@@ -81,4 +81,8 @@ public class TwentyQuestionsService {
 
         return questionsMapper.getQuestionsByAttributeName("final_recommendation");
     }
+
+    public String findImagePathByName(String foodName) {
+        return foodMapper.findImagePathByName(foodName);
+    }
 }

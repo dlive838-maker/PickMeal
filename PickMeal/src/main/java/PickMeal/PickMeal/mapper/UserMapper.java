@@ -33,4 +33,6 @@ public interface UserMapper {
     List<Food> getTop10Foods();
 
     void updateWinCount(Long id);
+
+    String findByUser_id(Long userId);
 }
