@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,458 +7,302 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@700;800&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Fredoka', sans-serif;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            height: 100vh; /* 화면 전체 높이 사용 */
-            background-color: #FFF5F0;
-        }
+        /* [전체 기본 폰트 설정] */
+        body { font-family: 'Fredoka', sans-serif; background-color: #fff; margin: 0; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
 
-        /* 지도가 헤더 아래부터 화면 끝까지 꽉 차도록 설정 */
-        .map-container {
-            flex-grow: 1;
-            width: 100%;
+        /* [복구] 헤더 및 주요 이탤릭 스타일 */
+        header, header *, .italic-text { font-style: italic !important; }
+
+        .main-container { flex-grow: 1; display: flex; margin-top: 80px; overflow: hidden; height: calc(100vh - 140px); }
+
+        /* [좌측 패널 및 필터 섹션] */
+        .side-panel { width: 380px; background: white; border-right: 1px solid #eee; display: flex; flex-direction: column; z-index: 10; height: 100%; }
+        .filter-header-section { padding: 12px 18px; display: flex; gap: 8px; align-items: center; border-bottom: 1px solid #f5f5f5; }
+
+        /* [축소] 지역 필터 배지 */
+        .location-badge {
+            background-color: #FF8A5B; color: white; padding: 6px 14px; border-radius: 10px;
+            font-weight: 800; display: flex; align-items: center; gap: 6px; cursor: pointer;
+            font-size: 12px; flex-grow: 1; transition: 0.3s; border: 2px solid #FF8A5B;
+            font-style: italic; letter-spacing: -0.3px;
+        }
+        .location-badge:hover { background-color: white; color: #FF8A5B; }
+
+        /* [축소] 상세 필터 버튼 (설정 아이콘) */
+        .detail-filter-btn {
+            background: white; width: 34px; height: 34px; border-radius: 10px; border: 1px solid #eee;
+            display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 3.5px;
+            cursor: pointer; transition: 0.3s;
+        }
+        .detail-filter-btn:hover { background-color: #FF8A5B; border-color: #FF8A5B; }
+        .filter-line { position: relative; width: 14px; height: 2px; background: #FF8A5B; border-radius: 2px; transition: 0.3s; }
+        .filter-circle { position: absolute; width: 4.5px; height: 4.5px; background: white; border: 1.5px solid #FF8A5B; border-radius: 50%; top: 50%; transform: translateY(-50%); }
+        .detail-filter-btn:hover .filter-line { background: white; }
+        .detail-filter-btn:hover .filter-circle { border-color: white; background: #FF8A5B; }
+        .line-1 .filter-circle { right: 1px; }
+        .line-2 .filter-circle { left: 1px; }
+        .line-3 .filter-circle { right: 3px; }
+
+        /* [디자인] 날카로운 주황색 구멍 마커 */
+        .custom-pin {
+            width: 34px; height: 34px;
+            background: #FF8A5B;
+            border-radius: 50% 50% 50% 0;
+            transform: rotate(-45deg);
+            cursor: pointer;
             position: relative;
-            margin-top: 80px; /* 헤더의 높이에 맞춰 조절하세요 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 2px 4px 8px rgba(0,0,0,0.2);
+        }
+        .custom-pin::after {
+            content: '';
+            width: 10px; height: 10px;
+            background: white;
+            border-radius: 50%;
+        }
+        .custom-pin:hover {
+            background: #FF5E1F;
+            transform: rotate(-45deg) scale(1.2);
+            z-index: 999;
         }
 
-        #map {
-            width: 100%;
-            height: 100%;
+        /* [리스트 영역] */
+        #map { flex-grow: 1; height: 100%; }
+        .place-list { flex-grow: 1; overflow-y: auto; }
+        .place-item { padding: 20px; border-bottom: 1px solid #f9f9f9; cursor: pointer; transition: 0.2s; border-left: 0px solid #FF8A5B; }
+        .place-item:hover { background: #fffaf8; border-left: 6px solid #FF8A5B; }
+
+        .info-btn {
+            display: inline-block; margin-top: 10px; padding: 6px 14px; background: #f3f4f6;
+            color: #6b7280; border-radius: 8px; font-size: 11px; font-weight: 800;
+            transition: all 0.2s; text-decoration: none; font-style: italic;
         }
+        .info-btn:hover { background: #FF8A5B; color: white; }
+
+        /* [모달 및 필터 칩 상세 수정] */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 999; }
+        .modal-window { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; border-radius: 24px; z-index: 1000; padding: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
+        .area-modal { width: 90%; max-width: 650px; padding: 0; overflow: hidden; }
+        .filter-modal { width: 90%; max-width: 450px; }
+
+        .filter-chip {
+            padding: 7px 15px; border-radius: 8px; border: 1px solid #f0f0f0;
+            font-size: 12px; font-weight: 700; color: #888; cursor: pointer;
+            font-style: italic; letter-spacing: -0.5px; transition: all 0.2s ease;
+        }
+        .filter-chip.active { border-color: #FF8A5B; color: #FF8A5B; background: #fff5f0; }
+
+        .filter-modal .font-bold.uppercase { font-size: 11px; letter-spacing: 1px; color: #bbb; margin-bottom: 12px; font-style: italic; }
+        .active-item { background-color: #fff5f0 !important; color: #FF8A5B !important; font-weight: 800; }
+
+        .scroller::-webkit-scrollbar {
+    width: 5px;
+}
+
+/* [수정] 평소 상태: 지금과 동일하게 아주 연한 회색 */
+.scroller::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 10px;
+    transition: background 0.2s ease; /* 색상 변화를 부드럽게 */
+}
+
+/* [추가] 리스트 영역에 마우스가 들어오면 살짝 진하게 (티가 날 정도) */
+.scroller:hover::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.15);
+}
+
+/* [추가] 스크롤바 자체에 마우스를 올리면 확실하게 진하게 */
+.scroller::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.scroller::-webkit-scrollbar-track {
+    background: transparent;
+}
     </style>
 </head>
 <body>
+
 <header th:replace="~{fragments/header :: headerFragment}"></header>
 
-<div id = "areaPage" style = "display:none;" class="max-w-4xl mx-auto bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden absolute top-20 left-0 right-0 z-50">
-
-    <div  class="flex h-[500px] text-sm">
-
-        <div class="w-1/3 border-r border-gray-100 flex flex-col">
-            <div class="p-3 bg-gray-50 font-bold text-gray-500 text-center border-b">시/도</div>
-            <ul id="sidoList" class="scroller overflow-y-auto flex-1 p-2">
-            </ul>
+<div class="main-container">
+    <aside class="side-panel">
+        <div class="filter-header-section">
+            <div class="location-badge" id="btn-area-open">
+                <span id="display-area">서울 > 강남구 > 역삼동</span>
+            </div>
+            <div class="detail-filter-btn" id="btn-detail-open">
+                <div class="filter-line line-1">
+                    <div class="filter-circle"></div>
+                </div>
+                <div class="filter-line line-2">
+                    <div class="filter-circle"></div>
+                </div>
+                <div class="filter-line line-3">
+                    <div class="filter-circle"></div>
+                </div>
+            </div>
         </div>
+        <div id="placesList" class="place-list scroller"></div>
+    </aside>
+    <div id="map"></div>
+</div>
 
-        <div class="w-1/3 border-r border-gray-100 flex flex-col">
-            <div class="p-3 bg-gray-50 font-bold text-gray-500 text-center border-b">시/군/구</div>
-            <ul id="sigugunList" class="scroller overflow-y-auto flex-1 p-2">
-                <li class="p-3 text-center text-gray-300">시/도를 먼저 선택하세요</li>
-            </ul>
-        </div>
+<div class="modal-overlay" id="overlay"></div>
 
-        <div class="w-1/3 flex flex-col">
-            <div class="p-3 bg-gray-50 font-bold text-gray-500 text-center border-b">읍/면/동</div>
-            <ul id="dongList" class="scroller overflow-y-auto flex-1 p-2">
-                <li class="p-3 text-center text-gray-300">시/군/구를 먼저 선택하세요</li>
-            </ul>
-        </div>
-
+<div class="modal-window area-modal" id="modal-area">
+    <div class="p-4 bg-[#FF8A5B] text-white font-black text-center italic">SELECT AREA</div>
+    <div class="flex h-[350px]">
+        <ul id="sidoList" class="w-1/3 overflow-y-auto p-2 border-r text-sm scroller"></ul>
+        <ul id="sigugunList" class="w-1/3 overflow-y-auto p-2 border-r text-sm scroller"></ul>
+        <ul id="dongList" class="w-1/3 overflow-y-auto p-2 text-sm scroller"></ul>
     </div>
 </div>
 
-<div id = "foodSelectPage" style = "display:none;" class="max-w-4xl mx-auto bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden absolute top-20 left-0 right-0 z-50">
-    <div  class="flex h-[500px] text-sm">
-
-        <div class="w-1/3 border-r border-gray-100 flex flex-col">
-            <div class="p-3 bg-gray-50 font-bold text-gray-500 text-center border-b">음식 종류</div>
-            <ul id="foodCategoryList" class="scroller overflow-y-auto flex-1 p-2">
-            </ul>
+<div class="modal-window filter-modal" id="modal-detail">
+    <h2 class="text-xl font-black italic mb-2 text-[#FF8A5B]">상세 필터</h2>
+    <div class="py-4">
+        <div class="font-bold mb-3 text-sm text-gray-400 uppercase">Category</div>
+        <div class="flex flex-wrap gap-2 mb-6" data-type="category">
+            <div class="filter-chip active">전체</div>
+            <div class="filter-chip">한식</div>
+            <div class="filter-chip">양식</div>
+            <div class="filter-chip">일식</div>
+            <div class="filter-chip">중식</div>
+            <div class="filter-chip">카페</div>
         </div>
 
-        <div class="w-1/3 border-r border-gray-100 flex flex-col">
-            <div class="p-3 bg-gray-50 font-bold text-gray-500 text-center border-b">음식 이름</div>
-            <ul id="foodNameList" class="scroller overflow-y-auto flex-1 p-2">
-                <li class="p-3 text-center text-gray-300">음식 종류를 먼저 선택하세요</li>
-            </ul>
+        <div class="font-bold mb-3 text-sm text-gray-400 uppercase">Purpose</div>
+        <div class="flex flex-wrap gap-2" data-type="purpose">
+            <div class="filter-chip">데이트</div>
+            <div class="filter-chip">가족모임</div>
+            <div class="filter-chip">회식</div>
+            <div class="filter-chip">혼밥</div>
         </div>
-
+    </div>
+    <div class="mt-8 flex gap-3">
+        <button class="flex-1 py-4 bg-gray-100 rounded-xl font-bold text-gray-400 italic" onclick="closeAll()">닫기
+        </button>
+        <button class="flex-[2] py-4 bg-[#FF8A5B] rounded-xl font-bold text-white shadow-lg italic"
+                onclick="applyFilters()">결과 적용
+        </button>
     </div>
 </div>
-
-<main class="map-container">
-    <div id="map" style="height:100%; width: 100%;">
-        <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=24546b16104e0273c6d8c5c4cc508b44&libraries=services,clusterer,drawing"></script>
-    </div>
-
-    <div id="selectedTags" class="absolute top-5 left-5 z-20 flex flex-wrap gap-2"></div>
-
-    <div class="absolute bottom-10 right-5 z-20 flex gap-3">
-        <button type="button" id="showArea" class="w-14 h-14 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-50 transition transform hover:scale-105">
-            <img src="/images/mapFilter.png" alt="showArea" class="w-8 h-8">
-        </button>
-        <button type="button" id="showFood" style = "display:none;" class="w-14 h-14 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-50 transition transform hover:scale-105">
-            <img src="/images/foodFilter.png" alt="showFood" class="w-8 h-8">
-        </button>
-    </div>
-
-</main>
-
-
-<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=24546b16104e0273c6d8c5c4cc508b44&libraries=services,clusterer,drawing"></script>
-
-<script>
-    var container = document.getElementById('map');
-    var options = {
-        center: new kakao.maps.LatLng(37.49027, 126.92753),
-        level: 3
-    };
-
-    var map = new kakao.maps.Map(container, options);
-
-    // 지도 컨트롤 추가
-    var mapTypeControl = new kakao.maps.MapTypeControl();
-    map.addControl(mapTypeControl, kakao.maps.ControlPosition.TOPRIGHT);
-
-    var zoomControl = new kakao.maps.ZoomControl();
-    map.addControl(zoomControl, kakao.maps.ControlPosition.RIGHT);
-
-    // var marker = new kakao.maps.Marker({ map: map, position: options.center });
-
-    // 창 크기 변경 시 지도 크기 재조정
-    window.onresize = function() {
-        map.relayout();
-    };
-
-    var markers = [];
-
-    var imageSrc = '/images/location.png';
-    var imageSize = new kakao.maps.Size(64, 69);
-    var imageOption = {offset: new kakao.maps.Point(27, 69)};
-
-    var markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize, imageOption);
-
-    var marker = new kakao.maps.Marker({
-        map: map,
-        position: options.center,
-        image: markerImage
-    });
-
-    markers.push(marker);
-
-    function removeMarker(){
-        for (var i = 0; i < markers.length; i++) {
-          markers[i].setMap(null);
-        }
-    }
-
-    // 주소 필터 페이지 부분 js
-    var areaData = {};
-    var ps = new kakao.maps.services.Places();
-
-    let currentSelection = {
-        sido: null,
-        sigugun: null,
-        dong: null,
-        foodCategory: null,
-        foodName: null
-    };
-
-    const showAreaButton = document.getElementById('showArea');
-    const areaPage = document.getElementById('areaPage');
-
-    showAreaButton.addEventListener('click', function() {
-        if (areaPage.style.display === 'none') {
-            areaPage.style.display = 'block';
-            loadAreaData();
-        } else {
-            areaPage.style.display = 'none';
-        }
-    });
-
-    async function loadAreaData() {
-        if (Object.keys(areaData).length > 0) return;
-
-        try {
-            const response = await fetch('/Korea_city_List.json');
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            areaData = await response.json();
-            renderSido();
-        } catch (error) {
-            console.error("행정구역 데이터 로딩 실패:", error);
-            alert("지역 데이터를 불러오는데 실패했습니다.");
-        }
-    }
-
-    function renderSido() {
-            const list = document.getElementById('sidoList');
-            list.innerHTML = '';
-
-            Object.keys(areaData).forEach(sido => {
-                const li = document.createElement('li');
-                li.className = "p-3 cursor-pointer hover:bg-gray-50 rounded transition text-gray-700";
-                li.innerText = sido;
-                li.onclick = () => selectSido(li, sido);
-                list.appendChild(li);
-        });
-    }
-
-    function selectSido(element, sido) {
-
-        resetActive('sidoList');
-        element.classList.add('active-item');
-
-        currentSelection.sido = sido;
-
-        renderSigugun(sido);
-        document.getElementById('dongList').innerHTML = '<li class="p-3 text-center text-gray-300">시/군/구를 먼저 선택하세요</li>';
-    }
-
-    function renderSigugun(sido) {
-            const list = document.getElementById('sigugunList');
-            list.innerHTML = '';
-
-            const siguguns = Object.keys(areaData[sido]);
-            siguguns.forEach(sigugun => {
-                const li = document.createElement('li');
-                li.className = "p-3 cursor-pointer hover:bg-gray-50 rounded transition text-gray-700";
-                li.innerText = sigugun;
-                li.onclick = () => selectSigugun(li, sido, sigugun);
-                list.appendChild(li);
-        });
-    }
-
-    function selectSigugun(element, sido, sigugun) {
-
-        resetActive('sigugunList');
-        element.classList.add('active-item');
-        currentSelection.sigugun = sigugun;
-        renderDong(sido, sigugun);
-    }
-
-    function renderDong(sido, sigugun) {
-            const list = document.getElementById('dongList');
-            list.innerHTML = '';
-
-            const dongs = areaData[sido][sigugun];
-            dongs.forEach(dong => {
-                const li = document.createElement('li');
-                li.className = "p-3 cursor-pointer hover:bg-gray-50 rounded transition text-gray-700";
-                li.innerText = dong;
-                li.onclick = () => selectDong(li, sido, sigugun, dong);
-                list.appendChild(li);
-        });
-    }
-
-    function selectDong(element, sido, sigugun, dong) {
-        resetActive('dongList');
-        element.classList.add('active-item');
-
-        currentSelection.dong = dong;
-
-        areaPage.style.display = 'none';
-        updateSearch();
-        showFoodButton.style.display = 'block';
-    }
-
-    function resetActive(listId) {
-        const list = document.getElementById(listId);
-        Array.from(list.children).forEach(li => li.classList.remove('active-item'));
-    }
-
-    var isIncludeFood = false;
-
-    function updateSearch() {
-        let keyword = "";
-        const tags = [];
-
-        if (currentSelection.dong) {
-            const address = `${currentSelection.sido} ${currentSelection.sigugun} ${currentSelection.dong}`;
-            keyword += address;
-            tags.push({ text: address, type: 'address' });
-        }
-
-        if (currentSelection.foodName) {
-            const food = currentSelection.foodName;
-            if (keyword) keyword += " ";
-            keyword += food;
-            tags.push({ text: food, type: 'food' });
-            isIncludeFood = true;
-        }
-
-        renderTags(tags);
-
-        if (keyword) {
-            searchMapLocation(keyword);
-        }
-    }
-
-    function renderTags(tags) {
-        const container = document.getElementById('selectedTags');
-        if (!container) return;
-
-        container.innerHTML = '';
-        tags.forEach(tag => {
-            const tagElement = document.createElement('div');
-            tagElement.className = "bg-[#FF8A5B] text-white px-3 py-1 rounded-full text-xs font-bold shadow-sm flex items-center gap-2 cursor-pointer hover:bg-[#FF7043] transition";
-            tagElement.innerHTML = `${tag.text} <span class="text-white/80 hover:text-white">✕</span>`;
-
-            tagElement.onclick = (e) => {
-                e.stopPropagation();
-                removeSelection(tag.type);
-            };
-
-            container.appendChild(tagElement);
-        });
-    }
-
-    function removeSelection(type) {
-        if (type === 'address') {
-            currentSelection.sido = null;
-            currentSelection.sigugun = null;
-            currentSelection.dong = null;
-            resetActive('sidoList');
-            resetActive('sigugunList');
-            resetActive('dongList');
-            document.getElementById('sigugunList').innerHTML = '<li class="p-3 text-center text-gray-300">시/도를 먼저 선택하세요</li>';
-            document.getElementById('dongList').innerHTML = '<li class="p-3 text-center text-gray-300">시/군/구를 먼저 선택하세요</li>';
-
-        } else if (type === 'food') {
-            currentSelection.foodCategory = null;
-            currentSelection.foodName = null;
-            resetActive('foodCategoryList');
-            resetActive('foodNameList');
-            document.getElementById('foodNameList').innerHTML = '<li class="p-3 text-center text-gray-300">음식 종류를 먼저 선택하세요</li>';
-        }
-        updateSearch();
-    }
-
-    function searchMapLocation(keyword) {
-        ps.keywordSearch(keyword, placesSearchCB);
-    }
-
-    function placesSearchCB(data, status, pagination) {
-        removeMarker();
-        if (status === kakao.maps.services.Status.OK) {
-            var bounds = new kakao.maps.LatLngBounds();
-
-            for(var i = 0; i < data.length; i++){
-                var placePosition = new kakao.maps.LatLng(data[i].y, data[i].x);
-                bounds.extend(placePosition);
-            }
-            if(isIncludeFood) {
-                for(var i = 0; i < 5; i++){
-                    var placePosition = new kakao.maps.LatLng(data[i].y, data[i].x);
-                    var foodImageSrc = '/images/foodLocation.png';
-                    var foodImageSize = new kakao.maps.Size(32, 35);
-                    var foodImageOption = {offset: new kakao.maps.Point(16, 35)};
-
-                    var foodMarkerImage = new kakao.maps.MarkerImage(foodImageSrc, foodImageSize, foodImageOption);
-
-                    var foodMarker = new kakao.maps.Marker({
-                        map: map,
-                        position: placePosition,
-                        image: foodMarkerImage
-                    });
-
-                    var iwContent = '<div style="padding:5px;">' + data[i].place_name + ' <br><a href="' + data[i].place_url + '" style="color:blue" target="_blank">상세페이지</a><a href="https://map.kakao.com/link/to/' + data[i].place_name + ',' + data[i].y + ',' + data[i].x + '" style="color:blue" target="_blank">길찾기</a></div>';
-
-                    var infoWindow = new kakao.maps.InfoWindow({
-                        position : placePosition,
-                        content : iwContent
-                    });
-
-                    infoWindow.open(map, foodMarker);
-
-                    markers.push(foodMarker);
-                }
-                isIncludeFood = false;
-            }
-
-
-            map.setBounds(bounds);
-        }
-    }
-
-    // 음식 선택 페이지 부분 js
-    var foodData = {};
-
-    var currentSelectFood = null;
-
-    const showFoodButton = document.getElementById('showFood');
-    const foodSelectPage = document.getElementById('foodSelectPage');
-
-    showFoodButton.addEventListener('click', function() {
-        if (foodSelectPage.style.display === 'none') {
-            foodSelectPage.style.display = 'block';
-            loadFoodData();
-        } else {
-            foodSelectPage.style.display = 'none';
-        }
-
-    });
-
-    async function loadFoodData() {
-        if (Object.keys(foodData).length > 0) return;
-
-        try {
-            const response = await fetch('/Food_List.json');
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            foodData = await response.json();
-            renderFoodCategory();
-        } catch (error) {
-            console.error("음식 데이터 로딩 실패:", error);
-            alert("음식 데이터를 불러오는데 실패했습니다.");
-        }
-    }
-
-    function renderFoodCategory() {
-            const list = document.getElementById('foodCategoryList');
-            list.innerHTML = '';
-
-            Object.keys(foodData).forEach(foodCategory => {
-                const li = document.createElement('li');
-                li.className = "p-3 cursor-pointer hover:bg-gray-50 rounded transition text-gray-700";
-                li.innerText = foodCategory;
-                li.onclick = () => selectFoodCategory(li, foodCategory);
-                list.appendChild(li);
-        });
-    }
-
-    function selectFoodCategory(element, foodCategory) {
-        resetActive('foodCategoryList');
-        element.classList.add('active-item');
-
-        currentSelection.foodCategory = foodCategory;
-
-        renderFoodName(foodCategory);
-    }
-
-    function renderFoodName(foodCategory) {
-            const list = document.getElementById('foodNameList');
-            list.innerHTML = '';
-
-            const foods = foodData[foodCategory];
-            foods.forEach(food => {
-                const li = document.createElement('li');
-                li.className = "p-3 cursor-pointer hover:bg-gray-50 rounded transition text-gray-700";
-                li.innerText = food.name;
-
-                li.onclick = () => selectFoodName(li, foodCategory, food.name);
-                list.appendChild(li);
-        });
-    }
-
-    function selectFoodName(element, foodCategory, foodName) {
-        resetActive('foodNameList');
-        element.classList.add('active-item');
-        currentSelection.foodName = foodName;
-
-        foodSelectPage.style.display = 'none';
-        updateSearch();
-
-
-    }
-
-</script>
 
 <footer th:replace="~{fragments/footer :: footerFragment}"></footer>
+
+<script type="text/javascript"
+        src="//dapi.kakao.com/v2/maps/sdk.js?appkey=24546b16104e0273c6d8c5c4cc508b44&libraries=services"></script>
+<script th:inline="javascript">
+    var map = new kakao.maps.Map(document.getElementById('map'), { center: new kakao.maps.LatLng(37.4980, 127.0276), level: 3 });
+    var ps = new kakao.maps.services.Places();
+    var geocoder = new kakao.maps.services.Geocoder();
+    var overlays = [];
+
+    function searchPlaces(keyword = '맛집') {
+        overlays.forEach(o => o.setMap(null));
+        overlays = [];
+        const listEl = document.getElementById('placesList');
+        listEl.innerHTML = '';
+
+        ps.keywordSearch(keyword, function(data, status) {
+            if (status === kakao.maps.services.Status.OK) {
+                data.forEach((place) => {
+                    const pos = new kakao.maps.LatLng(place.y, place.x);
+                    const content = document.createElement('div');
+                    content.className = 'custom-pin';
+                    content.onclick = () => window.open('https://place.map.kakao.com/' + place.id, '_blank');
+
+                    const overlay = new kakao.maps.CustomOverlay({ position: pos, content: content, yAnchor: 1.1 });
+                    overlay.setMap(map);
+                    overlays.push(overlay);
+
+                    const item = document.createElement('div');
+                    item.className = 'place-item';
+                    item.innerHTML = `
+                        <h4 class="font-black text-gray-800 text-lg mb-1 italic">${place.place_name}</h4>
+                        <p class="text-[11px] text-[#FF8A5B] font-black uppercase mb-1 italic">${place.category_name.split('>').pop()}</p>
+                        <p class="text-[12px] text-gray-400 font-bold italic">${place.address_name}</p>
+                        <a href="https://place.map.kakao.com/${place.id}" target="_blank" class="info-btn">INFO</a>
+                    `;
+                    item.onclick = (e) => { if(e.target.tagName !== 'A') map.panTo(pos); };
+                    listEl.appendChild(item);
+                });
+            }
+        }, { location: map.getCenter(), radius: 2000 });
+    }
+
+    const overlay = document.getElementById('overlay');
+    const modalArea = document.getElementById('modal-area');
+    const modalDetail = document.getElementById('modal-detail');
+    function closeAll() { overlay.style.display = 'none'; modalArea.style.display = 'none'; modalDetail.style.display = 'none'; }
+    document.getElementById('btn-area-open').onclick = () => { overlay.style.display = 'block'; modalArea.style.display = 'block'; loadAreaData(); };
+    document.getElementById('btn-detail-open').onclick = () => { overlay.style.display = 'block'; modalDetail.style.display = 'block'; };
+    overlay.onclick = closeAll;
+
+    var areaData = {};
+    async function loadAreaData() {
+        if (Object.keys(areaData).length) return;
+        const res = await fetch('/Korea_city_List.json');
+        areaData = await res.json();
+        renderSido();
+    }
+    function renderSido() {
+        const list = document.getElementById('sidoList'); list.innerHTML = '';
+        Object.keys(areaData).forEach(sido => {
+            const li = document.createElement('li'); li.className = "p-3 cursor-pointer hover:bg-orange-50 rounded-lg italic font-bold";
+            li.innerText = sido; li.onclick = function() {
+                Array.from(list.children).forEach(c => c.classList.remove('active-item'));
+                this.classList.add('active-item'); renderSigugun(sido);
+            };
+            list.appendChild(li);
+        });
+    }
+    function renderSigugun(sido) {
+        const list = document.getElementById('sigugunList'); list.innerHTML = '';
+        Object.keys(areaData[sido]).forEach(sigu => {
+            const li = document.createElement('li'); li.className = "p-3 cursor-pointer hover:bg-orange-50 rounded-lg italic font-bold";
+            li.innerText = sigu; li.onclick = function() {
+                Array.from(list.children).forEach(c => c.classList.remove('active-item'));
+                this.classList.add('active-item'); renderDong(sido, sigu);
+            };
+            list.appendChild(li);
+        });
+    }
+    function renderDong(sido, sigu) {
+        const list = document.getElementById('dongList'); list.innerHTML = '';
+        areaData[sido][sigu].forEach(dong => {
+            const li = document.createElement('li'); li.className = "p-3 cursor-pointer hover:bg-orange-50 rounded-lg italic font-bold";
+            li.innerText = dong; li.onclick = function() {
+                document.getElementById('display-area').innerText = `${sido} > ${sigu} > ${dong}`;
+                closeAll();
+                geocoder.addressSearch(`${sido} ${sigu} ${dong}`, function(result, status) {
+                    if (status === kakao.maps.services.Status.OK) {
+                        map.setCenter(new kakao.maps.LatLng(result[0].y, result[0].x));
+                        searchPlaces();
+                    }
+                });
+            };
+            list.appendChild(li);
+        });
+    }
+
+    function applyFilters() {
+        const chips = Array.from(document.querySelectorAll('.filter-chip.active')).map(c => c.innerText);
+        searchPlaces(chips.filter(v => v !== '전체').join(' ') || '맛집');
+        closeAll();
+    }
+    document.querySelectorAll('.filter-chip').forEach(chip => {
+        chip.onclick = function() {
+            if (this.parentElement.dataset.type === 'category') this.parentElement.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+            this.classList.toggle('active');
+        };
+    });
+
+    window.onload = () => { map.relayout(); searchPlaces(); };
+</script>
 </body>
 </html>

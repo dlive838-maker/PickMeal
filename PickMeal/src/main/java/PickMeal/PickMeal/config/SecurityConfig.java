@@ -33,7 +33,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         // [수정] /next 경로를 추가하여 인트로에서 넘어갈 수 있게 허용합니다.
                         .requestMatchers("/", "/next-page", "/users/signup", "/users/signup/social", "/users/login",
-                                "/users/check-id", "/users/check-nickname", "/users/mypage", "/mail/**",
+                                "/users/check-id", "/users/check-nickname", "/users/mypage","/users/forgot-pw", "/mail/**",
                                 "/oauth2/**", "/css/**", "/js/**", "/images/**", "/worldcup/win/**").permitAll()
                         .anyRequest().authenticated()
                 )

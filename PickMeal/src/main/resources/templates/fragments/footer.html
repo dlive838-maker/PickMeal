@@ -1,27 +1,23 @@
-<div th:fragment="footerFragment" class="w-full bg-white border-t border-gray-100 py-6 relative mt-auto z-40" xmlns:th="http://www.thymeleaf.org">
-    <div class="max-w-7xl mx-auto px-10 flex flex-col md:flex-row justify-between items-center gap-6">
+<div th:fragment="footerFragment" class="w-full bg-white border-t border-gray-100 py-5 relative mt-auto z-40" xmlns:th="http://www.thymeleaf.org">
+    <div class="w-full px-10 flex flex-col md:flex-row justify-between items-center gap-6">
 
-        <div class="hidden sm:flex items-center gap-6">
-            <div class="text-xl font-bold text-[#FF8A5B] italic leading-none">Pick Meal</div>
-
-            <p class="text-gray-400 text-xs font-normal leading-none mt-1">
+        <div class="hidden sm:flex items-center gap-8">
+            <div class="text-2xl font-bold text-[#FF8A5B] italic leading-none">Pick Meal</div>
+            <p class="text-gray-400 text-sm font-normal leading-none mt-1">
                 © 2026 Pick Meal. All rights reserved.
             </p>
         </div>
 
-        <div class="flex space-x-8">
-            <div class="flex items-center space-x-4">
-
-                <a href="/next" class="text-gray-400 hover:text-[#FF8A5B] text-xs font-bold transition">Hot Place</a>
-                <a href="/game" class="text-gray-400 hover:text-[#FF8A5B] text-xs font-bold transition">Game</a>
-                <a href="/board" class="text-gray-400 hover:text-[#FF8A5B] text-xs font-bold transition">Board</a>
-            </div>
+        <div class="flex items-center space-x-10">
+            <a href="/hotplace" class="text-gray-400 hover:text-[#FF8A5B] text-sm font-bold transition italic">Hot Place</a>
+            <a href="/game" class="text-gray-400 hover:text-[#FF8A5B] text-sm font-bold transition italic">Game</a>
+            <a href="/board" class="text-gray-400 hover:text-[#FF8A5B] text-sm font-bold transition italic">Board</a>
         </div>
 
         <div class="text-center md:text-right">
-            <p class="text-gray-800 font-black italic text-xs uppercase tracking-tighter">한끼뚝딱</p>
-            <p class="text-gray-400 text-[10px] font-bold">
-                JAVA 풀스택 & 생성형AI
+            <p class="text-gray-800 font-black italic text-sm uppercase tracking-tighter mb-0.5">Java Full Stack & Generation Ai</p>
+            <p class="text-gray-400 text-xs font-bold">
+                한끼뚝딱
             </p>
         </div>
 

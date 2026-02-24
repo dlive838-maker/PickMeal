@@ -64,11 +64,10 @@ public class MainController {
         return "game/twentyQuestions"; // templates/twentyQuestions.html 반환
     }
 
-    @GetMapping("/forgot-pw")
+    @GetMapping("/users/forgot-pw")
     public String forgotPwPage() {
-        return "users/forgot-pw"; // templates/forgot-pw.html 파일을 반환
+        return "users/forgot-pw";
     }
-
     @GetMapping("/board/write")
     public String boardWritePage() {
         return "board/board-write"; // templates/board-write.html 파일 반환

@@ -7,6 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@700;800&display=swap" rel="stylesheet">
     <style>
+        /* [공통] 폰트 및 배경 설정 */
         body {
             font-family: 'Fredoka', sans-serif;
             background-color: #FFF5F0;
@@ -15,24 +16,45 @@
             flex-direction: column;
             min-height: 100vh;
         }
-        .nav-link { font-family: 'Fredoka', sans-serif; font-weight: 700; font-style: italic; }
+
+        /* [핵심] 헤더 디자인 고정 - 핫플레이스/게임창과 동일하게 유지 */
+        header .text-3xl,
+        header .nav-link,
+        header button,
+        header a {
+            font-family: 'Fredoka', sans-serif !important;
+            font-weight: 800 !important;
+            font-style: italic !important;
+        }
+
+        /* [애니메이션] 콘텐츠 상승 효과 */
         .content-slide-up {
             animation: slideUp 0.8s cubic-bezier(0.65, 0, 0.35, 1) forwards;
             will-change: transform, opacity;
         }
+
         @keyframes slideUp {
             from { transform: translateY(100px); opacity: 0; }
             to { transform: translateY(0); opacity: 1; }
         }
+
+        /* [보드 전용] 카드 스타일 */
         .board-card {
             border-radius: 2.5rem;
             background: white;
             box-shadow: 0 20px 50px rgba(0,0,0,0.05);
             border: 2px solid #FDF5E6;
+            overflow: hidden; /* 테두리 곡률 유지 */
         }
+
         .board-row { transition: background-color 0.2s; cursor: pointer; }
         .board-row:hover { background-color: #FFF5F0; }
+
         th { white-space: nowrap; }
+
+        /* 스크롤바 디자인 (통일감 유지) */
+        .overflow-x-auto::-webkit-scrollbar { height: 8px; }
+        .overflow-x-auto::-webkit-scrollbar-thumb { background-color: #FF8A5B; border-radius: 10px; }
     </style>
 </head>
 <body>
@@ -41,72 +63,73 @@
 
 <main class="flex-grow flex flex-col items-center justify-start pt-32 pb-20 content-slide-up px-10">
     <div class="max-w-7xl w-full">
-        <div class="flex justify-between items-end mb-8">
-            <div>
+        <div class="flex flex-col md:flex-row justify-between items-center md:items-end mb-8 gap-6">
+            <div class="text-center md:text-left">
                 <h2 class="text-5xl font-black text-[#FF8A5B] italic uppercase tracking-tighter mb-2">Community Board</h2>
                 <p class="text-[#FF8A5B] font-bold italic">Share your tasty experiences!</p>
             </div>
 
             <div sec:authorize="isAuthenticated()">
                 <button onclick="location.href='/board/write'"
-
-                        class="bg-[#FF8A5B] text-white px-8 py-3 rounded-full font-black shadow-md hover:bg-[#e67a4d] transition italic uppercase active:scale-95">
+                        class="bg-[#FF8A5B] text-white px-10 py-4 rounded-full font-black shadow-lg hover:bg-[#e67a4d] transition-all italic uppercase active:scale-95">
                     Write Post
                 </button>
             </div>
             <div sec:authorize="isAnonymous()">
-                <p class="text-gray-400 font-bold italic">
-                    Please <a href="/users/login" class="text-[#FF8A5B] no-underline">Login</a> to write a post!
+                <p class="text-gray-400 font-bold italic bg-white px-6 py-3 rounded-full shadow-sm">
+                    Please <a href="/users/login" class="text-[#FF8A5B] no-underline hover:underline">Login</a> to write a post!
                 </p>
             </div>
         </div>
 
-        <div class="board-card overflow-x-auto shadow-lg">
-            <table class="w-full text-left border-collapse min-w-[800px]">
-                <thead>
-                <tr class="bg-gray-50 border-b-2 border-[#FDF5E6]">
-                    <th class="px-6 py-5 text-[#FF8A5B] italic font-black text-sm uppercase text-center w-20">No</th>
-                    <th class="px-4 py-5 text-[#FF8A5B] italic font-black text-sm uppercase text-center w-20">Pic</th>
-                    <th class="px-8 py-5 text-[#FF8A5B] italic font-black text-sm uppercase">Title</th>
-                    <th class="px-6 py-5 text-[#FF8A5B] italic font-black text-sm uppercase text-center w-32">Author</th>
-                    <th class="px-6 py-5 text-[#FF8A5B] italic font-black text-sm uppercase text-center w-32">Date</th>
-                    <th class="px-4 py-5 text-[#FF8A5B] italic font-black text-sm uppercase text-center w-24">Views</th>
-                    <th class="px-4 py-5 text-[#FF8A5B] italic font-black text-sm uppercase text-center w-24">Like</th>
-                </tr>
-                </thead>
-                <tbody class="text-gray-700 font-bold">
-                <tr th:each="board : ${boardList}" class="board-row border-b border-gray-100"
-                    th:onclick="|location.href='/board/detail/' + @{${board.boardId}}|">
-                    <td class="px-6 py-6 text-center text-gray-400 text-sm" th:text="${boardStat.count}">01</td>
-                    <td class="px-4 py-6 text-center text-xl">🖼️</td>
-                    <td class="px-8 py-6">
-                        <div class="whitespace-nowrap overflow-hidden text-ellipsis max-w-[300px] lg:max-w-none">
-                            <span class="hover:underline cursor-pointer" th:text="${board.title}">게시글 제목</span>
-                            <span class="text-[#FF8A5B] text-sm ml-2" th:if="${board.commentCount > 0}" th:text="'[' + ${board.commentCount} + ']'">[0]</span>
-                        </div>
-                    </td>
-                    <td class="px-6 py-6 text-center text-sm text-gray-600 italic whitespace-nowrap" th:text="${board.nickname}">Author</td>
-                    <td class="px-6 py-6 text-center text-xs text-gray-400 whitespace-nowrap" th:text="${#dates.format(board.createDate, 'yyyy-MM-dd')}">2026-02-13</td>
-                    <td class="px-4 py-6 text-center text-sm" th:text="${board.views}">0</td>
-                    <td class="px-4 py-6 text-center text-sm text-red-400 whitespace-nowrap" th:text="'❤️ ' + ${board.likes}">❤️ 0</td>
-                </tr>
+        <div class="board-card shadow-xl">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse min-w-[800px]">
+                    <thead>
+                    <tr class="bg-gray-50 border-b-2 border-[#FDF5E6]">
+                        <th class="px-6 py-5 text-[#FF8A5B] italic font-black text-sm uppercase text-center w-20">No</th>
+                        <th class="px-4 py-5 text-[#FF8A5B] italic font-black text-sm uppercase text-center w-20">Pic</th>
+                        <th class="px-8 py-5 text-[#FF8A5B] italic font-black text-sm uppercase">Title</th>
+                        <th class="px-6 py-5 text-[#FF8A5B] italic font-black text-sm uppercase text-center w-32">Author</th>
+                        <th class="px-6 py-5 text-[#FF8A5B] italic font-black text-sm uppercase text-center w-32">Date</th>
+                        <th class="px-4 py-5 text-[#FF8A5B] italic font-black text-sm uppercase text-center w-24">Views</th>
+                        <th class="px-4 py-5 text-[#FF8A5B] italic font-black text-sm uppercase text-center w-24">Like</th>
+                    </tr>
+                    </thead>
+                    <tbody class="text-gray-700 font-bold">
+                    <tr th:each="board : ${boardList}" class="board-row border-b border-gray-100"
+                        th:onclick="|location.href='/board/detail/' + @{${board.boardId}}|">
+                        <td class="px-6 py-6 text-center text-gray-400 text-sm" th:text="${boardStat.count}">01</td>
+                        <td class="px-4 py-6 text-center text-xl">🖼️</td>
+                        <td class="px-8 py-6">
+                            <div class="whitespace-nowrap overflow-hidden text-ellipsis max-w-[300px] lg:max-w-none">
+                                <span class="hover:text-[#FF8A5B] transition-colors" th:text="${board.title}">게시글 제목</span>
+                                <span class="text-[#FF8A5B] text-sm ml-2" th:if="${board.commentCount > 0}" th:text="'[' + ${board.commentCount} + ']'">[0]</span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-6 text-center text-sm text-gray-600 italic whitespace-nowrap" th:text="${board.nickname}">Author</td>
+                        <td class="px-6 py-6 text-center text-xs text-gray-400 whitespace-nowrap" th:text="${#dates.format(board.createDate, 'yyyy-MM-dd')}">2026-02-13</td>
+                        <td class="px-4 py-6 text-center text-sm" th:text="${board.views}">0</td>
+                        <td class="px-4 py-6 text-center text-sm text-red-400 whitespace-nowrap" th:text="'❤️ ' + ${board.likes}">❤️ 0</td>
+                    </tr>
 
-                <tr th:if="${#lists.isEmpty(boardList)}" class="board-row border-b border-gray-100">
-                    <td class="px-6 py-6 text-center text-gray-400 text-sm">03</td>
-                    <td class="px-4 py-6 text-center text-xl">🖼️</td>
-                    <td class="px-8 py-6">
-                        <div class="whitespace-nowrap overflow-hidden text-ellipsis max-w-[300px] lg:max-w-none">
-                            <span class="hover:underline cursor-pointer">신림역 근처 최고의 쌀국수 맛집 추천! 🍜</span>
-                            <span class="text-[#FF8A5B] text-sm ml-2">[5]</span>
-                        </div>
-                    </td>
-                    <td class="px-6 py-6 text-center text-sm text-gray-600 italic whitespace-nowrap">Foodie_King</td>
-                    <td class="px-6 py-6 text-center text-xs text-gray-400 whitespace-nowrap">2026-02-11</td>
-                    <td class="px-4 py-6 text-center text-sm">124</td>
-                    <td class="px-4 py-6 text-center text-sm text-red-400 whitespace-nowrap">❤️ 12</td>
-                </tr>
-                </tbody>
-            </table>
+                    <tr th:if="${#lists.isEmpty(boardList)}" class="board-row border-b border-gray-100">
+                        <td class="px-6 py-6 text-center text-gray-400 text-sm">01</td>
+                        <td class="px-4 py-6 text-center text-xl">🍜</td>
+                        <td class="px-8 py-6">
+                            <div class="whitespace-nowrap overflow-hidden text-ellipsis max-w-[300px] lg:max-w-none">
+                                <span class="hover:text-[#FF8A5B] transition-colors">신림역 근처 최고의 맛집 공유합니다!</span>
+                                <span class="text-[#FF8A5B] text-sm ml-2">[5]</span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-6 text-center text-sm text-gray-600 italic whitespace-nowrap">Foodie_King</td>
+                        <td class="px-6 py-6 text-center text-xs text-gray-400 whitespace-nowrap">2026-02-11</td>
+                        <td class="px-4 py-6 text-center text-sm">124</td>
+                        <td class="px-4 py-6 text-center text-sm text-red-400 whitespace-nowrap">❤️ 12</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </main>

@@ -42,11 +42,17 @@
         main { position: relative; z-index: 10; }
 
         .top-logo {
-            position: fixed; top: 2rem; left: 2.5rem;
-            font-size: 1.875rem; font-weight: 700;
-            color: #FF8A5B; z-index: 100; font-style: italic;
+            position: fixed;
+            top: 1.5rem;    /* 헤더 패딩 위치 고려 */
+            left: 2.5rem;
+            font-size: 1.875rem;
+            font-weight: 800;    /* 헤더 로고 특유의 두께 */
+            color: #FF8A5B;
+            z-index: 100;
+            font-style: italic !important; /* 헤더 로고와 동일한 기울기 */
             pointer-events: none;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+            letter-spacing: -0.05em; /* 자간을 좁혀서 로고 느낌 강조 */
+            line-height: 1;
         }
 
         .main-title-dark {
@@ -94,7 +100,7 @@
 </head>
 <body onclick="location.href='/next-page'">
 
-<div class="top-logo">Pick Meal</div>
+<div class="top-logo">PICK MEAL</div>
 
 <div class="bg-container">
     <div id="bgImage" class="bg-animate"></div>
