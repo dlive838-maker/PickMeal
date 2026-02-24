@@ -15,6 +15,10 @@ public interface UserMapper {
 
     void edit(User user);
 
+    void updateEmail(User user);
+
+    void updatePassword(User user);
+
     void updateStatus(@Param("user_id") Long user_id, @Param("status") String status);
 
     int countByNickname(String nickname);
