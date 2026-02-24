@@ -31,7 +31,6 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.ignoringRequestMatchers("/mail/**", "/worldcup/win/**"))
                 .authorizeHttpRequests(authorize -> authorize
-                        // [수정] /next 경로를 추가하여 인트로에서 넘어갈 수 있게 허용합니다.
                         .requestMatchers("/", "/next-page", "/users/signup", "/users/signup/social", "/users/login",
                                 "/users/check-id", "/users/check-nickname", "/users/mypage", "/mail/**",
                                 "/oauth2/**", "/css/**", "/js/**", "/images/**", "/worldcup/win/**").permitAll()
@@ -41,17 +40,18 @@ public class SecurityConfig {
                         .loginPage("/users/login")
                         .usernameParameter("id")
                         .defaultSuccessUrl("/next-page", true)
-                        .failureHandler(loginFailureHandler)
+                        .failureHandler(loginFailureHandler) // 일반 로그인 실패 핸들러
                 )
                 .oauth2Login(oauth2 -> oauth2
                         .loginPage("/users/login")
                         .successHandler(oauth2SuccessHandler)
                         .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
+                        // [핵심 추가] 소셜 로그인 실패 시에도 동일한 핸들러를 사용하도록 설정합니다.
+                        .failureHandler(loginFailureHandler)
                 )
                 .logout(logout -> logout
-                        // [수정] 로그아웃 주소 통일
                         .logoutUrl("/users/logout")
-                        .logoutSuccessUrl("/next-page") // [수정 완료] 로그아웃 후 /next 페이지로 이동합니다
+                        .logoutSuccessUrl("/next-page")
                         .invalidateHttpSession(true)
                         .clearAuthentication(true)
                         .deleteCookies("JSESSIONID")

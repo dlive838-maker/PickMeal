@@ -73,17 +73,65 @@ public class UserService implements UserDetailsService {
         return userMapper.findById(id); // 아이디로 유저 검색
     }
 
-    @Transactional
-    public void edit(User user) {
-        if (user.getPassword() != null && !user.getPassword().isEmpty()) {
-            user.setPassword(passwordEncoder.encode(user.getPassword())); // 비번 변경 시 암호화
+    /**
+     * 사용자 아이디 마스킹 공통 로직
+     * @param user 마스킹할 유저 객체
+     * @return 마스킹 처리된 디스플레이용 아이디
+     */
+    /**
+     * 사용자 아이디 마스킹 공통 로직
+     * 구글(sub), 카카오(id), 네이버(id)의 모든 케이스를 대응합니다.
+     */
+    public String getMaskedDisplayId(User user) {
+        if (user == null) return "Unknown User";
+
+        // 타겟 ID 설정
+        String targetId = (user.getSocialLoginSite() != null && !user.getSocialLoginSite().isEmpty())
+                ? user.getSocialId() : user.getId();
+
+        // 만약 targetId가 null이면 DB의 id를 차선책으로 사용
+        if (targetId == null || targetId.isEmpty()) {
+            targetId = user.getId();
         }
-        userMapper.edit(user); // 업데이트 실행
+
+        // 최종적으로도 null이면 반환
+        if (targetId == null || targetId.isEmpty()) return "Unknown";
+
+        String displayId = "";
+        int len = targetId.length();
+
+        // 마스킹 규칙 적용
+        if (len <= 3) {
+            displayId = targetId.substring(0, Math.min(len, 1)) + "******";
+        } else {
+            displayId = targetId.substring(0, 3) + "******";
+        }
+
+        // 소셜 접두사 추가
+        if (user.getSocialLoginSite() != null && !user.getSocialLoginSite().isEmpty()) {
+            displayId = user.getSocialLoginSite().toUpperCase() + "_" + displayId;
+        }
+
+        return displayId;
+    }
+
+    @Transactional
+    public void edit(User user, boolean isNewPassword) {
+        if (isNewPassword) {
+            // 새 비밀번호가 입력된 경우에만 암호화 수행
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+        }
+        // 이미 암호화된 기존 비번일 경우(isNewPassword=false) 그대로 DB 업데이트
+        userMapper.edit(user);
     }
 
     @Transactional
     public void remove(Long user_id) {
         userMapper.updateStatus(user_id, "WITHDRAWN"); // 탈퇴 시 상태값만 변경
+    }
+
+    public boolean isWithdrawn(User user) {
+        return user != null && "WITHDRAWN".equals(user.getStatus());
     }
 
     public List<Food> getMixedFoods(List<String> types, int round) {
@@ -99,5 +147,29 @@ public class UserService implements UserDetailsService {
     public void updateFoodWinCount(Long foodId) {
         // [비유] 일꾼이 실제 장부(Mapper)를 들고 가서 숫자를 하나 올립니다.
         userMapper.updateWinCount(foodId);
+    }
+
+    /**
+     * 이메일 즉시 변경
+     */
+    @Transactional
+    public void updateEmail(Long userId, String newEmail) {
+        // MyBatis 매퍼를 통해 특정 컬럼만 업데이트하는 전용 메서드를 호출하거나,
+        // 기존 edit을 재사용할 수 있도록 로직을 짭니다.
+        User user = new User();
+        user.setUser_id(userId);
+        user.setEmail(newEmail);
+        userMapper.updateEmail(user); // 매퍼에 새 메서드 추가 필요
+    }
+
+    /**
+     * 비밀번호 즉시 변경
+     */
+    @Transactional
+    public void updatePassword(Long userId, String rawPassword) {
+        User user = new User();
+        user.setUser_id(userId);
+        user.setPassword(passwordEncoder.encode(rawPassword)); // 암호화 필수
+        userMapper.updatePassword(user); // 매퍼에 새 메서드 추가 필요
     }
 }
