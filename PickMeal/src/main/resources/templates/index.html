@@ -124,5 +124,22 @@
     document.getElementById('bgImage').style.backgroundImage =
         `linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.1)), url('${bgPath}')`;
 </script>
+<script th:inline="javascript">
+    window.onload = function() {
+        // 컨트롤러에서 rttr.addFlashAttribute("msg", ...)로 보낸 데이터 받기
+        const message = [[${msg}]];
+
+        // 메시지가 존재하면 알림창 띄우기
+        if (message) {
+            alert(message);
+        }
+
+        // 추가로 URL 파라미터(?msg=withdrawn)를 체크하고 싶은 경우
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('msg') === 'withdrawn') {
+            console.log("회원 탈퇴 파라미터 확인됨");
+        }
+    };
+</script>
 </body>
 </html>

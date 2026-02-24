@@ -89,6 +89,10 @@ public class MainController {
         return "hotplace";
     } // templates/hotplace.html 파일 반환
 
+    @GetMapping("/game")
+    public String gamePage() {
+        return "game/game";
+    }
 
     @GetMapping("/worldcup/setup") // 이 주소로 들어오면
     public String gameSetupPage() {

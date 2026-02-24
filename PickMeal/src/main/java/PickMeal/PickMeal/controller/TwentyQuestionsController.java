@@ -30,6 +30,7 @@ public class TwentyQuestionsController {
             response.setStatus("FINAL_CHOICE");
             response.setRemain_foodList(remainingFoods);
             response.setNextQuestion_text(finalQuestion);
+
         } else if (remainingFoods.isEmpty()) {
             response.setStatus("NO_FOOD");
         } else {

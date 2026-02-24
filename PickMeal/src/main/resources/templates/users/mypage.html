@@ -61,12 +61,18 @@
 
       <div>
         <p class="label-text">전화번호</p>
-        <p class="value-text" th:text="${user.phoneNumber ?: '미등록'}">010-1111-2222</p>
+        <p class="value-text"
+           th:text="${user.phoneNumber != null ? user.phoneNumber.replaceAll('(\d{3})-(\d{1})\d{3}-(\d{1})\d{3}', '$1-$2***-$3***') : '미등록'}">
+          010-1***-5***
+        </p>
       </div>
 
       <div>
         <p class="label-text">이메일</p>
-        <p class="value-text" th:text="${user.email}">woals10006@gmail.com</p>
+        <p class="value-text"
+           th:text="${user.email != null ? user.email.replaceAll('(^[^@]{2})[^@]+(@[^@]{1})[^@]+(\.[^@]+$)', '$1******$2*******$3') : '미등록'}">
+          aa******@g******.com
+        </p>
       </div>
 
       <div th:if="${user.socialLoginSite != null and user.socialLoginSite != ''}">
