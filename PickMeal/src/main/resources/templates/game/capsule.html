@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Pick Meal - Capsule</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+    font-family: 'Fredoka', sans-serif;
+    background-color: #FAF3F0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    overflow-x: hidden;
+        }
+
+        /* 중앙 영역: 헤더와 푸터를 제외한 남는 공간 전체 차지 */
+        .gacha-main-content {
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px 0; /* 상하 여백 확보 */
+            position: relative;
+        }
+
+        .gacha-wrapper {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: opacity 0.4s ease-out;
+            /* 짤림 방지: 화면이 작아지면 기계 크기도 조절될 수 있게 함 */
+            transform: scale(0.9); /* 전체적인 크기를 90%로 살짝 줄여 안정성 확보 */
+        }
+
+        /* [1. 상단 유리통] */
+        .glass-sphere {
+            position: relative;
+            width: 360px;
+            height: 340px;
+            background: radial-gradient(circle at 30% 25%, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.2) 65%);
+            border: 2px solid rgba(0, 0, 0, 0.08);
+            border-radius: 50%;
+            z-index: 2;
+            overflow: hidden;
+            box-shadow: inset 0 0 30px rgba(255, 255, 255, 0.8), inset -10px -10px 20px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+        }
+
+        /* [캡슐 디자인] */
+        .capsule {
+            position: absolute;
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: inset -2px -2px 6px rgba(0,0,0,0.1);
+        }
+        .capsule-top {
+            height: 50%; width: 100%;
+            background: rgba(255, 255, 255, 0.6);
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+        }
+        .capsule-bottom { height: 50%; width: 100%; background: white; }
+
+        /* [2. 하단 본체 - 높이를 살짝 줄여 짤림 방지] */
+        .machine-body {
+            position: relative;
+            width: 300px;
+            height: 260px; /* 280 -> 260 수정 */
+            background: #FF4D4D;
+            border-radius: 50px 50px 60px 60px;
+            margin-top: -85px;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: inset -12px -12px 0px rgba(0,0,0,0.08);
+        }
+
+        .cat-box {
+            margin-top: 90px;
+            background: white;
+            border: 3px solid #FF4D4D;
+            display: flex;
+            align-items: center;
+            border-radius: 30px;
+            padding: 6px 18px;
+            z-index: 10;
+        }
+        .arrow-btn { cursor: pointer; font-size: 22px; color: #FF4D4D; padding: 0 12px; user-select: none; }
+
+        .lever-btn-wrapper {
+            margin-top: 15px;
+            position: relative;
+            width: 90px;
+            height: 90px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: transform 1.2s cubic-bezier(0.45, 0.05, 0.55, 0.95);
+        }
+        .lever-btn-wrapper.spin-action { transform: rotate(30deg); }
+
+        .lever-bg-circle {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            background: white;
+            border-radius: 50%;
+            z-index: 1;
+        }
+        .click-btn {
+            position: relative;
+            z-index: 2;
+            background: #FFD700;
+            padding: 8px 24px;
+            border-radius: 25px;
+            color: #444;
+            font-weight: 800;
+            font-size: 15px;
+            box-shadow: 0 4px 0px #C9A000;
+        }
+
+        .exit-gate {
+            margin-top: 10px;
+            width: 95px;
+            height: 45px;
+            background: #D32F2F;
+            border-radius: 15px 15px 5px 5px;
+            position: relative;
+        }
+
+        /* 애니메이션 생략 (기존과 동일) */
+        @keyframes mixing { 0%, 100% { transform: translate(0, 0) rotate(0deg); } 25% { transform: translate(120px, -130px) rotate(90deg); } 50% { transform: translate(-120px, -160px) rotate(180deg); } 75% { transform: translate(100px, -60px) rotate(270deg); } }
+        @keyframes settle-down { to { transform: translate(var(--rand-x), var(--rand-y)) rotate(var(--rand-rot)); } }
+        @keyframes roll-out { 0% { opacity: 1; transform: translateY(0) rotate(0deg); } 40% { transform: translateY(40px) translateX(25px) rotate(150deg); } 100% { opacity: 1; transform: translateY(130px) translateX(70px) rotate(360deg); } }
+
+        /* [결과 화면] */
+        #result-screen {
+            position: fixed; display: none; flex-direction: column; align-items: center;
+            z-index: 100; top: 50%; left: 50%; transform: translate(-50%, -50%);
+        }
+        .cap-half { position: absolute; width: 230px; height: 115px; border: 5px solid #333; transition: 1s; }
+        .top-cap { top: 0; border-radius: 115px 115px 0 0; border-bottom: none; }
+        .bottom-cap { bottom: 0; background: #ffffff; border-radius: 0 0 115px 115px; border-top: none; }
+        .is-open .top-cap { transform: translateY(-110px) rotate(-10deg); }
+        .is-open .bottom-cap { transform: translateY(110px) rotate(10deg); }
+        .result-txt { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 38px; font-weight: 800; color: #333; opacity: 0; transition: 0.5s 0.7s; text-align: center; width: 400px; }
+        .is-open .result-txt { opacity: 1; }
+        .btn-style { padding: 14px 40px; border-radius: 25px; background: #FF4D4D; color: white; font-weight: 800; cursor: pointer; border: 4px solid #333; box-shadow: 5px 5px 0px #333; margin-top: 40px; }
+    </style>
+</head>
+<body>
+<header th:replace="~{fragments/header :: headerFragment}"></header>
+
+<main class="gacha-main-content">
+    <div class="gacha-wrapper" id="machine-all">
+        <div class="glass-sphere" id="sphere"></div>
+
+        <div class="machine-body">
+            <div class="cat-box">
+                <span class="arrow-btn" onclick="moveCat(-1)">◀</span>
+                <span id="cat-label" class="font-black text-[#FF4D4D] text-xl">전체</span>
+                <span class="arrow-btn" onclick="moveCat(1)">▶</span>
+            </div>
+
+            <div class="lever-btn-wrapper" id="lever-wrapper" onclick="draw()">
+                <div class="lever-bg-circle"></div>
+                <div class="click-btn">Click!!!</div>
+            </div>
+
+            <div class="exit-gate">
+                <div id="out-cap-pos" style="position:absolute; top:0px; left:22px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="result-screen">
+        <div style="position:relative; width:230px; height:230px;">
+            <div class="cap-half top-cap" id="result-top-cap"></div>
+            <div class="cap-half bottom-cap"></div>
+            <div class="result-txt" id="food-res">MENU</div>
+        </div>
+        <div class="flex gap-4 mt-44">
+            <button class="btn-style" onclick="location.reload()">NEW</button>
+            <button class="btn-style" style="background:#A8D5BA;" onclick="retry()">RETRY</button>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/footer :: footerFragment}"></footer>
+
+<script>
+    // (JavaScript 로직은 기존과 동일하므로 유지)
+    const cats = ["전체", "한식", "중식", "일식", "양식", "아시안식"];
+    let idx = 0; let playing = false;
+    const sphere = document.getElementById('sphere');
+    const colors = ["#FFADAD", "#FFD6A5", "#FDFFB6", "#CAFFBF", "#9BF6FF", "#A0C4FF"];
+
+    function initCapsules() {
+        for(let i=0; i<15; i++) {
+            const cap = createCapsuleElement(colors[i % colors.length]);
+            const angle = (Math.PI / 10) * (Math.random() * 8 - 4);
+            const dist = 90 + Math.random() * 25;
+            const x = 180 + Math.sin(angle) * dist - 26;
+            const y = 170 + Math.cos(angle) * dist + 15;
+            cap.style.left = x + 'px'; cap.style.top = y + 'px';
+            cap.style.transform = `rotate(${Math.random() * 360}deg)`;
+            sphere.appendChild(cap);
+        }
+    }
+
+    function createCapsuleElement(color) {
+        const cap = document.createElement('div'); cap.className = 'capsule';
+        const topPart = document.createElement('div'); topPart.className = 'capsule-top';
+        const bottomPart = document.createElement('div'); bottomPart.className = 'capsule-bottom';
+        bottomPart.style.background = color; cap.appendChild(topPart); cap.appendChild(bottomPart);
+        return cap;
+    }
+
+    function moveCat(d) {
+        if(playing) return;
+        idx = (idx + d + cats.length) % cats.length;
+        document.getElementById('cat-label').innerText = cats[idx];
+    }
+
+    async function draw() {
+        if(playing) return; playing = true;
+        const lever = document.getElementById('lever-wrapper');
+        lever.classList.add('spin-action');
+        const capsules = document.querySelectorAll('.capsule');
+        capsules.forEach(c => { c.style.animation = `mixing ${0.7 + Math.random()*0.3}s infinite ease-in-out`; });
+        const cat = cats[idx];
+        try {
+            const res = await fetch(`/api/food/draw?category=${encodeURIComponent(cat)}`);
+            const data = await res.json();
+            const foodName = data.foodName || "추천 메뉴";
+            const winColor = colors[Math.floor(Math.random() * colors.length)];
+            setTimeout(() => {
+                lever.classList.remove('spin-action');
+                capsules.forEach(c => {
+                    const rx = (Math.random() * 20 - 10) + "px"; const ry = (Math.random() * 10 - 5) + "px"; const rr = (Math.random() * 360) + "deg";
+                    c.style.setProperty('--rand-x', rx); c.style.setProperty('--rand-y', ry); c.style.setProperty('--rand-rot', rr);
+                    c.style.animation = `settle-down 2.5s cubic-bezier(0.25, 1, 0.5, 1) forwards`;
+                });
+                setTimeout(() => {
+                    const outPos = document.getElementById('out-cap-pos');
+                    const outCap = createCapsuleElement(winColor);
+                    outCap.style.position = "absolute"; outCap.style.opacity = "0";
+                    outCap.style.animation = 'roll-out 1.8s cubic-bezier(0.15, 0, 0.15, 1) forwards';
+                    outPos.appendChild(outCap);
+                    setTimeout(() => {
+                        document.getElementById('result-top-cap').style.backgroundColor = winColor;
+                        document.getElementById('food-res').innerText = foodName;
+                        showFinal();
+                    }, 1600);
+                }, 2200);
+            }, 2500);
+        } catch (err) { console.error(err); playing = false; lever.classList.remove('spin-action'); }
+    }
+
+    function showFinal() {
+        const machine = document.getElementById('machine-all');
+        machine.style.opacity = '0';
+        setTimeout(() => {
+            machine.style.display = 'none';
+            const rs = document.getElementById('result-screen');
+            rs.style.display = 'flex';
+            setTimeout(() => rs.classList.add('is-open'), 100);
+        }, 400);
+    }
+
+    initCapsules();
+
+    /* [RETRY 기능 추가] */
+function retry() {
+    // 1. 결과 화면 초기화 및 숨기기
+    const rs = document.getElementById('result-screen');
+    rs.classList.remove('is-open'); // 오픈 애니메이션 클래스 제거
+
+    setTimeout(() => {
+        rs.style.display = 'none'; // 결과창 안 보이게 설정
+
+        // 2. 가차 머신 다시 표시
+        const machine = document.getElementById('machine-all');
+        machine.style.display = 'flex';
+        machine.style.opacity = '1';
+
+        // 3. 기존에 나갔던 캡슐(배출구) 비우기
+        document.getElementById('out-cap-pos').innerHTML = '';
+
+        // 4. 상태 변수 초기화 및 다시 뽑기 실행
+        playing = false; // draw가 실행될 수 있게 상태 해제
+        draw(); // 현재 설정된 idx(카테고리) 그대로 다시 실행
+    }, 400); // 결과창이 닫히는 효과를 위해 약간의 지연 후 실행
+}
+</script>
+</body>
+</html>
