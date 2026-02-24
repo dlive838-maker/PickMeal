@@ -31,17 +31,16 @@ public class MainController {
         return "next-page";
     }
 
-    @GetMapping("/game")
-    public String gamePage() {
-        return "game/game"; // templates/game.html 파일을 찾아서 보여줌
-    }
-
 
     @GetMapping("/board")
     public String boardPage() {
         return "board/board"; // templates/board.html 파일을 반환
     }
 
+    @GetMapping("/game")
+    public String gamePage() {
+        return "game/game"; // templates/game.html 파일을 찾아서 보여줌
+    }
 
     @GetMapping("/mypage")
     public String mypage(@AuthenticationPrincipal User user, Model model) {
@@ -54,14 +53,21 @@ public class MainController {
         model.addAttribute("user", user); // 'user'라는 이름으로 객체를 넘겨줌
         return "users/mypage";
     }
+
+    // 룰렛 돌리기 페이지
     @GetMapping("/roulette")
     public String roulettePage() {
-        return "game/roulette"; // templates/roulette.html 반환
+        return "game/roulette";
     }
 
     @GetMapping("/twentyQuestions")
     public String twentyQuestionsPage() {
         return "game/twentyQuestions"; // templates/twentyQuestions.html 반환
+    }
+
+    @GetMapping("/capsule")
+    public String goCapsulePage() {
+        return "game/capsule";
     }
 
     @GetMapping("/forgot-pw")
