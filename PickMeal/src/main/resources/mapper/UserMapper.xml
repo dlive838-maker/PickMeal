@@ -25,12 +25,18 @@
         WHERE UPPER(TRIM(nickname)) = UPPER(TRIM(#{nickname}))
     </select>
 
+    <update id="updateEmail">
+        UPDATE user SET email = #{email} WHERE user_id = #{user_id}
+    </update>
+
+    <update id="updatePassword">
+        UPDATE user SET password = #{password} WHERE user_id = #{user_id}
+    </update>
+
     <update id="edit" parameterType="PickMeal.PickMeal.domain.User">
         UPDATE user
         SET
-        password = #{password},
         nickname = #{nickname},
-        email = #{email},
         phoneNumber = #{phoneNumber},
         likeMenu = #{likeMenu},
         disLikeMenu = #{disLikeMenu}
