@@ -34,7 +34,8 @@
         <if test="is_fried != null"> AND t.is_fried = #{is_fried} </if>
         <if test="is_roasted != null"> AND t.is_roasted = #{is_roasted} </if>
         <if test="has_pork != null"> AND t.has_pork = #{has_pork} </if>
-        <if test="has_beef != null"> AND t.has_beef = #{has_beef} </if>
+        <if test="has_beef != null"> AND t.has_beef = #{has_beef} </if>+
+    </select>
     <select id="getRandomFoodByCategory" resultType="PickMeal.PickMeal.domain.Food">
         SELECT * FROM food
         <where>

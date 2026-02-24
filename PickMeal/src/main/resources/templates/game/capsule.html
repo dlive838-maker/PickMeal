@@ -4,160 +4,80 @@
     <meta charset="UTF-8">
     <title>Pick Meal - Capsule</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@700;800&display=swap" rel="stylesheet">
     <style>
+        /* 헤더와 푸터를 최상위로 올림 */
+        header, footer { z-index: 1200 !important; position: relative; }
+
         body {
-    font-family: 'Fredoka', sans-serif;
-    background-color: #FAF3F0;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-    overflow-x: hidden;
+            font-family: 'Fredoka', sans-serif;
+            background-color: #FAF3F0;
+            margin: 0; display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden;
         }
 
-        /* 중앙 영역: 헤더와 푸터를 제외한 남는 공간 전체 차지 */
-        .gacha-main-content {
-            flex-grow: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px 0; /* 상하 여백 확보 */
-            position: relative;
-        }
+        .gacha-main-content { flex-grow: 1; display: flex; justify-content: center; align-items: center; position: relative; }
+        .gacha-wrapper { position: relative; display: flex; flex-direction: column; align-items: center; transition: opacity 0.4s; transform: scale(0.9); }
 
-        .gacha-wrapper {
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            transition: opacity 0.4s ease-out;
-            /* 짤림 방지: 화면이 작아지면 기계 크기도 조절될 수 있게 함 */
-            transform: scale(0.9); /* 전체적인 크기를 90%로 살짝 줄여 안정성 확보 */
-        }
+        /* [기계 디자인 유지] */
+        .glass-sphere { position: relative; width: 360px; height: 340px; background: radial-gradient(circle at 30% 25%, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.2) 65%); border: 2px solid rgba(0, 0, 0, 0.08); border-radius: 50%; z-index: 2; overflow: hidden; box-shadow: inset 0 0 30px rgba(255, 255, 255, 0.8); display: flex; justify-content: center; align-items: flex-end; }
+        .capsule { position: absolute; width: 52px; height: 52px; border-radius: 50%; overflow: hidden; display: flex; flex-direction: column; }
+        .capsule-top { height: 50%; background: rgba(255, 255, 255, 0.6); border-bottom: 1px solid rgba(0,0,0,0.1); }
+        .capsule-bottom { height: 50%; }
+        .machine-body { position: relative; width: 300px; height: 260px; background: #FF4D4D; border-radius: 50px 50px 60px 60px; margin-top: -85px; z-index: 1; display: flex; flex-direction: column; align-items: center; box-shadow: inset -12px -12px 0px rgba(0,0,0,0.08); }
 
-        /* [1. 상단 유리통] */
-        .glass-sphere {
-            position: relative;
-            width: 360px;
-            height: 340px;
-            background: radial-gradient(circle at 30% 25%, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.2) 65%);
-            border: 2px solid rgba(0, 0, 0, 0.08);
-            border-radius: 50%;
-            z-index: 2;
-            overflow: hidden;
-            box-shadow: inset 0 0 30px rgba(255, 255, 255, 0.8), inset -10px -10px 20px rgba(0,0,0,0.05);
-            display: flex;
-            justify-content: center;
-            align-items: flex-end;
-        }
-
-        /* [캡슐 디자인] */
-        .capsule {
-            position: absolute;
-            width: 52px;
-            height: 52px;
-            border-radius: 50%;
-            border: 1px solid rgba(0, 0, 0, 0.05);
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            box-shadow: inset -2px -2px 6px rgba(0,0,0,0.1);
-        }
-        .capsule-top {
-            height: 50%; width: 100%;
-            background: rgba(255, 255, 255, 0.6);
-            border-bottom: 1px solid rgba(0,0,0,0.1);
-        }
-        .capsule-bottom { height: 50%; width: 100%; background: white; }
-
-        /* [2. 하단 본체 - 높이를 살짝 줄여 짤림 방지] */
-        .machine-body {
-            position: relative;
-            width: 300px;
-            height: 260px; /* 280 -> 260 수정 */
-            background: #FF4D4D;
-            border-radius: 50px 50px 60px 60px;
-            margin-top: -85px;
-            z-index: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            box-shadow: inset -12px -12px 0px rgba(0,0,0,0.08);
-        }
-
-        .cat-box {
-            margin-top: 90px;
-            background: white;
-            border: 3px solid #FF4D4D;
-            display: flex;
-            align-items: center;
-            border-radius: 30px;
-            padding: 6px 18px;
-            z-index: 10;
-        }
-        .arrow-btn { cursor: pointer; font-size: 22px; color: #FF4D4D; padding: 0 12px; user-select: none; }
-
-        .lever-btn-wrapper {
-            margin-top: 15px;
-            position: relative;
-            width: 90px;
-            height: 90px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            transition: transform 1.2s cubic-bezier(0.45, 0.05, 0.55, 0.95);
-        }
-        .lever-btn-wrapper.spin-action { transform: rotate(30deg); }
-
-        .lever-bg-circle {
-            position: absolute;
-            width: 80px;
-            height: 80px;
-            background: white;
-            border-radius: 50%;
-            z-index: 1;
-        }
-        .click-btn {
-            position: relative;
-            z-index: 2;
-            background: #FFD700;
-            padding: 8px 24px;
-            border-radius: 25px;
-            color: #444;
-            font-weight: 800;
-            font-size: 15px;
-            box-shadow: 0 4px 0px #C9A000;
-        }
-
-        .exit-gate {
-            margin-top: 10px;
-            width: 95px;
-            height: 45px;
-            background: #D32F2F;
-            border-radius: 15px 15px 5px 5px;
-            position: relative;
-        }
-
-        /* 애니메이션 생략 (기존과 동일) */
-        @keyframes mixing { 0%, 100% { transform: translate(0, 0) rotate(0deg); } 25% { transform: translate(120px, -130px) rotate(90deg); } 50% { transform: translate(-120px, -160px) rotate(180deg); } 75% { transform: translate(100px, -60px) rotate(270deg); } }
-        @keyframes settle-down { to { transform: translate(var(--rand-x), var(--rand-y)) rotate(var(--rand-rot)); } }
-        @keyframes roll-out { 0% { opacity: 1; transform: translateY(0) rotate(0deg); } 40% { transform: translateY(40px) translateX(25px) rotate(150deg); } 100% { opacity: 1; transform: translateY(130px) translateX(70px) rotate(360deg); } }
-
-        /* [결과 화면] */
+        /* [결과 화면: 클릭 방해 요소 제거] */
         #result-screen {
             position: fixed; display: none; flex-direction: column; align-items: center;
-            z-index: 100; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            z-index: 1000; top: 0; left: 0; width: 100%; height: 100%;
+            justify-content: center;
+            /* 결과창 배경 자체는 클릭을 통과시킴 */
+            pointer-events: none;
         }
-        .cap-half { position: absolute; width: 230px; height: 115px; border: 5px solid #333; transition: 1s; }
-        .top-cap { top: 0; border-radius: 115px 115px 0 0; border-bottom: none; }
-        .bottom-cap { bottom: 0; background: #ffffff; border-radius: 0 0 115px 115px; border-top: none; }
-        .is-open .top-cap { transform: translateY(-110px) rotate(-10deg); }
-        .is-open .bottom-cap { transform: translateY(110px) rotate(10deg); }
-        .result-txt { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 38px; font-weight: 800; color: #333; opacity: 0; transition: 0.5s 0.7s; text-align: center; width: 400px; }
-        .is-open .result-txt { opacity: 1; }
-        .btn-style { padding: 14px 40px; border-radius: 25px; background: #FF4D4D; color: white; font-weight: 800; cursor: pointer; border: 4px solid #333; box-shadow: 5px 5px 0px #333; margin-top: 40px; }
+
+        .capsule-container {
+            position: relative; width: 300px; height: 230px;
+            display: flex; justify-content: center; align-items: center;
+        }
+
+        .cap-half {
+            position: absolute; width: 230px; height: 115px; border: 6px solid #333;
+            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s 0.7s;
+            z-index: 10; left: 50%; margin-left: -115px;
+        }
+        .top-cap { top: 0px; border-radius: 115px 115px 0 0; border-bottom: none; }
+        .bottom-cap { top: 115px; border-radius: 0 0 115px 115px; border-top: none; }
+
+        .is-open .top-cap { transform: translateY(-150px) rotate(-15deg); opacity: 0; }
+        .is-open .bottom-cap { transform: translateY(150px) rotate(15deg); opacity: 0; }
+
+        .result-content {
+            display: flex; flex-direction: column; align-items: center;
+            opacity: 0; transform: scale(0.1);
+            transition: all 0.6s 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+            z-index: 5; margin-top: -20px;
+        }
+        .is-open .result-content { opacity: 1; transform: scale(1); }
+
+        .food-img { width: 200px; height: 200px; border-radius: 30px; object-fit: cover; border: 6px solid white; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        .result-txt { margin-top: 12px; font-size: 36px; font-weight: 800; color: #333; text-shadow: 2px 2px 0 white; text-align: center; word-break: keep-all; line-height: 1.1; }
+
+        /* [버튼 그룹: 클릭 가능하게 복구] */
+        #action-buttons {
+            pointer-events: auto; /* 버튼 영역은 다시 클릭 가능하게 설정 */
+        }
+
+        .btn-style {
+            padding: 10px 32px; border-radius: 18px; background: #FF4D4D; color: white;
+            font-weight: 800; cursor: pointer; border: 4px solid #333; box-shadow: 4px 4px 0px #333;
+            transition: transform 0.2s, opacity 0.5s;
+        }
+        .btn-style:active { transform: translateY(2px); box-shadow: 1px 1px 0px #333; }
+
+        @keyframes mixing { 0%, 100% { transform: translate(0, 0) rotate(0deg); } 25% { transform: translate(120px, -130px) rotate(90deg); } 50% { transform: translate(-120px, -160px) rotate(180deg); } 75% { transform: translate(100px, -60px) rotate(270deg); } }
+        @keyframes settle-down { to { transform: translate(var(--rand-x), var(--rand-y)) rotate(var(--rand-rot)); } }
+        @keyframes roll-out { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 1; transform: translateY(130px) translateX(70px) rotate(360deg); } }
+        .spin-action { transform: rotate(110deg); }
     </style>
 </head>
 <body>
@@ -166,55 +86,61 @@
 <main class="gacha-main-content">
     <div class="gacha-wrapper" id="machine-all">
         <div class="glass-sphere" id="sphere"></div>
-
         <div class="machine-body">
-            <div class="cat-box">
-                <span class="arrow-btn" onclick="moveCat(-1)">◀</span>
+            <div class="cat-box mt-[90px] bg-white border-[3px] border-[#FF4D4D] rounded-[30px] px-4 py-1 flex items-center z-10">
+                <span class="arrow-btn cursor-pointer text-xl text-[#FF4D4D] px-2" onclick="moveCat(-1)">◀</span>
                 <span id="cat-label" class="font-black text-[#FF4D4D] text-xl">전체</span>
-                <span class="arrow-btn" onclick="moveCat(1)">▶</span>
+                <span class="arrow-btn cursor-pointer text-xl text-[#FF4D4D] px-2" onclick="moveCat(1)">▶</span>
             </div>
-
-            <div class="lever-btn-wrapper" id="lever-wrapper" onclick="draw()">
-                <div class="lever-bg-circle"></div>
-                <div class="click-btn">Click!!!</div>
+            <div class="lever-btn-wrapper mt-4 cursor-pointer transition-transform duration-700" id="lever-wrapper" onclick="draw()">
+                <div class="w-20 h-20 bg-white rounded-full flex justify-center items-center shadow-inner">
+                    <div class="bg-[#FFD700] px-4 py-2 rounded-2xl text-sm font-bold shadow-[0_4px_0_#C9A000]">Click!</div>
+                </div>
             </div>
-
-            <div class="exit-gate">
-                <div id="out-cap-pos" style="position:absolute; top:0px; left:22px;"></div>
+            <div class="exit-gate mt-2 w-24 h-12 bg-[#D32F2F] rounded-t-xl relative">
+                <div id="out-cap-pos" class="absolute top-0 left-6"></div>
             </div>
         </div>
     </div>
 
     <div id="result-screen">
-        <div style="position:relative; width:230px; height:230px;">
+        <div class="capsule-container">
             <div class="cap-half top-cap" id="result-top-cap"></div>
-            <div class="cap-half bottom-cap"></div>
-            <div class="result-txt" id="food-res">MENU</div>
+            <div class="result-content" id="final-content">
+                <img id="food-img" src="" alt="음식" class="food-img">
+                <div class="result-txt" id="food-res">MENU</div>
+            </div>
+            <div class="cap-half bottom-cap" id="result-bottom-cap"></div>
         </div>
-        <div class="flex gap-4 mt-44">
-            <button class="btn-style" onclick="location.reload()">NEW</button>
-            <button class="btn-style" style="background:#A8D5BA;" onclick="retry()">RETRY</button>
+        <div id="action-buttons" class="flex flex-col items-center gap-4 mt-8 opacity-0 transition-opacity duration-700">
+            <div class="flex gap-4">
+                <button class="btn-style" onclick="location.reload()">NEW</button>
+                <button class="btn-style" style="background:#A8D5BA;" onclick="retry()">RETRY</button>
+            </div>
+            <button class="btn-style w-full max-w-[300px]"
+                    style="background:#FFEB3B; color:#3A1D1D; border-color:#3A1D1D; box-shadow: 4px 4px 0px #3A1D1D;"
+                    onclick="findRestaurants()">
+                📍 주변 맛집 찾기
+            </button>
         </div>
     </div>
 </main>
-
-<footer th:replace="~{fragments/footer :: footerFragment}"></footer>
+<footer th:replace="~{fragments/footer :: footerFragment}"></footer >
 
 <script>
-    // (JavaScript 로직은 기존과 동일하므로 유지)
-    const cats = ["전체", "한식", "중식", "일식", "양식", "아시안식"];
-    let idx = 0; let playing = false;
-    const sphere = document.getElementById('sphere');
+    const categoryMap = [{ label: "전체", value: "" },{ label: "한식", value: "Korean food" },{ label: "중식", value: "Chinese food" },{ label: "일식", value: "Japanese food" },{ label: "양식", value: "Western food" },{ label: "아시안식", value: "Asian food" }];
     const colors = ["#FFADAD", "#FFD6A5", "#FDFFB6", "#CAFFBF", "#9BF6FF", "#A0C4FF"];
+    let idx = 0; let playing = false; let currentFoodName = "";
+    const sphere = document.getElementById('sphere');
 
     function initCapsules() {
-        for(let i=0; i<15; i++) {
+        sphere.innerHTML = '';
+        for(let i=0; i<18; i++) {
             const cap = createCapsuleElement(colors[i % colors.length]);
             const angle = (Math.PI / 10) * (Math.random() * 8 - 4);
-            const dist = 90 + Math.random() * 25;
-            const x = 180 + Math.sin(angle) * dist - 26;
-            const y = 170 + Math.cos(angle) * dist + 15;
-            cap.style.left = x + 'px'; cap.style.top = y + 'px';
+            const dist = 90 + Math.random() * 30;
+            cap.style.left = (180 + Math.sin(angle) * dist - 26) + 'px';
+            cap.style.top = (170 + Math.cos(angle) * dist + 15) + 'px';
             cap.style.transform = `rotate(${Math.random() * 360}deg)`;
             sphere.appendChild(cap);
         }
@@ -222,88 +148,129 @@
 
     function createCapsuleElement(color) {
         const cap = document.createElement('div'); cap.className = 'capsule';
-        const topPart = document.createElement('div'); topPart.className = 'capsule-top';
-        const bottomPart = document.createElement('div'); bottomPart.className = 'capsule-bottom';
-        bottomPart.style.background = color; cap.appendChild(topPart); cap.appendChild(bottomPart);
-        return cap;
+        const top = document.createElement('div'); top.className = 'capsule-top';
+        const bot = document.createElement('div'); bot.className = 'capsule-bottom';
+        bot.style.background = color; cap.append(top, bot); return cap;
     }
 
     function moveCat(d) {
         if(playing) return;
-        idx = (idx + d + cats.length) % cats.length;
-        document.getElementById('cat-label').innerText = cats[idx];
+        idx = (idx + d + categoryMap.length) % categoryMap.length;
+        document.getElementById('cat-label').innerText = categoryMap[idx].label;
     }
 
     async function draw() {
         if(playing) return; playing = true;
         const lever = document.getElementById('lever-wrapper');
-        lever.classList.add('spin-action');
         const capsules = document.querySelectorAll('.capsule');
-        capsules.forEach(c => { c.style.animation = `mixing ${0.7 + Math.random()*0.3}s infinite ease-in-out`; });
-        const cat = cats[idx];
+        lever.classList.add('spin-action');
+        capsules.forEach(c => c.style.animation = `mixing 0.8s infinite ease-in-out`);
+
         try {
-            const res = await fetch(`/api/food/draw?category=${encodeURIComponent(cat)}`);
+            const selectedValue = categoryMap[idx].value;
+            const res = await fetch(`/api/food/draw?category=${encodeURIComponent(selectedValue)}`);
+            if (!res.ok) throw new Error("서버 응답 오류");
             const data = await res.json();
-            const foodName = data.foodName || "추천 메뉴";
+            currentFoodName = data.foodName;
             const winColor = colors[Math.floor(Math.random() * colors.length)];
+
             setTimeout(() => {
                 lever.classList.remove('spin-action');
                 capsules.forEach(c => {
-                    const rx = (Math.random() * 20 - 10) + "px"; const ry = (Math.random() * 10 - 5) + "px"; const rr = (Math.random() * 360) + "deg";
-                    c.style.setProperty('--rand-x', rx); c.style.setProperty('--rand-y', ry); c.style.setProperty('--rand-rot', rr);
-                    c.style.animation = `settle-down 2.5s cubic-bezier(0.25, 1, 0.5, 1) forwards`;
+                    c.style.setProperty('--rand-x', (Math.random()*20-10)+'px');
+                    c.style.setProperty('--rand-y', (Math.random()*10-5)+'px');
+                    c.style.setProperty('--rand-rot', (Math.random()*360)+'deg');
+                    c.style.animation = `settle-down 2s forwards`;
                 });
+
                 setTimeout(() => {
                     const outPos = document.getElementById('out-cap-pos');
                     const outCap = createCapsuleElement(winColor);
-                    outCap.style.position = "absolute"; outCap.style.opacity = "0";
-                    outCap.style.animation = 'roll-out 1.8s cubic-bezier(0.15, 0, 0.15, 1) forwards';
+                    outCap.style.animation = 'roll-out 1.5s forwards';
                     outPos.appendChild(outCap);
+
                     setTimeout(() => {
-                        document.getElementById('result-top-cap').style.backgroundColor = winColor;
-                        document.getElementById('food-res').innerText = foodName;
+                        const foodResEl = document.getElementById('food-res');
+                        if (currentFoodName.length > 10) foodResEl.style.fontSize = "22px";
+                        else if (currentFoodName.length > 6) foodResEl.style.fontSize = "28px";
+                        else foodResEl.style.fontSize = "36px";
+
+                        document.getElementById('result-top-cap').style.backgroundColor = 'rgba(255, 255, 255, 0.6)';
+                        document.getElementById('result-bottom-cap').style.backgroundColor = winColor;
+                        document.getElementById('food-img').src = data.imagePath;
+                        foodResEl.innerText = currentFoodName;
                         showFinal();
                     }, 1600);
-                }, 2200);
+                }, 2000);
             }, 2500);
-        } catch (err) { console.error(err); playing = false; lever.classList.remove('spin-action'); }
+        } catch (err) {
+            playing = false;
+            lever.classList.remove('spin-action');
+            capsules.forEach(c => c.style.animation = 'none');
+        }
     }
 
     function showFinal() {
-        const machine = document.getElementById('machine-all');
-        machine.style.opacity = '0';
+        document.getElementById('machine-all').style.opacity = '0';
         setTimeout(() => {
-            machine.style.display = 'none';
+            document.getElementById('machine-all').style.display = 'none';
             const rs = document.getElementById('result-screen');
             rs.style.display = 'flex';
-            setTimeout(() => rs.classList.add('is-open'), 100);
+            setTimeout(() => {
+                rs.classList.add('is-open');
+                setTimeout(() => {
+                    fireConfetti();
+                    const btns = document.getElementById('action-buttons');
+                    btns.classList.remove('opacity-0');
+                    // 버튼 클릭 가능하게 스타일 직접 부여
+                    btns.style.pointerEvents = 'auto';
+                }, 800);
+            }, 100);
         }, 400);
     }
 
+    function fireConfetti() {
+        const end = Date.now() + 2000;
+        (function frame() {
+            confetti({ particleCount: 7, angle: 60, spread: 55, origin: { x: 0, y: 0.8 } });
+            confetti({ particleCount: 7, angle: 120, spread: 55, origin: { x: 1, y: 0.8 } });
+            if (Date.now() < end) requestAnimationFrame(frame);
+        }());
+    }
+
+    function retry() {
+        const rs = document.getElementById('result-screen');
+        const btns = document.getElementById('action-buttons');
+        rs.classList.remove('is-open');
+        btns.classList.add('opacity-0');
+        btns.style.pointerEvents = 'none'; // 다시 클릭 방지
+        setTimeout(() => {
+            rs.style.display = 'none';
+            const machine = document.getElementById('machine-all');
+            machine.style.display = 'flex';
+            machine.style.opacity = '1';
+            document.getElementById('out-cap-pos').innerHTML = '';
+            playing = false;
+            draw();
+        }, 500);
+    }
+
+    function findRestaurants() {
+        if(!currentFoodName) return;
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function(position) {
+                const lat = position.coords.latitude;
+                const lon = position.coords.longitude;
+                const query = encodeURIComponent(currentFoodName);
+                const searchUrl = `https://map.kakao.com/link/search/${query}?cx=${lon}&cy=${lat}&lvl=1`;
+                window.open(searchUrl, '_blank');
+            }, function() {
+                window.open(`https://map.kakao.com/link/search/${encodeURIComponent(currentFoodName)}?lvl=1`, '_blank');
+            });
+        }
+    }
+
     initCapsules();
-
-    /* [RETRY 기능 추가] */
-function retry() {
-    // 1. 결과 화면 초기화 및 숨기기
-    const rs = document.getElementById('result-screen');
-    rs.classList.remove('is-open'); // 오픈 애니메이션 클래스 제거
-
-    setTimeout(() => {
-        rs.style.display = 'none'; // 결과창 안 보이게 설정
-
-        // 2. 가차 머신 다시 표시
-        const machine = document.getElementById('machine-all');
-        machine.style.display = 'flex';
-        machine.style.opacity = '1';
-
-        // 3. 기존에 나갔던 캡슐(배출구) 비우기
-        document.getElementById('out-cap-pos').innerHTML = '';
-
-        // 4. 상태 변수 초기화 및 다시 뽑기 실행
-        playing = false; // draw가 실행될 수 있게 상태 해제
-        draw(); // 현재 설정된 idx(카테고리) 그대로 다시 실행
-    }, 400); // 결과창이 닫히는 효과를 위해 약간의 지연 후 실행
-}
 </script>
 </body>
 </html>
