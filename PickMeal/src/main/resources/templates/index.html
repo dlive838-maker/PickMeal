@@ -141,5 +141,22 @@
         }
     };
 </script>
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    // 1. 컨트롤러의 RedirectAttributes.addFlashAttribute("msg", ...) 데이터 수신
+    const flashMessage = [[${msg}]];
+
+    // 2. URL 파라미터(?msg=withdrawn) 데이터 수신 (직접 주소창에 입력해 들어오는 경우 대비)
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlMessage = urlParams.get('msg');
+
+    // 3. 메시지가 있다면 알림창 띄우기
+    if (flashMessage) {
+        alert(flashMessage);
+    } else if (urlMessage === 'withdrawn') {
+        alert("회원 탈퇴가 정상적으로 처리되었습니다.");
+    }
+    /*]]>*/
+</script>
 </body>
 </html>
