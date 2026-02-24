@@ -6,10 +6,7 @@ import PickMeal.PickMeal.dto.GameResponseDto;
 import PickMeal.PickMeal.service.TwentyQuestionsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -19,6 +16,7 @@ import java.util.List;
 public class TwentyQuestionsController {
 
     private final TwentyQuestionsService twentyQuestionsService;
+
 
     @PostMapping("/next")
     public ResponseEntity<GameResponseDto> getNextStep(@RequestBody GameRequestDto request) {
@@ -43,5 +41,12 @@ public class TwentyQuestionsController {
         }
 
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/api/food/imagePath")
+    public String getImagePath(@RequestParam("foodName") String foodName) {
+        // DB에서 음식 이름으로 imagePath를 찾아오는 메서드 실행
+        String imagePath = twentyQuestionsService.findImagePathByName(foodName);
+        return imagePath;
     }
 }

@@ -14,4 +14,6 @@ public interface FileMapper {
     void deleteByBoardId(long bno);
 
     File findById(long fileId);
+
+    File findByFilePath(String filepath);
 }

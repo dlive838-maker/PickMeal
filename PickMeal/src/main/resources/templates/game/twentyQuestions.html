@@ -307,11 +307,47 @@
         }
     }
 
-    function nextQuestion(isYes) {
+    async function nextQuestion(isYes) {
 
         if (currentSuggestingFood !== "") {
             if (isYes) {
-                alert("🎉 확정! [" + currentSuggestingFood + "] 맛있게 드세요!");
+            try{
+                const response = await fetch(`/twenty-questions/api/food/imagePath?foodName=${currentSuggestingFood}`);
+                const realImagePath = await response.text();
+
+                const body = document.querySelector('main');
+                body.innerHTML = `
+                <div class="flex flex-col items-center justify-center min-h-screen p-6 text-center">
+                    <div class="mb-6">
+                        <h2 class="text-[#FF8A5B] font-black text-3xl mb-2 animate-bounce">🏆 CHAMPION 🏆</h2>
+                    </div>
+                    <div class="bg-white p-8 rounded-[4rem] shadow-2xl border-4 border-[#FF8A5B] max-w-md w-full">
+                        <div class="overflow-hidden rounded-[3rem] mb-6 h-80 shadow-md">
+                            <img src="${realImagePath}" class="w-full h-full object-cover">
+                        </div>
+                        <h1 class="text-5xl font-black text-gray-800 italic mb-2">${currentSuggestingFood}</h1>
+                        <div class="grid grid-cols-2 gap-3 mb-6">
+                            <button onclick="location.href='/game'" class="py-3 bg-gray-100 rounded-2xl font-bold">HOME 🏠</button>
+                            <button onclick="location.href='/twenty-questions'" class="py-3 bg-gray-100 rounded-2xl font-bold">RESTART 🔄</button>
+                        </div>
+                        <button onclick="window.open('https://map.kakao.com/link/search/' + encodeURIComponent('${currentSuggestingFood}'))"
+                                class="w-full py-5 bg-[#FAE100] rounded-full font-black text-xl">
+                            주변 맛집 찾기 📍
+                        </button>
+                    </div>
+                </div>
+                `;
+                setTimeout(() => {
+                    if (typeof confetti === 'function') {
+                        confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, zIndex: 9999 });
+                    }
+                }, 100);
+
+                }catch(error){
+                    console.error("이미지 경로를 가져오는데 실패했습니다.:", error);
+                    alert("결과 화면을 불러오는 중 오류가 발생했습니다.");
+                }
+
                 // 실제 결과 페이지 따로 만들 시 이 부분 활용
                 // window.location.href = `/result?foodName=${currentSuggestingFood}`;
             } else {

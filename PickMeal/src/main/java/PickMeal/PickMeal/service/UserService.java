@@ -100,4 +100,6 @@ public class UserService implements UserDetailsService {
         // [비유] 일꾼이 실제 장부(Mapper)를 들고 가서 숫자를 하나 올립니다.
         userMapper.updateWinCount(foodId);
     }
+
+    public String findByUser_id(Long user_id) {return userMapper.findByUser_id(user_id);}
 }

@@ -10,4 +10,6 @@ public interface FoodMapper {
     void getFoodInfo();
 
     List<String> getFilteredFoods(GameRequestDto request);
+
+    String findImagePathByName(String foodName);
 }

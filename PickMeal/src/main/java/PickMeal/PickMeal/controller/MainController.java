@@ -37,12 +37,6 @@ public class MainController {
     }
 
 
-    @GetMapping("/board")
-    public String boardPage() {
-        return "board/board"; // templates/board.html 파일을 반환
-    }
-
-
     @GetMapping("/mypage")
     public String mypage(@AuthenticationPrincipal User user, Model model) {
         // 세션에 저장된 현재 로그인 유저 정보(@AuthenticationPrincipal)를 모델에 담습니다.
@@ -69,9 +63,9 @@ public class MainController {
         return "users/forgot-pw"; // templates/forgot-pw.html 파일을 반환
     }
 
-    @GetMapping("/board/write")
-    public String boardWritePage() {
-        return "board/board-write"; // templates/board-write.html 파일 반환
+    @GetMapping("/board")
+    public String boardPage() {
+        return "board/board"; // templates/board.html 파일을 반환
     }
 
     @GetMapping("/hotplace")

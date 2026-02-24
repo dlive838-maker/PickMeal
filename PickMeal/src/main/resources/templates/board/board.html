@@ -75,38 +75,45 @@
                 </tr>
                 </thead>
                 <tbody class="text-gray-700 font-bold">
-                <tr th:each="board : ${boardList}" class="board-row border-b border-gray-100"
-                    th:onclick="|location.href='/board/detail/' + @{${board.boardId}}|">
-                    <td class="px-6 py-6 text-center text-gray-400 text-sm" th:text="${boardStat.count}">01</td>
+                <tr th:each="board : ${boards}" class="board-row border-b border-gray-100"
+                    th:onclick="|location.href='@{/board/detail/{id}(id=${board.boardId})}'|">
+                    <td class="px-6 py-6 text-center text-gray-400 text-sm" th:text="${board.boardId}">01</td>
                     <td class="px-4 py-6 text-center text-xl">🖼️</td>
                     <td class="px-8 py-6">
                         <div class="whitespace-nowrap overflow-hidden text-ellipsis max-w-[300px] lg:max-w-none">
-                            <span class="hover:underline cursor-pointer" th:text="${board.title}">게시글 제목</span>
+                            <span class="hover:underline cursor-pointer"th:text="${board.title}">게시글 제목</span>
                             <span class="text-[#FF8A5B] text-sm ml-2" th:if="${board.commentCount > 0}" th:text="'[' + ${board.commentCount} + ']'">[0]</span>
                         </div>
                     </td>
                     <td class="px-6 py-6 text-center text-sm text-gray-600 italic whitespace-nowrap" th:text="${board.nickname}">Author</td>
                     <td class="px-6 py-6 text-center text-xs text-gray-400 whitespace-nowrap" th:text="${#dates.format(board.createDate, 'yyyy-MM-dd')}">2026-02-13</td>
-                    <td class="px-4 py-6 text-center text-sm" th:text="${board.views}">0</td>
-                    <td class="px-4 py-6 text-center text-sm text-red-400 whitespace-nowrap" th:text="'❤️ ' + ${board.likes}">❤️ 0</td>
-                </tr>
-
-                <tr th:if="${#lists.isEmpty(boardList)}" class="board-row border-b border-gray-100">
-                    <td class="px-6 py-6 text-center text-gray-400 text-sm">03</td>
-                    <td class="px-4 py-6 text-center text-xl">🖼️</td>
-                    <td class="px-8 py-6">
-                        <div class="whitespace-nowrap overflow-hidden text-ellipsis max-w-[300px] lg:max-w-none">
-                            <span class="hover:underline cursor-pointer">신림역 근처 최고의 쌀국수 맛집 추천! 🍜</span>
-                            <span class="text-[#FF8A5B] text-sm ml-2">[5]</span>
-                        </div>
-                    </td>
-                    <td class="px-6 py-6 text-center text-sm text-gray-600 italic whitespace-nowrap">Foodie_King</td>
-                    <td class="px-6 py-6 text-center text-xs text-gray-400 whitespace-nowrap">2026-02-11</td>
-                    <td class="px-4 py-6 text-center text-sm">124</td>
-                    <td class="px-4 py-6 text-center text-sm text-red-400 whitespace-nowrap">❤️ 12</td>
+                    <td class="px-4 py-6 text-center text-sm" th:text="${board.viewCount}">0</td>
+                    <td class="px-4 py-6 text-center text-sm text-red-400 whitespace-nowrap" th:text="'❤️ ' + ${board.likeCount}">❤️ 0</td>
                 </tr>
                 </tbody>
             </table>
+            <nav th:if="${boards.totalPages > 0}" aria-label="Page navigation" class="py-6">
+                <ul class="flex justify-center gap-2">
+                    <li th:classappend="${boards.first} ? 'opacity-50 pointer-events-none'">
+                        <a class="px-4 py-2 rounded-full bg-white border border-gray-200 text-gray-600 hover:bg-[#FF8A5B] hover:text-white transition font-bold"
+                           th:href="@{/board/list(page=${boards.number-1})}">
+                            <span>&laquo;</span>
+                        </a>
+                    </li>
+                    <li th:each="page: ${#numbers.sequence(0, boards.totalPages-1)}"
+                        th:classappend="${page == boards.number} ? 'active'">
+                        <a class="px-4 py-2 rounded-full border transition font-bold"
+                           th:classappend="${page == boards.number} ? 'bg-[#FF8A5B] text-white border-[#FF8A5B]' : 'bg-white border-gray-200 text-gray-600 hover:bg-[#FF8A5B] hover:text-white'"
+                           th:href="@{/board/list(page=${page})}" th:text="${page+1}"></a>
+                    </li>
+                    <li th:classappend="${boards.last} ? 'opacity-50 pointer-events-none'">
+                        <a class="px-4 py-2 rounded-full bg-white border border-gray-200 text-gray-600 hover:bg-[#FF8A5B] hover:text-white transition font-bold"
+                           th:href="@{/board/list(page=${boards.number+1})}">
+                            <span>&raquo;</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
         </div>
     </div>
 </main>
