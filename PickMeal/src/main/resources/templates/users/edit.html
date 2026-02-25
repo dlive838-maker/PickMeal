@@ -51,7 +51,6 @@
         <div>
           <label class="label-text">아이디 (변경불가)</label>
           <input type="text" th:value="${displayId}" class="input-field input-readonly" readonly disabled>
-
           <input type="hidden" th:field="*{id}">
         </div>
         <div>
@@ -66,8 +65,8 @@
 
             <span th:unless="${user.socialLoginSite == null or user.socialLoginSite == ''}"
                   class="flex items-center text-xs text-gray-400 font-bold px-2">
-      소셜 계정은 이메일 변경이 불가합니다.
-    </span>
+              소셜 계정은 이메일 변경이 불가합니다.
+            </span>
           </div>
         </div>
         <div th:if="${user.socialLoginSite == null or user.socialLoginSite == ''}">
@@ -161,25 +160,30 @@
 </div>
 
 <div id="pwModal" class="modal-overlay" onclick="closeModalOnOutSide(event)">
-  <div class="modal-card space-y-5">
+  <div class="modal-card space-y-4">
     <h3 class="text-3xl font-black text-[#FF8A5B]">비밀번호 변경</h3>
+
     <div>
       <label class="label-text">현재 비밀번호</label>
-      <input type="password" id="currPw" class="input-field">
+      <input type="password" id="currPw" class="input-field" placeholder="현재 비밀번호 입력">
       <p id="currPwError" class="text-xs mt-1 ml-4 font-bold text-red-500 hidden">현재 비밀번호가 틀렸습니다.</p>
     </div>
+
     <div>
       <label class="label-text">새 비밀번호</label>
-      <input type="password" id="modalNewPw" class="input-field">
+      <input type="password" id="modalNewPw" class="input-field" placeholder="새 비밀번호 입력">
+      <p id="pwComplexityMsg" class="text-[0.7rem] mt-1 ml-4 font-bold text-gray-400">영문+숫자+특수문자 포함 8자 이상</p>
     </div>
+
     <div>
       <label class="label-text">새 비밀번호 확인</label>
-      <input type="password" id="modalNewPwCheck" class="input-field">
-      <p id="matchError" class="text-xs mt-1 ml-4 font-bold text-red-500 hidden">비밀번호가 일치하지 않습니다.</p>
+      <input type="password" id="modalNewPwCheck" class="input-field" placeholder="한 번 더 입력">
+      <p id="pwMatchMsg" class="text-[0.7rem] mt-1 ml-4 font-bold text-gray-400">비밀번호를 한 번 더 입력해주세요.</p>
     </div>
+
     <div class="flex justify-end gap-4 mt-6 border-t pt-6">
       <button type="button" onclick="closeModal('pwModal')" class="font-bold text-gray-400 mr-auto">취소</button>
-      <button type="button" onclick="apiUpdatePassword()" class="btn-action px-10">수정하기</button>
+      <button type="button" id="pwUpdateSubmitBtn" onclick="apiUpdatePassword()" class="btn-action px-10" disabled>수정하기</button>
     </div>
   </div>
 </div>
@@ -189,19 +193,75 @@
     const csrfToken = document.querySelector('meta[name="_csrf"]')?.content;
     const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.content;
 
+    const modalNewPw = document.getElementById('modalNewPw');
+    const modalNewPwCheck = document.getElementById('modalNewPwCheck');
+    const pwComplexityMsg = document.getElementById('pwComplexityMsg');
+    const pwMatchMsg = document.getElementById('pwMatchMsg');
+    const pwUpdateSubmitBtn = document.getElementById('pwUpdateSubmitBtn');
+
+    // 비밀번호 복잡도 정규식 (영문, 숫자, 특수문자 포함 8자 이상)
+    const pwRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/;
+
     function openModal(id) { document.getElementById(id).classList.add('active'); }
     function closeModal(id) { document.getElementById(id).classList.remove('active'); resetModals(); }
     function closeModalOnOutSide(e) { if(e.target.classList.contains('modal-overlay')) closeModal(e.target.id); }
 
     function resetModals() {
-      clearInterval(timerInterval);
+      if (timerInterval) clearInterval(timerInterval);
       document.getElementById('emailStep1').classList.remove('hidden');
       document.getElementById('emailStep2').classList.add('hidden');
       document.getElementById('emailUpdateSubmit').disabled = true;
       document.getElementById('timer').classList.add('hidden');
       document.querySelectorAll('.modal-card input').forEach(i => i.value = '');
       document.querySelectorAll('.modal-card p.text-red-500').forEach(p => p.classList.add('hidden'));
+
+      // 비밀번호 메시지 초기화
+      pwComplexityMsg.innerText = "영문+숫자+특수문자 포함 8자 이상";
+      pwComplexityMsg.className = "text-[0.7rem] mt-1 ml-4 font-bold text-gray-400";
+      pwMatchMsg.innerText = "비밀번호를 한 번 더 입력해주세요.";
+      pwMatchMsg.className = "text-[0.7rem] mt-1 ml-4 font-bold text-gray-400";
+      pwUpdateSubmitBtn.disabled = true;
     }
+
+    // [추가] 실시간 비밀번호 검증 로직
+    function validatePasswords() {
+      const p1 = modalNewPw.value;
+      const p2 = modalNewPwCheck.value;
+      let isComplexityValid = false;
+      let isMatchValid = false;
+
+      // 1. 복잡도 검사
+      if (p1.length === 0) {
+        pwComplexityMsg.innerText = "영문+숫자+특수문자 포함 8자 이상";
+        pwComplexityMsg.className = "text-[0.7rem] mt-1 ml-4 font-bold text-gray-400";
+      } else if (pwRegex.test(p1)) {
+        pwComplexityMsg.innerText = "안전한 비밀번호입니다! ✅";
+        pwComplexityMsg.className = "text-[0.7rem] mt-1 ml-4 font-bold text-green-500";
+        isComplexityValid = true;
+      } else {
+        pwComplexityMsg.innerText = "영문+숫자+특수문자 조합 8자 이상 필수 ❌";
+        pwComplexityMsg.className = "text-[0.7rem] mt-1 ml-4 font-bold text-red-500";
+      }
+
+      // 2. 일치 검사
+      if (p2.length === 0) {
+        pwMatchMsg.innerText = "비밀번호를 한 번 더 입력해주세요.";
+        pwMatchMsg.className = "text-[0.7rem] mt-1 ml-4 font-bold text-gray-400";
+      } else if (p1 === p2) {
+        pwMatchMsg.innerText = "비밀번호가 일치합니다! ✨";
+        pwMatchMsg.className = "text-[0.7rem] mt-1 ml-4 font-bold text-green-500";
+        isMatchValid = true;
+      } else {
+        pwMatchMsg.innerText = "비밀번호가 일치하지 않습니다. ❌";
+        pwMatchMsg.className = "text-[0.7rem] mt-1 ml-4 font-bold text-red-500";
+      }
+
+      // 3. 버튼 활성화 제어
+      pwUpdateSubmitBtn.disabled = !(isComplexityValid && isMatchValid);
+    }
+
+    modalNewPw.addEventListener('input', validatePasswords);
+    modalNewPwCheck.addEventListener('input', validatePasswords);
 
     let timerInterval;
     function startTimer(duration) {
@@ -290,26 +350,14 @@
       } catch (e) { alert("서버 통신 오류"); }
     }
 
-    const modalNewPw = document.getElementById('modalNewPw');
-    const modalNewPwCheck = document.getElementById('modalNewPwCheck');
-    const matchError = document.getElementById('matchError');
-    function checkPwMatch() {
-        if (modalNewPw.value && modalNewPwCheck.value) {
-            if (modalNewPw.value !== modalNewPwCheck.value) { matchError.classList.remove('hidden'); }
-            else { matchError.classList.add('hidden'); }
-        } else { matchError.classList.add('hidden'); }
-    }
-    modalNewPw.addEventListener('input', checkPwMatch);
-    modalNewPwCheck.addEventListener('input', checkPwMatch);
-
     async function apiUpdatePassword() {
       const currPw = document.getElementById('currPw').value;
       const newP = modalNewPw.value;
-      const newPC = modalNewPwCheck.value;
       const currPwError = document.getElementById('currPwError');
       currPwError.classList.add('hidden');
+
       if(!currPw || !newP) return alert("비밀번호를 입력해주세요.");
-      if(newP !== newPC) return;
+
       try {
         const response = await fetch('/users/update-password', {
           method: 'POST',
@@ -317,9 +365,17 @@
           body: JSON.stringify({ currentPassword: currPw, newPassword: newP })
         });
         const result = await response.text();
-        if(response.ok && result === "success") { alert("비밀번호가 성공적으로 변경되었습니다!"); closeModal('pwModal'); }
-        else if (result === "current_password_incorrect") { currPwError.classList.remove('hidden'); }
-        else { alert("변경 실패: " + result); }
+
+        if(response.ok && result === "success") {
+            alert("비밀번호가 성공적으로 변경되었습니다! ✨");
+            closeModal('pwModal');
+        } else if (result === "current_password_incorrect") {
+            currPwError.classList.remove('hidden');
+        } else if (result === "invalid_password_format") {
+            alert("비밀번호 형식이 올바르지 않습니다.");
+        } else {
+            alert("변경 실패: " + result);
+        }
       } catch (e) { alert("통신 오류"); }
     }
 

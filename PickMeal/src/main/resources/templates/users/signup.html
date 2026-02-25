@@ -8,11 +8,41 @@
   <style>
     body { font-family: 'Fredoka', sans-serif; background-color: #FFF5F0; margin: 0; }
     .signup-card { border-radius: 3rem; background: white; box-shadow: 0 20px 50px rgba(0,0,0,0.1); }
-    .input-field { border-radius: 1.2rem; transition: all 0.3s; border: 2px solid #FDF5E6; width: 100%; font-weight: 700; }
-    .input-field:focus { border-color: #FF8A5B; outline: none; background: white; }
+
+    /* [수정] 입력창 스타일: 글씨 크기를 약간 줄이고 내부 여백을 조정해 글씨 잘림 방지 */
+    .input-field {
+        border-radius: 1.2rem;
+        transition: all 0.3s;
+        border: 2px solid #FDF5E6;
+        width: 100%;
+        font-weight: 700;
+        color: #1F2937;
+        background-color: #ffffff;
+        font-size: 0.9rem; /* 글씨 크기 약간 축소 */
+        padding: 0.75rem 1.25rem; /* 상하 여백 조정으로 중앙 정렬 강화 */
+    }
+
+    .input-field:focus {
+        border-color: #FF8A5B;
+        outline: none;
+        background-color: #ffffff;
+        box-shadow: 0 0 0 4px rgba(255, 138, 91, 0.1);
+    }
+
+    /* [수정] 안내 메시지 스타일: 항상 보이도록 하고 가독성 높임 */
+    .status-msg {
+        font-size: 0.7rem;
+        font-weight: 700;
+        margin-left: 0.75rem;
+        margin-top: 0.25rem;
+        display: block; /* 줄바꿈되어 확실히 보이게 설정 */
+    }
+
+    .text-guide { color: #9CA3AF; } /* 기본 가이드 색상 */
+
     .btn-check { background-color: #FF8A5B; color: white; font-weight: 800; border-radius: 1.2rem; padding: 0 1.5rem; transition: all 0.3s; white-space: nowrap; height: 3.25rem; }
-    .btn-check:disabled { background-color: #ccc; cursor: not-allowed; }
-    .status-msg { font-size: 0.75rem; font-weight: 800; margin-left: 0.5rem; transition: color 0.3s; }
+    .btn-check:hover { background-color: #E67A4D; transform: translateY(-1px); }
+
     #timer { font-family: monospace; min-width: 50px; text-align: center; }
   </style>
 </head>
@@ -33,33 +63,34 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="flex flex-col gap-1">
             <div class="flex gap-2">
-              <input type="text" th:field="*{id}" placeholder="아이디"
-                     class="input-field px-6 py-3 bg-gray-50" th:readonly="${isSocial}" required>
+              <input type="text" th:field="*{id}" placeholder="아이디 입력"
+                     class="input-field" th:readonly="${isSocial}" required>
               <button type="button" th:if="${!isSocial}" id="btnCheckId" onclick="checkIdDuplication()"
                       class="btn-check text-xs uppercase">중복확인
               </button>
             </div>
-            <span id="idStatus" class="status-msg text-red-400"></span>
+            <span id="idStatus" class="status-msg text-guide">영문 소문자, 숫자 조합 5~20자</span>
           </div>
-          <input type="password" th:field="*{password}" placeholder="비밀번호"
-                 th:if="${!isSocial}" class="input-field px-6 py-3 bg-gray-50" required>
+          <div class="flex flex-col gap-1" th:if="${!isSocial}">
+            <input type="password" th:field="*{password}" placeholder="비밀번호 입력"
+                   class="input-field" required>
+            <span id="pwStatus" class="status-msg text-guide">영문+숫자+특수문자 포함 8자 이상</span>
+          </div>
         </div>
       </div>
 
       <div class="space-y-4 md:col-span-1">
         <label class="font-black text-gray-700 italic ml-2 uppercase">User Info</label>
-        <input type="text" th:field="*{name}" placeholder="이름" class="input-field px-6 py-3 bg-gray-50"
-               required>
+        <input type="text" th:field="*{name}" placeholder="이름" class="input-field" required>
 
         <div class="flex flex-col gap-1">
           <div class="flex gap-2">
-            <input type="text" th:field="*{nickname}" placeholder="닉네임"
-                   class="input-field px-6 py-3 bg-gray-50" required>
+            <input type="text" th:field="*{nickname}" placeholder="닉네임" class="input-field" required>
             <button type="button" id="btnCheckNickname" onclick="checkNicknameDuplication()"
                     class="btn-check text-xs uppercase">중복확인
             </button>
           </div>
-          <span id="nicknameStatus" class="status-msg text-red-400"></span>
+          <span id="nicknameStatus" class="status-msg text-guide">멋진 닉네임을 입력해주세요!</span>
         </div>
       </div>
 
@@ -68,33 +99,28 @@
         <div class="flex flex-col gap-2">
           <div class="flex gap-2">
             <input type="email" th:field="*{email}" placeholder="이메일 주소"
-                   class="input-field px-6 py-3 bg-gray-50"
-                   th:readonly="${isSocial}" required>
+                   class="input-field" th:readonly="${isSocial}" required>
             <button type="button" id="btnSendMail" onclick="sendAuthMail()"
                     th:if="${!isSocial}" class="btn-check text-xs uppercase">발송
             </button>
           </div>
           <div class="flex gap-2 items-center" th:if="${!isSocial}">
-            <input type="text" id="emailAuthCode" placeholder="인증번호 입력"
-                   class="input-field px-6 py-3 bg-gray-50 text-sm">
+            <input type="text" id="emailAuthCode" placeholder="인증번호"
+                   class="input-field text-sm">
             <button type="button" id="btnVerifyMail" onclick="verifyEmailCode()"
                     class="btn-check text-xs uppercase bg-gray-400">인증
             </button>
-            <span id="timer" class="text-[#FF8A5B] font-bold text-sm ml-2" style="display: none;">05:00</span>
-          </div>
-          <div th:if="${isSocial}" class="ml-2 text-green-500 text-xs font-bold italic">
-            ✅ 소셜 계정 이메일이 확인되었습니다.
+            <span id="timer" class="text-[#FF8A5B] font-bold text-xs ml-2" style="display: none;">05:00</span>
           </div>
         </div>
-        <input type="tel" th:field="*{phoneNumber}" placeholder="전화번호 (010-0000-0000)"
-               class="input-field px-6 py-3 bg-gray-50" required>
+        <input type="tel" th:field="*{phoneNumber}" placeholder="전화번호 (010-0000-0000)" class="input-field" required>
       </div>
 
       <div class="space-y-4 md:col-span-2">
         <label class="font-black text-gray-700 italic ml-2 uppercase">Birth Info</label>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <input type="date" th:field="*{birthDate}" class="input-field px-6 py-3 bg-gray-50 text-gray-400" required>
-          <select th:field="*{gender}" class="input-field px-6 py-3 bg-gray-50 text-gray-400">
+          <input type="date" th:field="*{birthDate}" class="input-field text-gray-500" required>
+          <select th:field="*{gender}" class="input-field text-gray-500">
             <option value="">성별 선택</option>
             <option value="M">남성</option>
             <option value="F">여성</option>
@@ -105,8 +131,8 @@
       <div class="space-y-4 md:col-span-2">
         <label class="font-black text-gray-700 italic ml-2 uppercase text-sm">Food Taste</label>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <input type="text" th:field="*{likeMenu}" placeholder="좋아하는 음식 (피자)" class="input-field px-6 py-3 bg-[#FFF5EF]">
-          <input type="text" th:field="*{disLikeMenu}" placeholder="싫어하는 음식 (고수)" class="input-field px-6 py-3 bg-[#FFEBEE]">
+          <input type="text" th:field="*{likeMenu}" placeholder="좋아하는 음식" class="input-field">
+          <input type="text" th:field="*{disLikeMenu}" placeholder="싫어하는 음식" class="input-field">
         </div>
       </div>
 
@@ -122,24 +148,42 @@
   const isSocial = /*[[${isSocial}]]*/ false;
   let lastCheckedId = isSocial ? document.querySelector('input[name="id"]').value : '';
   let lastCheckedNickname = '';
-
-  // [중요] 소셜 로그인 유저는 처음부터 인증 완료 상태로 설정합니다.
   let isEmailVerified = isSocial;
-
   let timerInterval;
 
   const idInput = document.querySelector('input[name="id"]');
+  const pwInput = document.querySelector('input[name="password"]');
   const nickInput = document.querySelector('input[name="nickname"]');
 
-  // 1. 실시간 중복 체크 상태 업데이트 로직
+  // [추가] 유효성 검사 정규식
+  const idRegex = /^[a-z0-9]{5,20}$/; // 5~20자 영문 소문자/숫자
+  const pwRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/; // 영문+숫자+특수문자 8자↑
+
+  // 1. 실시간 중복 및 복잡도 체크 로직
   if(idInput && !idInput.readOnly) {
       idInput.addEventListener('input', () => {
           const status = document.getElementById('idStatus');
-          if(idInput.value !== lastCheckedId) {
-              status.innerText = "아이디 중복확인이 필요합니다.";
+          if(!idRegex.test(idInput.value)) {
+              status.innerText = "5~20자 영문 소문자, 숫자만 가능합니다. ❌";
               status.className = "status-msg text-red-400";
-          } else if(lastCheckedId !== "") {
+          } else if(idInput.value !== lastCheckedId) {
+              status.innerText = "중복확인이 필요합니다.";
+              status.className = "status-msg text-orange-400";
+          } else {
               status.innerText = "사용 가능한 아이디입니다! ✨";
+              status.className = "status-msg text-green-400";
+          }
+      });
+  }
+
+  if(pwInput) {
+      pwInput.addEventListener('input', () => {
+          const status = document.getElementById('pwStatus');
+          if(!pwRegex.test(pwInput.value)) {
+              status.innerText = "영문+숫자+특수문자 포함 8자 이상 필수! 🔐";
+              status.className = "status-msg text-red-400";
+          } else {
+              status.innerText = "안전한 비밀번호입니다. ✅";
               status.className = "status-msg text-green-400";
           }
       });
@@ -148,8 +192,8 @@
   nickInput.addEventListener('input', () => {
       const status = document.getElementById('nicknameStatus');
       if(nickInput.value !== lastCheckedNickname) {
-          status.innerText = "닉네임 중복확인이 필요합니다.";
-          status.className = "status-msg text-red-400";
+          status.innerText = "중복확인이 필요합니다. ⚠️";
+          status.className = "status-msg text-orange-400";
       } else if(lastCheckedNickname !== "") {
           status.innerText = "사용 가능한 닉네임입니다! ✨";
           status.className = "status-msg text-green-400";
@@ -159,7 +203,8 @@
   // 2. 서버 통신 함수들
   async function checkIdDuplication() {
       const id = idInput.value.trim();
-      if(!id) return alert("아이디를 입력해주세요!");
+      if(!idRegex.test(id)) return alert("아이디 형식을 확인해주세요! (5~20자 영문 소문자/숫자)");
+
       const response = await fetch(`/users/check-id?id=${id}`);
       const result = await response.text();
       const status = document.getElementById('idStatus');
@@ -177,19 +222,28 @@
 
   async function checkNicknameDuplication() {
       const nickname = nickInput.value.trim();
-      if(!nickname) return alert("닉네임을 입력해주세요!");
-      const response = await fetch(`/users/check-nickname?nickname=${encodeURIComponent(nickname)}`);
-      const result = await response.text();
-      const status = document.getElementById('nicknameStatus');
-      if(result === 'success') {
-          lastCheckedNickname = nickname;
-          status.innerText = "사용 가능한 닉네임입니다! ✨";
-          status.className = "status-msg text-green-400";
-          alert("사용 가능한 닉네임입니다! ✨");
-      } else {
-          alert("이미 사용 중인 닉네임입니다. 😢");
-          status.innerText = "사용 불가.";
-          status.className = "status-msg text-red-400";
+      if(!nickname) return alert("닉네임을 입력해주세요! 😊");
+
+      try {
+          const response = await fetch(`/users/check-nickname?nickname=${encodeURIComponent(nickname)}`);
+          const result = await response.text(); // 서버에서 "success" 또는 "fail"이 옴
+
+          const status = document.getElementById('nicknameStatus');
+
+          // [핵심 수정] 서버 응답이 'success'인지 문자열로 비교
+          if(result === 'success') {
+              lastCheckedNickname = nickname;
+              status.innerText = "사용 가능한 닉네임입니다! ✨";
+              status.className = "status-msg text-green-400";
+              alert("사용 가능한 닉네임입니다! ✨");
+          } else {
+              alert("이미 사용 중인 닉네임입니다. 😢");
+              status.innerText = "이미 사용 중인 닉네임입니다.";
+              status.className = "status-msg text-red-400";
+              lastCheckedNickname = ""; // 중복인 경우 초기화
+          }
+      } catch(e) {
+          alert("서버와 통신 중 오류가 발생했습니다.");
       }
   }
 
@@ -218,7 +272,8 @@
   }
 
   async function sendAuthMail() {
-      const email = document.querySelector('input[name="email"]').value;
+      const emailInput = document.querySelector('input[name="email"]');
+      const email = emailInput.value.trim();
       if(!email) return alert("이메일을 입력해주세요!");
 
       const response = await fetch('/mail/send', {
@@ -230,6 +285,17 @@
       if(response.ok) {
           alert("입력하신 메일로 인증번호가 발송되었습니다! ✉️");
           startTimer();
+      } else if(response.status === 409) {
+          const result = await response.text();
+          if (result === "basic") {
+              if(confirm("이미 일반 회원으로 등록된 이메일입니다. 😢\n아이디 찾기 페이지로 이동하시겠습니까?")) {
+                  location.href = "/users/find-id";
+              }
+          } else if (result.startsWith("social_")) {
+              const siteName = result.split("_")[1];
+              alert(`이미 ${siteName.toUpperCase()} 계정으로 가입된 이메일입니다. ✨\n해당 소셜 로그인을 이용해주세요!`);
+          }
+          emailInput.focus();
       } else {
           alert("메일 발송에 실패했습니다. 다시 시도해주세요.");
       }
@@ -260,10 +326,23 @@
 
   // 3. 최종 폼 제출 검증
   function validateForm() {
-      if(!isSocial && idInput.value.trim() !== lastCheckedId) {
-          alert("아이디 중복확인을 완료해주세요!");
-          return false;
+      // 아이디 검증
+      if(!isSocial) {
+          if(!idRegex.test(idInput.value)) {
+              alert("아이디 규칙을 지켜주세요! (5~20자 영문/숫자)");
+              return false;
+          }
+          if(idInput.value !== lastCheckedId) {
+              alert("아이디 중복확인을 완료해주세요!");
+              return false;
+          }
+          // 비밀번호 검증
+          if(!pwRegex.test(pwInput.value)) {
+              alert("비밀번호는 영문, 숫자, 특수문자를 포함해 8자 이상이어야 합니다.");
+              return false;
+          }
       }
+
       if(nickInput.value.trim() !== lastCheckedNickname) {
           alert("닉네임 중복확인을 완료해주세요!");
           return false;

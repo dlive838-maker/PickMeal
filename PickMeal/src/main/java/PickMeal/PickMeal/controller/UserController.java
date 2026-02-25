@@ -1,6 +1,7 @@
 package PickMeal.PickMeal.controller;
 
 import PickMeal.PickMeal.domain.User;
+import PickMeal.PickMeal.service.UserPasswordService;
 import PickMeal.PickMeal.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -71,13 +72,6 @@ public class UserController {
         return authentication.getName(); // 일반 로그인
     }
 
-    @InitBinder
-    public void initBinder(WebDataBinder binder) {
-        // yyyy-MM-dd 형식을 Date 객체로 변환해주는 도구를 등록합니다.
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        dateFormat.setLenient(false); // 엄격한 날짜 체크
-        binder.registerCustomEditor(java.util.Date.class, new CustomDateEditor(dateFormat, true));
-    }
 
     @GetMapping("/signup")
     public String signupForm(Model model) {
@@ -107,17 +101,17 @@ public class UserController {
 
     @GetMapping("/check-nickname")
     @ResponseBody
-    public boolean checkNicknameDuplication(@RequestParam("nickname") String nickname) {
+    public String checkNicknameDuplication(@RequestParam("nickname") String nickname) {
+        // 1. 빈 값 검사
         if (nickname == null || nickname.trim().isEmpty()) {
-            return false; // 빈 값은 사용 불가로 처리
+            return "fail";
         }
-        // 서비스에서 중복이면 true, 사용 가능하면 false 반환
+
+        // 2. 서비스 로직 호출 (중복이면 true, 사용 가능하면 false 반환됨)
         boolean isExist = userService.existsByNickname(nickname);
 
-        // JS에서 사용 가능 여부로 판단하기 쉽게 반전해서 보낼 수도 있지만,
-        // 여기서는 '중복 여부' 자체를 보내고 JS에서 처리하는 게 깔끔합니다.
-        // 중복이면 1을 보내고, 사용 가능하면 0을 보냅니다.
-        return isExist; //
+        // 3. 자바스크립트에서 처리하기 쉽게 문자열로 변환하여 응답
+        return isExist ? "fail" : "success";
     }
 
     @GetMapping("/signup/social")
@@ -246,20 +240,25 @@ public class UserController {
         String currentPassword = params.get("currentPassword");
         String newPassword = params.get("newPassword");
 
-        // [수정] 직접 캐스팅 대신 공통 메서드로 ID를 찾아 DB에서 유저를 새로 조회합니다.
+        // 1. 유저 조회
         String userId = getLoginUserId(authentication);
         User user = userService.findById(userId);
-
         if (user == null) return "fail";
 
-        // 소셜 사용자가 비밀번호가 없는 경우에 대한 예외 처리
-        if (user.getPassword() == null || user.getPassword().isEmpty()) {
+        // 2. 소셜 유저 체크
+        if (user.getSocialLoginSite() != null && !user.getSocialLoginSite().isEmpty()) {
             return "social_user_cannot_change_pw";
         }
 
-        // [체크 포인트] matches 메서드에 들어가는 인자가 정확히 String인지 확인
+        // 3. 현재 비밀번호 일치 여부 확인
         if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
             return "current_password_incorrect";
+        }
+
+        // 4. [추가] 새 비밀번호 복잡도 검증 (영문+숫자+특수문자 8자 이상)
+        String pwPattern = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{8,}$";
+        if (newPassword == null || !newPassword.matches(pwPattern)) {
+            return "invalid_password_format";
         }
 
         try {
@@ -268,6 +267,23 @@ public class UserController {
         } catch (Exception e) {
             return "fail";
         }
+    }
+
+    @GetMapping("/find-id")
+    public String findIdPage() {
+        return "users/find-id";
+    }
+
+    @PostMapping("/find-id")
+    @ResponseBody // 결과값만 브라우저로 보낼 때 사용합니다.
+    public ResponseEntity<String> findId(@RequestParam String name, @RequestParam String email) {
+        String maskedId = userService.findId(name, email); // 아까 만든 마스킹 로직이 포함된 메서드 호출
+
+        if (maskedId == null) {
+            // 일치하는 유저가 없을 때 404 에러나 특정 문자열을 보냅니다.
+            return ResponseEntity.status(404).body("not_found");
+        }
+        return ResponseEntity.ok(maskedId);
     }
 
     @PostMapping("/remove")

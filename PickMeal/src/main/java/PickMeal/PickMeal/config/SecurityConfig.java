@@ -29,26 +29,36 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, OAuth2SuccessHandler oauth2SuccessHandler) throws Exception {
         http
-                .csrf(csrf -> csrf.ignoringRequestMatchers("/mail/**", "/worldcup/win/**", "/users/login", "/api/**"))
+                // 1. CSRF 예외 설정: POST 요청이 오는 경로들을 추가합니다.
+                .csrf(csrf -> csrf.ignoringRequestMatchers(
+                        "/mail/**",
+                        "/users/find-id",
+                        "/users/find-password/**", // 비번 찾기 메일 발송 API
+                        "/users/reset-password/**", // 새 비번 저장 API
+                        "/worldcup/win/**",
+                        "/users/login"
+                ))
+                // 2. 접근 권한 설정 (누구나 접근 가능한 페이지들)
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/", "/next-page", "/users/signup", "/users/signup/social", "/users/login",
-                                "/users/check-id", "/users/check-nickname", "/users/mypage","/users/forgot-pw", "/mail/**",
-                                "/oauth2/**", "/css/**", "/js/**", "/images/**", "/worldcup/win/**", "/meal-spotter", "/api/**").permitAll()
+                                "/users/check-id", "/users/check-nickname", "/users/find-id",
+                                "/users/forgot-pw",         // 비번 찾기 신청 페이지
+                                "/users/find-password/**",  // 비번 찾기 로직 API
+                                "/users/reset-password/**", // 새 비번 설정 페이지 및 API
+                                "/mail/**", "/oauth2/**", "/css/**", "/js/**", "/images/**", "/worldcup/win/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .formLogin(formLogin -> formLogin
                         .loginPage("/users/login")
-                        // ★ 추가: 문지기에게 "여기(/users/login)로 들어오는 POST 요청이 진짜 로그인 서류야!"라고 확실히 알려줍니다.
                         .loginProcessingUrl("/users/login")
                         .usernameParameter("id")
                         .defaultSuccessUrl("/next-page", true)
-                        .failureHandler(loginFailureHandler) // 일반 로그인 실패 핸들러
+                        .failureHandler(loginFailureHandler)
                 )
                 .oauth2Login(oauth2 -> oauth2
                         .loginPage("/users/login")
                         .successHandler(oauth2SuccessHandler)
                         .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
-                        // [핵심 추가] 소셜 로그인 실패 시에도 동일한 핸들러를 사용하도록 설정합니다.
                         .failureHandler(loginFailureHandler)
                 )
                 .logout(logout -> logout

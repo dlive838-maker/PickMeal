@@ -19,6 +19,10 @@
         SELECT * FROM user WHERE id = #{id}
     </select>
 
+    <select id="findByEmail" resultType="PickMeal.PickMeal.domain.User">
+        SELECT * FROM user WHERE email = #{email} AND status != 'WITHDRAWN'
+    </select>
+
     <select id="countByNickname" parameterType="String" resultType="int">
         SELECT COUNT(*)
         FROM user
@@ -27,10 +31,6 @@
 
     <update id="updateEmail">
         UPDATE user SET email = #{email} WHERE user_id = #{user_id}
-    </update>
-
-    <update id="updatePassword">
-        UPDATE user SET password = #{password} WHERE user_id = #{user_id}
     </update>
 
     <update id="edit" parameterType="PickMeal.PickMeal.domain.User">
@@ -75,4 +75,23 @@
     <select id="findByUser_id" resultType="String">
         SELECT nickname FROM user WHERE user_id = #{user_id}
     </select>
+
+    <select id="findUserByNameAndEmail" resultType="PickMeal.PickMeal.domain.User">
+        SELECT * FROM user
+        WHERE name = #{name} AND email = #{email} AND status = 'ACTIVE'
+    </select>
+
+    <select id="findUserByIdAndEmail" resultType="PickMeal.PickMeal.domain.User">
+        SELECT * FROM user
+        WHERE id = #{id}
+        AND email = #{email}
+        AND status = 'ACTIVE'
+    </select>
+
+    <update id="updatePassword">
+        UPDATE user
+        SET password = #{newPassword}
+        WHERE user_id = #{userId}
+    </update>
+
 </mapper>
