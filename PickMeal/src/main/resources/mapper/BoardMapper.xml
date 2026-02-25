@@ -14,11 +14,10 @@
         SELECT COUNT(*) FROM board
     </select>
     <insert id="writeBoard" parameterType="PickMeal.PickMeal.domain.Board" useGeneratedKeys="true" keyProperty="boardId">
-            INSERT INTO board(user_id, title, content, createDate, updateDate, likeCount, dislikeCount, viewCount)
-            VALUES(#{user_id}, #{title}, #{content}, NOW(),
-            NOW(), 0, 0, 0)
+            INSERT INTO board(user_id, title, content, createDate, likeCount, dislikeCount, viewCount)
+            VALUES(#{user_id}, #{title}, #{content}, NOW(), 0, 0, 0)
     </insert>
-    <delete id="removeBoard">
+    <delete id="removeBoard" parameterType="long">
         DELETE FROM board
         WHERE boardId = #{boardId}
     </delete>
@@ -33,4 +32,14 @@
         JOIN user u ON b.user_id = u.user_id
         WHERE b.boardId = #{boardId}
     </select>
+    <update id="editBoard" parameterType="PickMeal.PickMeal.domain.Board">
+        UPDATE board
+        SET title = #{title}, content = #{content}, updateDate = NOW()
+        WHERE boardId = #{boardId}
+    </update>
+    <update id="updateViewCount" parameterType="long">
+        UPDATE board
+        SET viewCount = viewCount + 1
+        WHERE boardId = #{boardId}
+    </update>
 </mapper>

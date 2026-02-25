@@ -1,89 +1,90 @@
 <!DOCTYPE html>
-<html lang="ko"xmlns:th="http://www.thymeleaf.org">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pick Meal - Write Post</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/lang/summernote-ko-KR.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pick Meal - Edit Post</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/lang/summernote-ko-KR.min.js"></script>
 
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@700;800&family=Jua&family=Nanum+Gothic:wght@700;800&family=Gamja+Flower&family=Black+Han+Sans&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@700;800&family=Jua&family=Nanum+Gothic:wght@700;800&family=Gamja+Flower&family=Black+Han+Sans&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="/css/post/write.css">
+    <link rel="stylesheet" href="/css/post/write.css">
 
-  <meta name="_csrf" th:content="${_csrf?.token}" th:if="${_csrf}"/>
-  <meta name="_csrf_header" th:content="${_csrf?.headerName}" th:if="${_csrf}"/>
+    <meta name="_csrf" th:content="${_csrf?.token}" th:if="${_csrf}"/>
+    <meta name="_csrf_header" th:content="${_csrf?.headerName}" th:if="${_csrf}"/>
 
-  <style>
-    body {
-        font-family: 'Fredoka', sans-serif;
-        background-color: #FFF5F0;
-        margin: 0;
-        overflow: hidden;
-        height: 100vh;
-        display: flex;
-        flex-direction: column;
-    }
 
-    .nav-link { font-family: 'Fredoka', sans-serif; font-weight: 700; font-style: italic; }
+    <style>
+        body {
+            font-family: 'Fredoka', sans-serif;
+            background-color: #FFF5F0;
+            margin: 0;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
 
-    .content-slide-up {
-        animation: slideUp 0.8s cubic-bezier(0.65, 0, 0.35, 1) forwards;
-        will-change: transform, opacity;
-    }
+        .nav-link { font-family: 'Fredoka', sans-serif; font-weight: 700; font-style: italic; }
 
-    @keyframes slideUp {
-        from { transform: translateY(100px); opacity: 0; }
-        to { transform: translateY(0); opacity: 1; }
-    }
+        .content-slide-up {
+            animation: slideUp 0.8s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+            will-change: transform, opacity;
+        }
 
-    .write-card {
-        border-radius: 3rem;
-        background: white;
-        box-shadow: 0 20px 50px rgba(0,0,0,0.1);
-    }
+        @keyframes slideUp {
+            from { transform: translateY(100px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
 
-    /* 툴바 드롭다운 스타일 최적화 */
-    .toolbar-btn {
-        background-color: #FFF5EF;
-        color: #FF8A5B;
-        padding: 0.5rem 0.8rem;
-        border-radius: 0.8rem;
-        font-weight: 800;
-        transition: all 0.2s;
-        font-size: 0.8rem;
-        border: none;
-        outline: none;
-        cursor: pointer;
-    }
-    .toolbar-btn:hover {
-        background-color: #FF8A5B;
-        color: white;
-    }
+        .write-card {
+            border-radius: 3rem;
+            background: white;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+        }
 
-    .input-field {
-        border-radius: 1.5rem;
-        transition: all 0.3s;
-        border: 2px solid #FDF5E6;
-        width: 100%;
-    }
+        /* 툴바 드롭다운 스타일 최적화 */
+        .toolbar-btn {
+            background-color: #FFF5EF;
+            color: #FF8A5B;
+            padding: 0.5rem 0.8rem;
+            border-radius: 0.8rem;
+            font-weight: 800;
+            transition: all 0.2s;
+            font-size: 0.8rem;
+            border: none;
+            outline: none;
+            cursor: pointer;
+        }
+        .toolbar-btn:hover {
+            background-color: #FF8A5B;
+            color: white;
+        }
 
-    .input-field:focus {
-        border-color: #FF8A5B;
-        outline: none;
-        background: white;
-    }
+        .input-field {
+            border-radius: 1.5rem;
+            transition: all 0.3s;
+            border: 2px solid #FDF5E6;
+            width: 100%;
+        }
 
-    textarea.input-field {
-        resize: none;
-        height: 300px;
-        font-family: 'Fredoka', sans-serif;
-    }
+        .input-field:focus {
+            border-color: #FF8A5B;
+            outline: none;
+            background: white;
+        }
 
-    /* 🍊🍊 썸머노트를 쓰기위한 커스텀 css. 바꾸려면 이 부분을 바꿔야함! 🍊🍊 */
+        textarea.input-field {
+            resize: none;
+            height: 300px;
+            font-family: 'Fredoka', sans-serif;
+        }
+
+        /* 🍊🍊 썸머노트를 쓰기위한 커스텀 css. 바꾸려면 이 부분을 바꿔야함! 🍊🍊 */
     /* 에디터 전체 테두리 없애고 깔끔하게 */
     .note-editor.note-frame {
         border: none !important;
@@ -186,48 +187,50 @@
         padding-left: 20px !important;
         margin-bottom: 10px !important;
     }
-  </style>
+    </style>
 </head>
 <body>
 
 <div class="overflow-y-auto flex-grow" >
-  <header th:replace="~{fragments/header :: headerFragment}"></header>
-  <main class="flex items-center justify-center content-slide-up py-10">
-    <div class="write-card p-12 w-full max-w-4xl mx-4 border-2 border-gray-50">
-      <div class="mb-8 text-center md:text-left">
-        <h2 class="text-4xl font-black text-[#FF8A5B] italic uppercase tracking-tighter">New Post</h2>
-        <p class="text-gray-400 font-bold italic">Express your taste in your own style!</p>
-      </div>
+    <header th:replace="~{fragments/header :: headerFragment}"></header>
+    <main class="flex items-center justify-center content-slide-up py-10">
+        <div class="write-card p-12 w-full max-w-4xl mx-4 border-2 border-gray-50">
+            <div class="mb-8 text-center md:text-left">
+                <h2 class="text-4xl font-black text-[#FF8A5B] italic uppercase tracking-tighter">Edit Post</h2>
+                <p class="text-gray-400 font-bold italic">Modify your tasty experiences!</p>
+            </div>
 
-      <form id="writeForm" th:action="@{/board/write}" method="post" enctype="multipart/form-data" class="space-y-6">
-        <div class="space-y-2">
-          <label for = "postTitle" class="font-black text-gray-700 italic ml-2 uppercase text-sm">Title</label>
-          <input type="text" id="postTitle" name="title" placeholder="제목" class="input-field px-6 py-4 bg-gray-50 font-bold" required>
+            <form id="editForm" th:action="@{/board/edit/{boardId}(boardId=${board.boardId})}" method="post" enctype="multipart/form-data" class="space-y-6">
+
+                <input type="hidden" name="boardId" th:value="${board.boardId}">
+
+                <div class="space-y-2">
+                    <label for="postTitle" class="font-black text-gray-700 italic ml-2 uppercase text-sm">Title</label>
+                    <input type="text" id="postTitle" name="title" th:value="${board.title}" placeholder="제목" class="input-field px-6 py-4 bg-gray-50 font-bold" required>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="font-black text-gray-700 italic ml-2 uppercase text-sm">Content Editor</label>
+
+                    <textarea id="postContent" placeholder="글 작성" name="content" th:utext="${board.content}" class="input-field px-6 py-6 bg-gray-50 font-bold leading-relaxed" style="font-size: 20px;" required></textarea>
+                </div>
+
+                <div class="flex gap-4 pt-6">
+                    <button type="button" th:onclick="|location.href='@{/board/detail/{boardId}(boardId=${board.boardId})}'|" class="flex-1 bg-gray-100 text-gray-400 py-4 rounded-full font-black text-xl shadow-sm hover:bg-gray-200 transition italic uppercase active:scale-95">
+                        Cancel
+                    </button>
+                    <button type="submit" class="flex-[2] bg-[#FF8A5B] text-white py-4 rounded-full font-black text-xl shadow-lg hover:scale-105 transition italic uppercase active:scale-95">
+                        Update!
+                    </button>
+                </div>
+            </form>
         </div>
-
-        <div class="space-y-2">
-          <label class="font-black text-gray-700 italic ml-2 uppercase text-sm">Content Editor</label>
-
-          <textarea id="postContent" placeholder="글 작성" name="content" class="input-field px-6 py-6 bg-gray-50 font-bold leading-relaxed" style="font-size: 20px;" required></textarea>
-        </div>
-
-        <div class="flex gap-4 pt-6">
-          <button type="button" onclick="location.href='/board'" class="flex-1 bg-gray-100 text-gray-400 py-4 rounded-full font-black text-xl shadow-sm hover:bg-gray-200 transition italic uppercase active:scale-95">
-            Cancel
-          </button>
-          <button type="submit" class="flex-[2] bg-[#FF8A5B] text-white py-4 rounded-full font-black text-xl shadow-lg hover:scale-105 transition italic uppercase active:scale-95">
-            Post it!
-          </button>
-        </div>
-      </form>
-    </div>
-  </main>
-  <footer th:replace="~{fragments/footer :: footerFragment}"></footer>
+    </main>
+    <footer th:replace="~{fragments/footer :: footerFragment}"></footer>
 </div>
 
 <script>
-
-  // 썸머노트 사용!!!! 🍊🍊🍊🍊🍊
+    // 썸머노트 사용!!!! 🍊🍊🍊🍊🍊
 
   $(document).ready(function() {
         // 1. 썸머노트 에디터 실행 (옵션 설정)
@@ -291,7 +294,6 @@ function uploadImageToS3(file, editor) {
         }
     });
 }
-
 </script>
 </body>
 </html>

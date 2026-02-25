@@ -159,6 +159,37 @@
              transform: translateY(2px);
              box-shadow: 0 2px 0 #D32F2F;
         }
+
+    /* 🍊 상세 페이지 본문(Summernote HTML) 스타일 복구 🍊 */
+    .post-content {
+        font-family: 'Fredoka', sans-serif;
+        font-size: 20px;
+        font-weight: bold;
+        color: #444;
+        line-height: 1.8;
+    }
+
+    /* 글머리 기호 & 번호 매기기 복구 */
+    .post-content ul {
+        list-style-type: disc !important;
+        list-style-position: inside !important;
+        padding-left: 20px !important;
+        margin-bottom: 10px !important;
+    }
+    .post-content ol {
+        list-style-type: decimal !important;
+        list-style-position: inside !important;
+        padding-left: 20px !important;
+        margin-bottom: 10px !important;
+    }
+
+    /* 본문 안의 사진이 삐져나가지 않게 (반응형) */
+    .post-content img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 1rem; /* 사진 모서리도 둥글고 예쁘게! */
+        margin: 1rem 0;
+    }`
   </style>
 </head>
 <body>
@@ -177,8 +208,9 @@
 
         <div class="board-meta">
           <div>
-            <span th:text="'AUTHOR : ' + ${board.nickname}">작성자</span>
-            <span th:text="'DATE : ' + ${#dates.format(board.createDate, 'yyyy-MM-dd HH:mm')}">날짜</span>
+            <span th:text="'글쓴이 : ' + ${board.nickname}">작성자</span>
+            <span th:if = "${board.updateDate == null}" th:text="'작성일 : ' + ${#dates.format(board.createDate, 'yyyy-MM-dd HH:mm')}">작성일</span>
+            <span th:if = "${board.updateDate != null}" th:text="'최종 수정일 : ' + ${#dates.format(board.updateDate, 'yyyy-MM-dd HH:mm')}">최종 수정일</span>
           </div>
           <div>
             <span th:text="'VIEWS : ' + ${board.viewCount}">조회수</span>
@@ -187,30 +219,14 @@
         </div>
       </div>
 
-      <div class="board-content" th:text="${board.content}">글 내용</div>
-
-      <div th:if="${not #lists.isEmpty(files)}" class="mb-3">
-        <strong>첨부 파일: </strong>
-        <ul>
-          <li th:each="file : ${files}">
-            <div th:if="${#strings.endsWith(file.originalName,'.jpg')
-                        or #strings.endsWith(file.originalName,'.png')
-                        or #strings.endsWith(file.originalName,'.gif')}">
-              <img width="33%" th:src="@{/image/{filename}(filename=${file.storedName})}"
-                   class="img-fluid rounded mb-3" alt="첨부된 파일">
-              <a th:href="@{/files/download/{fileId}(fileId=${file.fileId})}"
-                 th:text="${file.originalName}"></a>
-            </div>
-          </li>
-        </ul>
-      </div>
+      <div class="post-content" th:utext="${board.content}"></div>
 
       <div class="board-buttons">
         <a href="/board/list" class="btn btn-light">목록으로</a>
 
         <th:block th:if="${isWriter}">
-          <a th:href="@{/board/edit/{id}(id=${board.boardId})}" class="btn btn-orange">수정</a>
-          <button type="button" class="btn btn-danger" th:data-id="${board.boardId}" onclick="deleteBoard(this.getAttribute('data-id'))">삭제</button>
+          <a th:href="@{/board/edit/{boardId}(boardId=${board.boardId})}" class="btn btn-orange">수정</a>
+          <button type="button" class="btn btn-danger" th:boardId="${board.boardId}" onclick="deleteBoard(this.getAttribute('boardId'))">삭제</button>
         </th:block>
       </div>
 
@@ -224,8 +240,7 @@
         if (confirm('정말 삭제하시겠습니까?')) {
             const form = document.createElement('form');
             form.method = 'post';
-            form.action = '/board/remove/' + boardId;
-            alert(boardId);
+            form.action = `/board/remove/${encodeURIComponent(boardId)}`;
 
             // 1. 타임리프를 통해 스프링 시큐리티의 CSRF 토큰 값 가져오기
             const csrfToken = /*[[${_csrf.token}]]*/ '';
