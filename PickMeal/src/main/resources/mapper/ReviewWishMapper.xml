@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="PickMeal.PickMeal.mapper.ReviewWishMapper">
+
+    <insert id="saveInteraction" parameterType="PickMeal.PickMeal.dto.ReviewWishDTO">
+        INSERT INTO review_wish (res_id, user_id, rating, content, is_wish)
+        VALUES (#{resId}, #{userId}, #{rating}, #{content}, #{isWish})
+        ON DUPLICATE KEY UPDATE
+        rating = COALESCE(#{rating}, rating),
+        content = COALESCE(#{content}, content),
+        is_wish = COALESCE(#{isWish}, is_wish),
+        updated_at = CURRENT_TIMESTAMP
+    </insert>
+
+</mapper>

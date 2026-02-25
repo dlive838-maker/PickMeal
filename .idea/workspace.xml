@@ -5,12 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="cd44bd9e-67ab-4312-b321-9137053ad2e6" name="변경" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/java/PickMeal/PickMeal/controller/MainController.java" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/java/PickMeal/PickMeal/controller/MainController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/java/PickMeal/PickMeal/controller/TwentyQuestionsController.java" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/java/PickMeal/PickMeal/controller/TwentyQuestionsController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/mapper/FoodMapper.xml" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/mapper/FoodMapper.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/templates/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/templates/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/templates/users/mypage.html" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/templates/users/mypage.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -20,10 +16,46 @@
   <component name="Git.Merge.Settings">
     <option name="BRANCH" value="origin/seungkyeong_Kim_KakaoMap" />
   </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;juno1007&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/dlive838-maker/PickMeal.git&quot;,
+    &quot;accountId&quot;: &quot;453e9330-37b0-4881-b769-ab3dfe353017&quot;
+  }
+}</component>
+  <component name="MavenImportPreferences">
+    <option name="generalSettings">
+      <MavenGeneralSettings>
+        <option name="alwaysUpdateSnapshots" value="true" />
+      </MavenGeneralSettings>
+    </option>
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 4
+}</component>
+  <component name="ProjectId" id="3A6yjSJ9T00gMRXEu5XaO7ySTWa" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "Spring Boot.PickMealApplication.executor": "Run",
+    "git-widget-placeholder": "main",
+    "kotlin-language-version-configured": "true",
+    "settings.editor.selected.configurable": "MavenSettings"
+  }
+}]]></component>
   <component name="RunManager">
     <configuration name="PickMealApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" temporary="true" nameIsGenerated="true">
       <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UnknownPolicyInFreeMode" />
@@ -53,6 +85,13 @@
     </attachedChunks>
   </component>
   <component name="TaskManager">
+    <task active="true" id="Default" summary="디폴트 작업">
+      <changelist id="cd44bd9e-67ab-4312-b321-9137053ad2e6" name="변경" comment="" />
+      <created>1771927450379</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1771927450379</updated>
+    </task>
     <servers />
   </component>
 </project>

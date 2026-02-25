@@ -116,7 +116,8 @@ public class UserController {
 
         // JS에서 사용 가능 여부로 판단하기 쉽게 반전해서 보낼 수도 있지만,
         // 여기서는 '중복 여부' 자체를 보내고 JS에서 처리하는 게 깔끔합니다.
-        return isExist;
+        // 중복이면 1을 보내고, 사용 가능하면 0을 보냅니다.
+        return isExist; //
     }
 
     @GetMapping("/signup/social")

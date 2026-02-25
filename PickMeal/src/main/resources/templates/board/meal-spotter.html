@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Meal-Spotter | 맛집 탐지기</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@700;800&display=swap" rel="stylesheet">
+    <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=24546b16104e0273c6d8c5c4cc508b44&libraries=services"></script>
+    <style>
+        body { font-family: 'Fredoka', sans-serif; margin: 0; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
+        .main-container { flex-grow: 1; display: flex; margin-top: 80px; overflow: hidden; height: calc(100vh - 140px); }
+        .side-panel { width: 380px; background: white; border-right: 1px solid #eee; display: flex; flex-direction: column; z-index: 10; height: 100%; }
+        #map { flex-grow: 1; height: 100%; }
+        .place-list { flex-grow: 1; overflow-y: auto; padding: 10px; }
+        .place-item { padding: 20px; border-bottom: 1px solid #f9f9f9; cursor: pointer; transition: 0.2s; position: relative; }
+        .place-item:hover { background: #fffaf8; border-left: 6px solid #FF8A5B; }
+        .wish-btn { position: absolute; top: 20px; right: 20px; font-size: 20px; cursor: pointer; transition: transform 0.2s; }
+        .wish-btn:hover { transform: scale(1.2); }
+    </style>
+</head>
+<body>
+
+<header th:replace="~{fragments/header :: headerFragment}"></header>
+
+<div class="main-container">
+    <aside class="side-panel">
+        <div class="p-5 border-bottom bg-gray-50">
+            <h2 class="text-xl font-black italic text-[#FF8A5B]">🍴 Meal-Spotter</h2>
+            <p class="text-[10px] text-gray-400 font-bold uppercase italic">Reviews & Hot Places</p>
+        </div>
+
+        <div id="placesList" class="place-list">
+            <div th:each="res : ${restaurants}" class="place-item"
+                 th:onclick="handleStoreClick([[${res.restId}]], [[${res.restLat}]], [[${res.restLng}]])">
+
+                <div class="flex justify-between items-start mr-8">
+                    <h4 class="font-black text-gray-800 text-lg mb-1 italic" th:text="${res.restName}">식당이름</h4>
+                </div>
+
+                <div class="wish-btn" th:onclick="'toggleWish(event, ' + ${res.restId} + ')'">❤️</div>
+
+                <p class="text-[11px] text-[#FF8A5B] font-black uppercase mb-1 italic" th:text="${res.restMenu}">카테고리</p>
+
+                <div class="flex items-center gap-3 mt-2">
+                    <span class="text-[11px] text-gray-400 font-bold italic">👁️ [[${res.restViews}]]</span>
+                    <button class="text-[11px] bg-[#FF8A5B] text-white px-2 py-0.5 rounded italic font-bold"
+                            th:onclick="'openReviewModal(event, ' + ${res.restId} + ')'">EVALUATION</button>
+                </div>
+            </div>
+        </div>
+    </aside>
+    <div id="map"></div>
+</div>
+
+<div id="reviewModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-[1000] flex items-center justify-center">
+    <div class="bg-white p-8 rounded-2xl w-96">
+        <h2 class="text-xl font-black italic text-[#FF8A5B] mb-4">LEAVE A REVIEW</h2>
+        <input type="hidden" id="targetRestId">
+        <div class="mb-4">
+            <label class="block text-sm font-bold mb-2 italic text-gray-400">RATING (1-5)</label>
+            <select id="reviewRating" class="w-full border p-2 rounded-lg italic font-bold">
+                <option value="5">⭐⭐⭐⭐⭐ (5)</option>
+                <option value="4">⭐⭐⭐⭐ (4)</option>
+                <option value="3">⭐⭐⭐ (3)</option>
+                <option value="2">⭐⭐ (2)</option>
+                <option value="1">⭐ (1)</option>
+            </select>
+        </div>
+        <textarea id="reviewContent" class="w-full border p-3 rounded-lg h-32 mb-4 italic" placeholder="맛은 어떠셨나요?"></textarea>
+        <div class="flex gap-2">
+            <button onclick="closeReviewModal()" class="flex-1 py-3 bg-gray-100 rounded-xl font-bold italic text-gray-400">CANCEL</button>
+            <button onclick="submitReview()" class="flex-1 py-3 bg-[#FF8A5B] text-white rounded-xl font-bold italic">POST</button>
+        </div>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    // 1. 지도 초기화 (위도/경도 설정)
+    var map = new kakao.maps.Map(document.getElementById('map'), {
+        center: new kakao.maps.LatLng(37.49027, 126.92753),
+        level: 3
+    });
+
+    // 2. 마커 표시 로직 (DTO 필드명 연동)
+    const restaurants = /*[[${restaurants}]]*/ [];
+    restaurants.forEach(res => {
+        const marker = new kakao.maps.Marker({
+            map: map,
+            position: new kakao.maps.LatLng(res.restLat, res.restLng),
+            image: new kakao.maps.MarkerImage('https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png', new kakao.maps.Size(24, 35))
+        });
+    });
+
+    // 3. 기능 함수들
+    function handleStoreClick(restId, lat, lng) {
+        map.panTo(new kakao.maps.LatLng(lat, lng));
+        // 비동기로 조회수 증가 요청 (Fetch API)
+        fetch('/api/restaurant/view/' + restId, { method: 'POST' });
+    }
+
+    function toggleWish(event, restId) {
+        event.stopPropagation(); // 부모 리스트 클릭 방지
+        fetch('/api/wishlist/' + restId, { method: 'POST' })
+            .then(() => alert("찜 목록에 반영되었습니다!"));
+    }
+
+    function openReviewModal(event, restId) {
+        event.stopPropagation();
+        document.getElementById('targetRestId').value = restId;
+        document.getElementById('reviewModal').classList.remove('hidden');
+    }
+
+    function closeReviewModal() {
+        document.getElementById('reviewModal').classList.add('hidden');
+    }
+
+    function submitReview() {
+        const data = {
+            resId: document.getElementById('targetRestId').value,
+            rating: document.getElementById('reviewRating').value,
+            content: document.getElementById('reviewContent').value,
+            isWish: true
+        };
+
+        fetch('/api/review/save', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        }).then(() => {
+            alert("리뷰가 등록되었습니다!");
+            closeReviewModal();
+        });
+    }
+</script>
+
+<footer th:replace="~{fragments/footer :: footerFragment}"></footer>
+</body>
+</html>
