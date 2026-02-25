@@ -7,121 +7,41 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@700;800&display=swap" rel="stylesheet">
     <style>
-        /* [전체 기본 폰트 설정] */
         body { font-family: 'Fredoka', sans-serif; background-color: #fff; margin: 0; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
-
-        /* [복구] 헤더 및 주요 이탤릭 스타일 */
         header, header *, .italic-text { font-style: italic !important; }
-
         .main-container { flex-grow: 1; display: flex; margin-top: 80px; overflow: hidden; height: calc(100vh - 140px); }
-
-        /* [좌측 패널 및 필터 섹션] */
         .side-panel { width: 380px; background: white; border-right: 1px solid #eee; display: flex; flex-direction: column; z-index: 10; height: 100%; }
-        .filter-header-section { padding: 12px 18px; display: flex; gap: 8px; align-items: center; border-bottom: 1px solid #f5f5f5; }
+        .filter-header-section { padding: 12px 18px; display: flex; flex-direction: column; gap: 8px; border-bottom: 1px solid #f5f5f5; }
 
-        /* [축소] 지역 필터 배지 */
-        .location-badge {
-            background-color: #FF8A5B; color: white; padding: 6px 14px; border-radius: 10px;
-            font-weight: 800; display: flex; align-items: center; gap: 6px; cursor: pointer;
-            font-size: 12px; flex-grow: 1; transition: 0.3s; border: 2px solid #FF8A5B;
-            font-style: italic; letter-spacing: -0.3px;
-        }
-        .location-badge:hover { background-color: white; color: #FF8A5B; }
+        .location-badge { background-color: #FF8A5B; color: white; padding: 10px 14px; border-radius: 10px; font-weight: 800; cursor: pointer; font-size: 13px; text-align: center; font-style: italic; transition: 0.3s; }
+        .food-badge { background-color: #FFB74D; border-color: #FFB74D; }
 
-        /* [축소] 상세 필터 버튼 (설정 아이콘) */
-        .detail-filter-btn {
-            background: white; width: 34px; height: 34px; border-radius: 10px; border: 1px solid #eee;
-            display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 3.5px;
-            cursor: pointer; transition: 0.3s;
-        }
-        .detail-filter-btn:hover { background-color: #FF8A5B; border-color: #FF8A5B; }
-        .filter-line { position: relative; width: 14px; height: 2px; background: #FF8A5B; border-radius: 2px; transition: 0.3s; }
-        .filter-circle { position: absolute; width: 4.5px; height: 4.5px; background: white; border: 1.5px solid #FF8A5B; border-radius: 50%; top: 50%; transform: translateY(-50%); }
-        .detail-filter-btn:hover .filter-line { background: white; }
-        .detail-filter-btn:hover .filter-circle { border-color: white; background: #FF8A5B; }
-        .line-1 .filter-circle { right: 1px; }
-        .line-2 .filter-circle { left: 1px; }
-        .line-3 .filter-circle { right: 3px; }
-
-        /* [디자인] 날카로운 주황색 구멍 마커 */
         .custom-pin {
-            width: 34px; height: 34px;
-            background: #FF8A5B;
-            border-radius: 50% 50% 50% 0;
-            transform: rotate(-45deg);
-            cursor: pointer;
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 2px 4px 8px rgba(0,0,0,0.2);
+            width: 32px; height: 32px; background: #FF8A5B; border-radius: 50% 50% 50% 0;
+            transform: rotate(-45deg); cursor: pointer; display: flex; align-items: center; justify-content: center;
+            box-shadow: 2px 2px 8px rgba(0,0,0,0.2); border: 2px solid white;
         }
-        .custom-pin::after {
-            content: '';
-            width: 10px; height: 10px;
-            background: white;
-            border-radius: 50%;
-        }
-        .custom-pin:hover {
-            background: #FF5E1F;
-            transform: rotate(-45deg) scale(1.2);
-            z-index: 999;
+        .custom-pin::after { content: ''; width: 9px; height: 9px; background: white; border-radius: 50%; }
+        .custom-pin:hover { background: #FF5E1F; transform: rotate(-45deg) scale(1.15); z-index: 100; }
+
+        .pin-tooltip {
+            padding: 10px 15px; background: white; border-radius: 12px; border: 2px solid #FF8A5B;
+            font-weight: 800; color: #333; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            white-space: nowrap; pointer-events: none;
         }
 
-        /* [리스트 영역] */
         #map { flex-grow: 1; height: 100%; }
         .place-list { flex-grow: 1; overflow-y: auto; }
-        .place-item { padding: 20px; border-bottom: 1px solid #f9f9f9; cursor: pointer; transition: 0.2s; border-left: 0px solid #FF8A5B; }
+        .place-item { padding: 20px; border-bottom: 1px solid #f9f9f9; cursor: pointer; transition: 0.2s; }
         .place-item:hover { background: #fffaf8; border-left: 6px solid #FF8A5B; }
-
-        .info-btn {
-            display: inline-block; margin-top: 10px; padding: 6px 14px; background: #f3f4f6;
-            color: #6b7280; border-radius: 8px; font-size: 11px; font-weight: 800;
-            transition: all 0.2s; text-decoration: none; font-style: italic;
-        }
+        .info-btn { display: inline-block; margin-top: 10px; padding: 6px 14px; background: #f3f4f6; color: #6b7280; border-radius: 8px; font-size: 11px; font-weight: 800; text-decoration: none; font-style: italic; }
         .info-btn:hover { background: #FF8A5B; color: white; }
 
-        /* [모달 및 필터 칩 상세 수정] */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 999; }
-        .modal-window { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; border-radius: 24px; z-index: 1000; padding: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
-        .area-modal { width: 90%; max-width: 650px; padding: 0; overflow: hidden; }
-        .filter-modal { width: 90%; max-width: 450px; }
-
-        .filter-chip {
-            padding: 7px 15px; border-radius: 8px; border: 1px solid #f0f0f0;
-            font-size: 12px; font-weight: 700; color: #888; cursor: pointer;
-            font-style: italic; letter-spacing: -0.5px; transition: all 0.2s ease;
-        }
-        .filter-chip.active { border-color: #FF8A5B; color: #FF8A5B; background: #fff5f0; }
-
-        .filter-modal .font-bold.uppercase { font-size: 11px; letter-spacing: 1px; color: #bbb; margin-bottom: 12px; font-style: italic; }
+        .modal-window { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; border-radius: 24px; z-index: 1000; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
         .active-item { background-color: #fff5f0 !important; color: #FF8A5B !important; font-weight: 800; }
-
-        .scroller::-webkit-scrollbar {
-    width: 5px;
-}
-
-/* [수정] 평소 상태: 지금과 동일하게 아주 연한 회색 */
-.scroller::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.05);
-    border-radius: 10px;
-    transition: background 0.2s ease; /* 색상 변화를 부드럽게 */
-}
-
-/* [추가] 리스트 영역에 마우스가 들어오면 살짝 진하게 (티가 날 정도) */
-.scroller:hover::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.15);
-}
-
-/* [추가] 스크롤바 자체에 마우스를 올리면 확실하게 진하게 */
-.scroller::-webkit-scrollbar-thumb:hover {
-    background: rgba(0, 0, 0, 0.3);
-}
-
-.scroller::-webkit-scrollbar-track {
-    background: transparent;
-}
+        .scroller::-webkit-scrollbar { width: 5px; }
+        .scroller::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.05); border-radius: 10px; }
     </style>
 </head>
 <body>
@@ -131,20 +51,8 @@
 <div class="main-container">
     <aside class="side-panel">
         <div class="filter-header-section">
-            <div class="location-badge" id="btn-area-open">
-                <span id="display-area">서울 > 강남구 > 역삼동</span>
-            </div>
-            <div class="detail-filter-btn" id="btn-detail-open">
-                <div class="filter-line line-1">
-                    <div class="filter-circle"></div>
-                </div>
-                <div class="filter-line line-2">
-                    <div class="filter-circle"></div>
-                </div>
-                <div class="filter-line line-3">
-                    <div class="filter-circle"></div>
-                </div>
-            </div>
+            <div class="location-badge" id="btn-area-open"><span id="display-area">📍 지역을 선택하세요</span></div>
+            <div class="location-badge food-badge" id="btn-food-open"><span id="display-food">🍴 음식 종류 선택</span></div>
         </div>
         <div id="placesList" class="place-list scroller"></div>
     </aside>
@@ -153,187 +61,124 @@
 
 <div class="modal-overlay" id="overlay"></div>
 
-<div class="modal-window area-modal" id="modal-area">
+<div class="modal-window w-[600px]" id="modal-area">
     <div class="p-4 bg-[#FF8A5B] text-white font-black text-center italic">SELECT AREA</div>
     <div class="flex h-[350px]">
-        <ul id="sidoList" class="w-1/3 overflow-y-auto p-2 border-r text-sm scroller"></ul>
-        <ul id="sigugunList" class="w-1/3 overflow-y-auto p-2 border-r text-sm scroller"></ul>
-        <ul id="dongList" class="w-1/3 overflow-y-auto p-2 text-sm scroller"></ul>
+        <ul id="sidoList" class="w-1/3 overflow-y-auto p-2 border-r scroller"></ul>
+        <ul id="sigugunList" class="w-1/3 overflow-y-auto p-2 border-r scroller"></ul>
+        <ul id="dongList" class="w-1/3 overflow-y-auto p-2 scroller"></ul>
     </div>
 </div>
 
-<div class="modal-window filter-modal" id="modal-detail">
-    <h2 class="text-xl font-black italic mb-2 text-[#FF8A5B]">상세 필터</h2>
-    <div class="py-4">
-        <div class="font-bold mb-3 text-sm text-gray-400 uppercase">Category</div>
-        <div class="flex flex-wrap gap-2 mb-6" data-type="category">
-            <div class="filter-chip active">전체</div>
-            <div class="filter-chip">한식</div>
-            <div class="filter-chip">양식</div>
-            <div class="filter-chip">일식</div>
-            <div class="filter-chip">중식</div>
-            <div class="filter-chip">카페</div>
-        </div>
-
-        <div class="font-bold mb-3 text-sm text-gray-400 uppercase">Purpose</div>
-        <div class="flex flex-wrap gap-2" data-type="purpose">
-            <div class="filter-chip">데이트</div>
-            <div class="filter-chip">가족모임</div>
-            <div class="filter-chip">회식</div>
-            <div class="filter-chip">혼밥</div>
-        </div>
+<div class="modal-window w-[500px]" id="modal-food">
+    <div class="p-4 bg-[#FFB74D] text-white font-black text-center italic">SELECT FOOD</div>
+    <div class="flex h-[350px]">
+        <ul id="foodCategoryList" class="w-1/2 overflow-y-auto p-2 border-r scroller"></ul>
+        <ul id="foodNameList" class="w-1/2 overflow-y-auto p-2 scroller"><li class="p-3 text-center text-gray-300">카테고리 선택</li></ul>
     </div>
-    <div class="mt-8 flex gap-3">
-        <button class="flex-1 py-4 bg-gray-100 rounded-xl font-bold text-gray-400 italic" onclick="closeAll()">닫기
-        </button>
-        <button class="flex-[2] py-4 bg-[#FF8A5B] rounded-xl font-bold text-white shadow-lg italic"
-                onclick="applyFilters()">결과 적용
-        </button>
-    </div>
-
-</main>
-
-
-<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=24546b16104e0273c6d8c5c4cc508b44&libraries=services,clusterer,drawing"></script>
-
-<script th:inline="javascript"> // 수정
-    var container = document.getElementById('map');
-    var options = {
-        center: new kakao.maps.LatLng(37.49027, 126.92753),
-        level: 3
-    };
-
-    var map = new kakao.maps.Map(container, options);
-
-    const myDbRestaurants = /*[[${restaurantList}]]*/ [];
-
-    // 핀(마커)의 모양과 이미지 설정하기 - 추가
-    const myImageSrc = '/images/foodLocation.png';
-    const myImageSize = new kakao.maps.Size(35, 35);
-    const myMarkerImage = new kakao.maps.MarkerImage(myImageSrc, myImageSize);
-
-    var markers = []; // 추가
-    const overlay = new kakao.maps.CustomOverlay({
-    zIndex: 3,
-    yAnchor: 1.2
-   });
-
-   // 지도에 핀 꽂기 시작 - 추가
-    myDbRestaurants.forEach(res => {
-    const position = new kakao.maps.LatLng(res.lat, res.lon);
-
-    // 마커 생성 - 추가
-    const marker = new kakao.maps.Marker({
-        map: map,
-        position: position,
-        // title은 기본 이름표 방지를 위해 넣지 않습니다.
-        image: myMarkerImage
-    });
-
-    // 정보창 디자인 정의 - 추가
-    // 정보창 디자인 정의
-    const content =
-        '<div style="padding:20px; line-height:1.8; font-family: sans-serif; min-width: 240px; ' +
-        '            background-color: white; border-radius: 15px; border: 1px solid #ccc; ' +
-        '            box-shadow: 0px 4px 10px rgba(0,0,0,0.1); box-sizing: border-box;">' +
-        '   <div style="margin-bottom: 8px;">' +
-        '       <span style="color:#FF5722; font-size:17px; font-weight:bold; display: block;">' + res.res_name + '</span>' +
-        '   </div>' +
-        '   <div style="font-size:13px; color:#888; margin-bottom: 5px; word-break: keep-all;">' +
-        '       📍 ' + (res.address || '주소 정보 없음') +
-        '   </div>' +
-        '   <div style="font-size:14px; color:#666; word-break: break-all; margin-bottom: 5px;">' +
-        '       <span style="font-weight:bold; color:#333;">추천:</span> ' + (res.representative_menu || '정보없음') +
-        '   </div>' +
-        '   <div style="font-size:14px; color:#666;">' +
-        '       <span style="font-weight:bold; color:#333;">가격:</span> ' + (res.menu_price > 0 ? res.menu_price + '원' : '가격 정보 없음') +
-        '   </div>' +
-        '</div>';
-
-    // [센서 연결] 마우스를 올렸을 때 - 추가
-    kakao.maps.event.addListener(marker, 'mouseover', function() {
-        overlay.setContent(content);
-        overlay.setPosition(marker.getPosition());
-        overlay.setMap(map);
-    });
-
-    // [센서 연결] 마우스가 벗어났을 때 - 추가
-    kakao.maps.event.addListener(marker, 'mouseout', function() {
-        overlay.setMap(null);
-    });
-
-    // 마커를 리스트에 담기 - 추가
-    markers.push(marker);
-    });
-
-    // 지도 컨트롤 추가
-    var mapTypeControl = new kakao.maps.MapTypeControl();
-    map.addControl(mapTypeControl, kakao.maps.ControlPosition.TOPRIGHT);
-
-    var zoomControl = new kakao.maps.ZoomControl();
-    map.addControl(zoomControl, kakao.maps.ControlPosition.RIGHT);
-
-    // var marker = new kakao.maps.Marker({ map: map, position: options.center });
-
-    // 창 크기 변경 시 지도 크기 재조정
-    window.onresize = function() {
-        map.relayout();
-    };
-
-    var markers = [];
+</div>
 
 <footer th:replace="~{fragments/footer :: footerFragment}"></footer>
 
-<script type="text/javascript"
-        src="//dapi.kakao.com/v2/maps/sdk.js?appkey=24546b16104e0273c6d8c5c4cc508b44&libraries=services"></script>
+<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=24546b16104e0273c6d8c5c4cc508b44&libraries=services"></script>
+
 <script th:inline="javascript">
     var map = new kakao.maps.Map(document.getElementById('map'), { center: new kakao.maps.LatLng(37.4980, 127.0276), level: 3 });
     var ps = new kakao.maps.services.Places();
     var geocoder = new kakao.maps.services.Geocoder();
-    var overlays = [];
+    var currentOverlays = [];
+    var areaData = {}, foodData = {};
+    let currentSelection = { sido: null, sigugun: null, dong: null, foodName: null };
 
-    function searchPlaces(keyword = '맛집') {
-        overlays.forEach(o => o.setMap(null));
-        overlays = [];
-        const listEl = document.getElementById('placesList');
-        listEl.innerHTML = '';
-
-        ps.keywordSearch(keyword, function(data, status) {
-            if (status === kakao.maps.services.Status.OK) {
-                data.forEach((place) => {
-                    const pos = new kakao.maps.LatLng(place.y, place.x);
-                    const content = document.createElement('div');
-                    content.className = 'custom-pin';
-                    content.onclick = () => window.open('https://place.map.kakao.com/' + place.id, '_blank');
-
-                    const overlay = new kakao.maps.CustomOverlay({ position: pos, content: content, yAnchor: 1.1 });
-                    overlay.setMap(map);
-                    overlays.push(overlay);
-
-                    const item = document.createElement('div');
-                    item.className = 'place-item';
-                    item.innerHTML = `
-                        <h4 class="font-black text-gray-800 text-lg mb-1 italic">${place.place_name}</h4>
-                        <p class="text-[11px] text-[#FF8A5B] font-black uppercase mb-1 italic">${place.category_name.split('>').pop()}</p>
-                        <p class="text-[12px] text-gray-400 font-bold italic">${place.address_name}</p>
-                        <a href="https://place.map.kakao.com/${place.id}" target="_blank" class="info-btn">INFO</a>
-                    `;
-                    item.onclick = (e) => { if(e.target.tagName !== 'A') map.panTo(pos); };
-                    listEl.appendChild(item);
-                });
-            }
-        }, { location: map.getCenter(), radius: 2000 });
-    }
+    const hoverTooltip = new kakao.maps.CustomOverlay({ zIndex: 10, yAnchor: 2.2 });
 
     const overlay = document.getElementById('overlay');
     const modalArea = document.getElementById('modal-area');
-    const modalDetail = document.getElementById('modal-detail');
-    function closeAll() { overlay.style.display = 'none'; modalArea.style.display = 'none'; modalDetail.style.display = 'none'; }
+    const modalFood = document.getElementById('modal-food');
+
+    // 모달 제어 함수
+    function closeAll() { [overlay, modalArea, modalFood].forEach(m => m.style.display = 'none'); }
     document.getElementById('btn-area-open').onclick = () => { overlay.style.display = 'block'; modalArea.style.display = 'block'; loadAreaData(); };
-    document.getElementById('btn-detail-open').onclick = () => { overlay.style.display = 'block'; modalDetail.style.display = 'block'; };
+    document.getElementById('btn-food-open').onclick = () => { overlay.style.display = 'block'; modalFood.style.display = 'block'; loadFoodData(); };
     overlay.onclick = closeAll;
 
-    var areaData = {};
+    function createCustomPin(position, place, stats) {
+        const content = document.createElement('div');
+        content.className = 'custom-pin';
+
+        const pinOverlay = new kakao.maps.CustomOverlay({
+            position: position,
+            content: content,
+            yAnchor: 1.1
+        });
+
+        content.onmouseover = () => {
+            const tooltipContent = `
+                <div class="pin-tooltip">
+                    <div class="mb-2 text-[15px] font-black border-b pb-1">${place.place_name}</div>
+                    <div class="flex gap-4 text-[13px] text-orange-500 font-bold italic items-center">
+                        <span class="flex items-center gap-1.5">👁️ <span class="text-gray-700">${stats.viewCount}</span></span>
+                        <span class="flex items-center gap-1.5">❤️ <span class="text-gray-700">${stats.heartCount}</span></span>
+                        <span class="flex items-center gap-1.5">📝 <span class="text-gray-700">${stats.reviewCount}</span></span>
+                    </div>
+                </div>`;
+            hoverTooltip.setContent(tooltipContent);
+            hoverTooltip.setPosition(position);
+            hoverTooltip.setMap(map);
+        };
+
+        content.onmouseout = () => { hoverTooltip.setMap(null); };
+        content.onclick = () => {
+            fetch(`/hotplace/view?kakaoPlaceId=${place.id}`, { method: 'POST' });
+            window.open('https://place.map.kakao.com/' + place.id, '_blank');
+        };
+
+        pinOverlay.setMap(map);
+        currentOverlays.push(pinOverlay);
+    }
+
+    async function renderPlaces(data, status) {
+        currentOverlays.forEach(o => o.setMap(null)); currentOverlays = [];
+        const listEl = document.getElementById('placesList');
+        listEl.innerHTML = '';
+
+        if (status === kakao.maps.services.Status.OK) {
+            const placeIds = data.map(p => p.id);
+            let statsMap = {};
+            try {
+                const response = await fetch('/hotplace/stats', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(placeIds)
+                });
+                const statsList = await response.json();
+                statsList.forEach(s => statsMap[s.kakaoPlaceId] = s);
+            } catch (e) { console.error("통계 로드 실패:", e); }
+
+            data.forEach(place => {
+                const pos = new kakao.maps.LatLng(place.y, place.x);
+                const stats = statsMap[place.id] || { viewCount: 0, heartCount: 0, reviewCount: 0 };
+                createCustomPin(pos, place, stats);
+
+                const item = document.createElement('div');
+                item.className = 'place-item';
+                item.innerHTML = `
+                    <h4 class="font-black text-gray-800 text-xl mb-1 italic">${place.place_name}</h4>
+                    <div class="flex gap-4 mb-2 text-[13px] font-bold text-orange-400 italic items-center">
+                        <span class="flex items-center gap-1.5">👁️ <span class="text-gray-700">${stats.viewCount}</span></span>
+                        <span class="flex items-center gap-1.5">❤️ <span class="text-gray-700">${stats.heartCount}</span></span>
+                        <span class="flex items-center gap-1.5">📝 <span class="text-gray-700">${stats.reviewCount}</span></span>
+                    </div>
+                    <p class="text-[12px] text-[#FF8A5B] font-black uppercase mb-1 italic">${place.category_name.split('>').pop()}</p>
+                    <p class="text-[13px] text-gray-400 font-bold italic">${place.address_name}</p>
+                    <a href="https://place.map.kakao.com/${place.id}" target="_blank" class="info-btn">INFO</a>
+                `;
+                item.onclick = (e) => { if(e.target.tagName !== 'A') { map.panTo(pos); fetch(`/hotplace/view?kakaoPlaceId=${place.id}`, { method: 'POST' }); } };
+                listEl.appendChild(item);
+            });
+        }
+    }
+
     async function loadAreaData() {
         if (Object.keys(areaData).length) return;
         const res = await fetch('/Korea_city_List.json');
@@ -344,70 +189,76 @@
     function renderSido() {
         const list = document.getElementById('sidoList'); list.innerHTML = '';
         Object.keys(areaData).forEach(sido => {
-            const li = document.createElement('li'); li.className = "p-3 cursor-pointer hover:bg-orange-50 rounded-lg italic font-bold";
-            li.innerText = sido; li.onclick = function() {
-                Array.from(list.children).forEach(c => c.classList.remove('active-item'));
-                this.classList.add('active-item'); renderSigugun(sido);
-            };
+            const li = document.createElement('li'); li.className = "p-3 cursor-pointer hover:bg-orange-50 rounded-lg font-bold";
+            li.innerText = sido;
+            li.onclick = () => { resetActive('sidoList'); li.classList.add('active-item'); currentSelection.sido = sido; renderSigugun(sido); };
             list.appendChild(li);
         });
-    }
-
-    function selectSido(element, sido) {
-
-        resetActive('sidoList');
-        element.classList.add('active-item');
-
-        currentSelection.sido = sido;
-
-        renderSigugun(sido);
-        document.getElementById('dongList').innerHTML = '<li class="p-3 text-center text-gray-300">시/군/구를 먼저 선택하세요</li>';
     }
 
     function renderSigugun(sido) {
         const list = document.getElementById('sigugunList'); list.innerHTML = '';
         Object.keys(areaData[sido]).forEach(sigu => {
-            const li = document.createElement('li'); li.className = "p-3 cursor-pointer hover:bg-orange-50 rounded-lg italic font-bold";
-            li.innerText = sigu; li.onclick = function() {
-                Array.from(list.children).forEach(c => c.classList.remove('active-item'));
-                this.classList.add('active-item'); renderDong(sido, sigu);
-            };
+            const li = document.createElement('li'); li.className = "p-3 cursor-pointer hover:bg-orange-50 rounded-lg font-bold";
+            li.innerText = sigu;
+            li.onclick = () => { resetActive('sigugunList'); li.classList.add('active-item'); currentSelection.sigugun = sigu; renderDong(sido, sigu); };
             list.appendChild(li);
         });
     }
+
     function renderDong(sido, sigu) {
         const list = document.getElementById('dongList'); list.innerHTML = '';
         areaData[sido][sigu].forEach(dong => {
-            const li = document.createElement('li'); li.className = "p-3 cursor-pointer hover:bg-orange-50 rounded-lg italic font-bold";
-            li.innerText = dong; li.onclick = function() {
-                document.getElementById('display-area').innerText = `${sido} > ${sigu} > ${dong}`;
-                closeAll();
-                geocoder.addressSearch(`${sido} ${sigu} ${dong}`, function(result, status) {
-                    if (status === kakao.maps.services.Status.OK) {
-                        map.setCenter(new kakao.maps.LatLng(result[0].y, result[0].x));
-                        searchPlaces();
-                    }
-                });
-            };
+            const li = document.createElement('li'); li.className = "p-3 cursor-pointer hover:bg-orange-50 rounded-lg font-bold";
+            li.innerText = dong;
+            li.onclick = () => { currentSelection.dong = dong; document.getElementById('display-area').innerText = `${sido} ${sigu} ${dong}`; closeAll(); updateSearch(); };
             list.appendChild(li);
         });
     }
 
-    function applyFilters() {
-        const chips = Array.from(document.querySelectorAll('.filter-chip.active')).map(c => c.innerText);
-        searchPlaces(chips.filter(v => v !== '전체').join(' ') || '맛집');
-        closeAll();
+    async function loadFoodData() {
+        if (Object.keys(foodData).length) return;
+        const res = await fetch('/Food_List.json');
+        foodData = await res.json();
+        renderFoodCategory();
     }
-    document.querySelectorAll('.filter-chip').forEach(chip => {
-        chip.onclick = function() {
-            if (this.parentElement.dataset.type === 'category') this.parentElement.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
-            this.classList.toggle('active');
-        };
-    });
 
-    window.onload = () => { map.relayout(); searchPlaces(); };
+    function renderFoodCategory() {
+        const list = document.getElementById('foodCategoryList'); list.innerHTML = '';
+        Object.keys(foodData).forEach(cat => {
+            const li = document.createElement('li'); li.className = "p-3 cursor-pointer hover:bg-orange-50 rounded-lg font-bold";
+            li.innerText = cat;
+            li.onclick = () => { resetActive('foodCategoryList'); li.classList.add('active-item'); renderFoodNames(cat); };
+            list.appendChild(li);
+        });
+    }
+
+    function renderFoodNames(cat) {
+        const list = document.getElementById('foodNameList'); list.innerHTML = '';
+        foodData[cat].forEach(food => {
+            const li = document.createElement('li'); li.className = "p-3 cursor-pointer hover:bg-orange-50 rounded-lg font-bold";
+            li.innerText = food.name;
+            li.onclick = () => { currentSelection.foodName = food.name; document.getElementById('display-food').innerText = food.name; closeAll(); updateSearch(); };
+            list.appendChild(li);
+        });
+    }
+
+    function updateSearch() {
+        let keyword = "";
+        if (currentSelection.dong) keyword += `${currentSelection.sido} ${currentSelection.sigugun} ${currentSelection.dong} `;
+        if (currentSelection.foodName) keyword += currentSelection.foodName;
+        if (!keyword.trim()) return;
+        geocoder.addressSearch(`${currentSelection.sido} ${currentSelection.sigugun} ${currentSelection.dong}`, (result, status) => {
+            if (status === kakao.maps.services.Status.OK) { map.setCenter(new kakao.maps.LatLng(result[0].y, result[0].x)); ps.keywordSearch(keyword, renderPlaces); }
+        });
+    }
+
+    function resetActive(id) {
+        const list = document.getElementById(id);
+        if (list) Array.from(list.children).forEach(li => li.classList.remove('active-item'));
+    }
+
+    window.onload = () => { map.relayout(); ps.keywordSearch('맛집', renderPlaces); };
 </script>
-
-<footer th:replace="~{fragments/footer :: footerFragment}"></footer>
 </body>
 </html>

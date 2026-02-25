@@ -2,6 +2,7 @@ package PickMeal.PickMeal.controller;
 
 import PickMeal.PickMeal.domain.Food;
 import PickMeal.PickMeal.domain.User;
+import PickMeal.PickMeal.service.FoodService;
 import PickMeal.PickMeal.service.UserService;
 import PickMeal.PickMeal.domain.Restaurant;
 import PickMeal.PickMeal.service.RestaurantService;
@@ -25,6 +26,9 @@ public class MainController {
 
     @Autowired
     private RestaurantService restaurantService; // 추가
+
+    @Autowired
+    private FoodService foodService;
 
     @GetMapping("/")
     public String index() {
@@ -75,20 +79,6 @@ public class MainController {
         return "board/board"; // templates/board.html 파일을 반환
     }
 
-    @GetMapping("/hotplace") // 추가
-    public String hotplacePage(Model model) { // 서빙 쟁반(Model)을 매개변수로 받아옵니다.
-
-        // ① 주방장(Service)에게 맛집 리스트 전체를 요리해 오라고 시킵니다.
-        List<Restaurant> restaurantList = restaurantService.findAll();
-
-        // ② 가져온 요리(데이터)를 'restaurantList'라는 이름표를 붙여 쟁반(Model)에 담습니다.
-        // 이렇게 해야 hotplace.html 화면에서 자바스크립트가 이 이름표를 보고 핀을 그릴 수 있습니다.
-        model.addAttribute("restaurantList", restaurantList);
-
-        // ③ 요리가 담긴 쟁반을 들고 손님 테이블(hotplace.html)로 나갑니다.
-        return "hotplace";
-    } // templates/hotplace.html 파일 반환
-
     @GetMapping("/game")
     public String gamePage() {
         return "game/game";
@@ -121,6 +111,19 @@ public class MainController {
 
         // 3. 실제 대결이 펼쳐질 'worldcup.html'로 이동합니다.
         return "game/worldcup";
+    }
+
+    @GetMapping("/api/food/image")
+    @ResponseBody
+    public String getFoodImage(@RequestParam("name") String name) {
+        Food food = foodService.findFoodByName(name);
+
+        // DB의 imagePath에 이미 "/images/Korean food/..." 가 들어있으므로 그대로 반환합니다.
+        if (food != null && food.getImagePath() != null) {
+            return food.getImagePath().trim();
+        }
+
+        return "/images/meal.png";
     }
 
     // MainController.java 에 추가

@@ -17,4 +17,6 @@ public interface FoodMapper {
     Food getRandomFoodByCategory(@Param("category") String category);
 
     String findImagePathByName(String foodName);
+
+    Food findByName(@Param("name") String name);
 }

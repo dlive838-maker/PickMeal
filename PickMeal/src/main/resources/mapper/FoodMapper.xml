@@ -53,4 +53,11 @@
         WHERE foodName = #{foodName}
     </select>
 
+    <select id="findByName" resultType="PickMeal.PickMeal.domain.Food">
+        SELECT foodId, foodName, category, description, imagePath
+        FROM food
+        WHERE foodName = #{name}
+    </select>
+
+
 </mapper>

@@ -149,7 +149,9 @@ public class UserService implements UserDetailsService {
         userMapper.updateWinCount(foodId);
     }
 
-    public String findByUser_id(Long user_id) {return userMapper.findByUser_id(user_id);}
+    public String findByUser_id(Long user_id) {
+        return userMapper.findByUser_id(user_id);
+    }
 
     /**
      * 이메일 즉시 변경
@@ -174,4 +176,6 @@ public class UserService implements UserDetailsService {
         user.setPassword(passwordEncoder.encode(rawPassword)); // 암호화 필수
         userMapper.updatePassword(user); // 매퍼에 새 메서드 추가 필요
     }
+
+
 }
