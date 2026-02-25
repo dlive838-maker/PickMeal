@@ -7,72 +7,32 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@700;800&display=swap" rel="stylesheet">
     <style>
-        /* 헤더와 푸터를 최상위로 올림 */
         header, footer { z-index: 1200 !important; position: relative; }
-
-        body {
-            font-family: 'Fredoka', sans-serif;
-            background-color: #FAF3F0;
-            margin: 0; display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden;
-        }
-
+        body { font-family: 'Fredoka', sans-serif; background-color: #FAF3F0; margin: 0; display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
         .gacha-main-content { flex-grow: 1; display: flex; justify-content: center; align-items: center; position: relative; }
         .gacha-wrapper { position: relative; display: flex; flex-direction: column; align-items: center; transition: opacity 0.4s; transform: scale(0.9); }
-
-        /* [기계 디자인 유지] */
         .glass-sphere { position: relative; width: 360px; height: 340px; background: radial-gradient(circle at 30% 25%, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.2) 65%); border: 2px solid rgba(0, 0, 0, 0.08); border-radius: 50%; z-index: 2; overflow: hidden; box-shadow: inset 0 0 30px rgba(255, 255, 255, 0.8); display: flex; justify-content: center; align-items: flex-end; }
         .capsule { position: absolute; width: 52px; height: 52px; border-radius: 50%; overflow: hidden; display: flex; flex-direction: column; }
         .capsule-top { height: 50%; background: rgba(255, 255, 255, 0.6); border-bottom: 1px solid rgba(0,0,0,0.1); }
         .capsule-bottom { height: 50%; }
         .machine-body { position: relative; width: 300px; height: 260px; background: #FF4D4D; border-radius: 50px 50px 60px 60px; margin-top: -85px; z-index: 1; display: flex; flex-direction: column; align-items: center; box-shadow: inset -12px -12px 0px rgba(0,0,0,0.08); }
 
-        /* [결과 화면: 클릭 방해 요소 제거] */
-        #result-screen {
-            position: fixed; display: none; flex-direction: column; align-items: center;
-            z-index: 1000; top: 0; left: 0; width: 100%; height: 100%;
-            justify-content: center;
-            /* 결과창 배경 자체는 클릭을 통과시킴 */
-            pointer-events: none;
-        }
-
-        .capsule-container {
-            position: relative; width: 300px; height: 230px;
-            display: flex; justify-content: center; align-items: center;
-        }
-
-        .cap-half {
-            position: absolute; width: 230px; height: 115px; border: 6px solid #333;
-            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s 0.7s;
-            z-index: 10; left: 50%; margin-left: -115px;
-        }
+        /* [기존 캡슐 열기 애니메이션 유지] */
+        #result-screen { position: fixed; display: none; flex-direction: column; align-items: center; z-index: 1000; top: 0; left: 0; width: 100%; height: 100%; justify-content: center; pointer-events: none; }
+        .capsule-container { position: relative; width: 300px; height: 230px; display: flex; justify-content: center; align-items: center; }
+        .cap-half { position: absolute; width: 230px; height: 115px; border: 6px solid #333; transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s 0.7s; z-index: 10; left: 50%; margin-left: -115px; }
         .top-cap { top: 0px; border-radius: 115px 115px 0 0; border-bottom: none; }
         .bottom-cap { top: 115px; border-radius: 0 0 115px 115px; border-top: none; }
-
         .is-open .top-cap { transform: translateY(-150px) rotate(-15deg); opacity: 0; }
         .is-open .bottom-cap { transform: translateY(150px) rotate(15deg); opacity: 0; }
-
-        .result-content {
-            display: flex; flex-direction: column; align-items: center;
-            opacity: 0; transform: scale(0.1);
-            transition: all 0.6s 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
-            z-index: 5; margin-top: -20px;
-        }
+        .result-content { display: flex; flex-direction: column; align-items: center; opacity: 0; transform: scale(0.1); transition: all 0.6s 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); z-index: 5; margin-top: -20px; }
         .is-open .result-content { opacity: 1; transform: scale(1); }
-
         .food-img { width: 200px; height: 200px; border-radius: 30px; object-fit: cover; border: 6px solid white; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
         .result-txt { margin-top: 12px; font-size: 36px; font-weight: 800; color: #333; text-shadow: 2px 2px 0 white; text-align: center; word-break: keep-all; line-height: 1.1; }
 
-        /* [버튼 그룹: 클릭 가능하게 복구] */
-        #action-buttons {
-            pointer-events: auto; /* 버튼 영역은 다시 클릭 가능하게 설정 */
-        }
-
-        .btn-style {
-            padding: 10px 32px; border-radius: 18px; background: #FF4D4D; color: white;
-            font-weight: 800; cursor: pointer; border: 4px solid #333; box-shadow: 4px 4px 0px #333;
-            transition: transform 0.2s, opacity 0.5s;
-        }
-        .btn-style:active { transform: translateY(2px); box-shadow: 1px 1px 0px #333; }
+        /* [최종 월드컵 스타일 결과 카드] */
+        .winner-card-mid { max-width: 410px !important; padding: 2rem !important; border-radius: 3.5rem !important; background: white; margin: 0 auto; }
+        .winner-img-mid { height: 280px !important; border-radius: 2.5rem !important; overflow: hidden; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
 
         @keyframes mixing { 0%, 100% { transform: translate(0, 0) rotate(0deg); } 25% { transform: translate(120px, -130px) rotate(90deg); } 50% { transform: translate(-120px, -160px) rotate(180deg); } 75% { transform: translate(100px, -60px) rotate(270deg); } }
         @keyframes settle-down { to { transform: translate(var(--rand-x), var(--rand-y)) rotate(var(--rand-rot)); } }
@@ -83,7 +43,7 @@
 <body>
 <header th:replace="~{fragments/header :: headerFragment}"></header>
 
-<main class="gacha-main-content">
+<main class="gacha-main-content" id="game-main">
     <div class="gacha-wrapper" id="machine-all">
         <div class="glass-sphere" id="sphere"></div>
         <div class="machine-body">
@@ -112,22 +72,11 @@
             </div>
             <div class="cap-half bottom-cap" id="result-bottom-cap"></div>
         </div>
-        <div id="action-buttons" class="flex flex-col items-center gap-4 mt-8 opacity-0 transition-opacity duration-700">
-            <div class="flex gap-4">
-                <button class="btn-style" onclick="location.reload()">NEW</button>
-                <button class="btn-style" style="background:#A8D5BA;" onclick="retry()">RETRY</button>
-            </div>
-            <button class="btn-style w-full max-w-[300px]"
-                    style="background:#FFEB3B; color:#3A1D1D; border-color:#3A1D1D; box-shadow: 4px 4px 0px #3A1D1D;"
-                    onclick="findRestaurants()">
-                📍 주변 맛집 찾기
-            </button>
-        </div>
     </div>
 </main>
 <footer th:replace="~{fragments/footer :: footerFragment}"></footer >
 
-<script>
+<script th:inline="javascript">
     const categoryMap = [{ label: "전체", value: "" },{ label: "한식", value: "Korean food" },{ label: "중식", value: "Chinese food" },{ label: "일식", value: "Japanese food" },{ label: "양식", value: "Western food" },{ label: "아시안식", value: "Asian food" }];
     const colors = ["#FFADAD", "#FFD6A5", "#FDFFB6", "#CAFFBF", "#9BF6FF", "#A0C4FF"];
     let idx = 0; let playing = false; let currentFoodName = "";
@@ -169,7 +118,6 @@
         try {
             const selectedValue = categoryMap[idx].value;
             const res = await fetch(`/api/food/draw?category=${encodeURIComponent(selectedValue)}`);
-            if (!res.ok) throw new Error("서버 응답 오류");
             const data = await res.json();
             currentFoodName = data.foodName;
             const winColor = colors[Math.floor(Math.random() * colors.length)];
@@ -190,16 +138,13 @@
                     outPos.appendChild(outCap);
 
                     setTimeout(() => {
-                        const foodResEl = document.getElementById('food-res');
-                        if (currentFoodName.length > 10) foodResEl.style.fontSize = "22px";
-                        else if (currentFoodName.length > 6) foodResEl.style.fontSize = "28px";
-                        else foodResEl.style.fontSize = "36px";
-
+                        // 기존 캡슐 열기 애니메이션 실행
                         document.getElementById('result-top-cap').style.backgroundColor = 'rgba(255, 255, 255, 0.6)';
                         document.getElementById('result-bottom-cap').style.backgroundColor = winColor;
                         document.getElementById('food-img').src = data.imagePath;
-                        foodResEl.innerText = currentFoodName;
-                        showFinal();
+                        document.getElementById('food-res').innerText = currentFoodName;
+
+                        showCapsuleAnimation(data);
                     }, 1600);
                 }, 2000);
             }, 2500);
@@ -210,7 +155,8 @@
         }
     }
 
-    function showFinal() {
+    // 1단계: 기존의 캡슐 열기 애니메이션 연출
+    function showCapsuleAnimation(data) {
         document.getElementById('machine-all').style.opacity = '0';
         setTimeout(() => {
             document.getElementById('machine-all').style.display = 'none';
@@ -218,57 +164,54 @@
             rs.style.display = 'flex';
             setTimeout(() => {
                 rs.classList.add('is-open');
+                // 캡슐이 완전히 열리고 2.5초 뒤에 최종 월드컵 결과창으로 전환
                 setTimeout(() => {
-                    fireConfetti();
-                    const btns = document.getElementById('action-buttons');
-                    btns.classList.remove('opacity-0');
-                    // 버튼 클릭 가능하게 스타일 직접 부여
-                    btns.style.pointerEvents = 'auto';
-                }, 800);
+                    showFinalCHAMPION(data);
+                }, 2500);
             }, 100);
         }, 400);
     }
 
-    function fireConfetti() {
-        const end = Date.now() + 2000;
-        (function frame() {
-            confetti({ particleCount: 7, angle: 60, spread: 55, origin: { x: 0, y: 0.8 } });
-            confetti({ particleCount: 7, angle: 120, spread: 55, origin: { x: 1, y: 0.8 } });
-            if (Date.now() < end) requestAnimationFrame(frame);
-        }());
-    }
-
-    function retry() {
-        const rs = document.getElementById('result-screen');
-        const btns = document.getElementById('action-buttons');
-        rs.classList.remove('is-open');
-        btns.classList.add('opacity-0');
-        btns.style.pointerEvents = 'none'; // 다시 클릭 방지
-        setTimeout(() => {
-            rs.style.display = 'none';
-            const machine = document.getElementById('machine-all');
-            machine.style.display = 'flex';
-            machine.style.opacity = '1';
-            document.getElementById('out-cap-pos').innerHTML = '';
-            playing = false;
-            draw();
-        }, 500);
-    }
-
-    function findRestaurants() {
-        if(!currentFoodName) return;
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(function(position) {
-                const lat = position.coords.latitude;
-                const lon = position.coords.longitude;
-                const query = encodeURIComponent(currentFoodName);
-                const searchUrl = `https://map.kakao.com/link/search/${query}?cx=${lon}&cy=${lat}&lvl=1`;
-                window.open(searchUrl, '_blank');
-            }, function() {
-                window.open(`https://map.kakao.com/link/search/${encodeURIComponent(currentFoodName)}?lvl=1`, '_blank');
-            });
+    // 2단계: 최종 월드컵 스타일 결과창 표시
+    function showFinalCHAMPION(winner) {
+        if (winner.foodId) {
+            fetch('/worldcup/win/' + winner.foodId, { method: 'POST' }).catch(e => {});
         }
+
+        const rs = document.getElementById('result-screen');
+        rs.style.display = 'none'; // 캡슐 레이어 제거
+
+        const main = document.getElementById('game-main');
+        main.classList.add('flex-col', 'items-center', 'pt-[90px]');
+
+        main.innerHTML = `
+            <div class="flex flex-col items-center justify-center w-full animate-bounce mb-2">
+                <h2 class="text-[#FF8A5B] font-black text-5xl uppercase italic tracking-tighter">WINNER</h2>
+            </div>
+            <div class="bg-white winner-card-mid shadow-2xl border-4 border-[#FF8A5B] w-full text-center">
+                <div class="winner-img-mid mb-6 shadow-md">
+                    <img src="${winner.imagePath}" class="w-full h-full object-cover" onerror="this.src='/images/meal.png'">
+                </div>
+                <h1 class="text-4xl font-black text-gray-800 italic mb-6 uppercase tracking-tighter">${winner.foodName}</h1>
+                <div class="grid grid-cols-2 gap-3 mb-4">
+                    <button onclick="location.href='/game'" class="py-3 bg-gray-100 rounded-2xl font-bold italic uppercase text-sm hover:bg-gray-200 transition">HOME 🏠</button>
+                    <button onclick="location.reload()" class="py-3 bg-gray-100 rounded-2xl font-bold italic uppercase text-sm hover:bg-gray-200 transition">RESTART 🔄</button>
+                    <button onclick="location.href='/worldcup/ranking'" class="py-3 bg-gray-100 rounded-2xl font-bold italic uppercase text-sm hover:bg-gray-200 transition">RANK 🏆</button>
+                    <button onclick="copyToClipboard('${winner.foodName}')" class="py-3 bg-gray-100 rounded-2xl font-bold italic uppercase text-sm hover:bg-gray-200 transition">SHARE 🔗</button>
+                </div>
+                <button onclick="window.open('https://map.kakao.com/link/search/' + encodeURIComponent('${winner.foodName}'))"
+                        class="w-full py-4 bg-[#FAE100] rounded-full font-black text-lg shadow-md hover:bg-[#ebd300] transition italic">
+                    주변 맛집 찾기 📍
+                </button>
+            </div>
+        `;
+
+        confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, zIndex: 9999 });
     }
+
+    window.copyToClipboard = function(foodName) {
+        navigator.clipboard.writeText(`🏆 나의 원픽 메뉴: [${foodName}]`).then(() => alert("복사 완료!"));
+    };
 
     initCapsules();
 </script>
