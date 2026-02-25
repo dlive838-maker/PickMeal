@@ -11,13 +11,22 @@ public interface UserMapper {
 
     User findById(String id);
 
+    /**
+     * 이메일로 유저 정보 조회
+     * @param email 찾을 이메일 주소
+     * @return 일치하는 User 객체 (없으면 null)
+     */
+    User findByEmail(@Param("email") String email);
+
+    int countByEmail(@Param("email") String email);
+
     void save(User user);
 
     void edit(User user);
 
     void updateEmail(User user);
 
-    void updatePassword(User user);
+    void updatePassword(@Param("userId") Long userId, @Param("newPassword") String newPassword);
 
     void updateStatus(@Param("user_id") Long user_id, @Param("status") String status);
 
@@ -35,4 +44,14 @@ public interface UserMapper {
     void updateWinCount(Long id);
 
     String findByUser_id(Long userId);
+
+    /**
+     * 이름과 이메일로 아이디 조회 (아이디 찾기용)
+     */
+    User findUserByNameAndEmail(@Param("name") String name, @Param("email") String email);;
+
+    /**
+     * 아이디, 이메일로 일치하는 회원 확인 (비밀번호 찾기 전 본인 인증용)
+     */
+    User findUserByIdAndEmail(@Param("id") String id, @Param("email") String email);
 }

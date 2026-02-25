@@ -84,15 +84,50 @@
 </main>
 
 <script>
-  function verifyEmail() {
-      alert("등록된 이메일로 인증 번호가 발송되었습니다! 📧");
-  }
+  document.getElementById('forgotForm').addEventListener('submit', async function(e) {
+      e.preventDefault(); // 기본 폼 제출 방지
 
-  document.getElementById('forgotForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      alert("비밀번호 재설정 링크가 이메일로 전송되었습니다. 확인 후 비밀번호를 변경해 주세요! ✨");
-      location.href = '/login';
+      const id = document.getElementById('userId').value;
+      const email = document.getElementById('userEmail').value;
+
+      try {
+          // 백엔드 컨트롤러(@PostMapping("/find-password/send-link"))로 데이터 전송
+          const response = await fetch('/users/find-password/send-link', {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/x-www-form-urlencoded',
+              },
+              body: new URLSearchParams({
+                  'id': id,
+                  'email': email
+              })
+          });
+
+          const result = await response.text();
+
+          if (result === 'success') {
+              alert("비밀번호 재설정 링크가 이메일로 전송되었습니다. 확인 후 비밀번호를 변경해 주세요! ✨");
+              location.href = '/login'; // 성공 시 로그인 페이지로 이동
+          } else if (result === 'not_found') {
+              alert("입력하신 아이디와 이메일 정보가 일치하는 회원이 없습니다. ❌");
+          } else {
+              alert("메일 발송 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요. 😢");
+          }
+      } catch (error) {
+          console.error('Error:', error);
+          alert("서버와 통신 중 문제가 발생했습니다.");
+      }
   });
+
+  // (참고) 만약 'Verify' 버튼이 단순히 이메일 형식을 체크하는 용도라면 아래처럼 남겨둘 수 있습니다.
+  function verifyEmail() {
+      const email = document.getElementById('userEmail').value;
+      if(!email.includes('@')) {
+          alert("올바른 이메일 형식을 입력해 주세요! 📧");
+      } else {
+          alert("입력하신 이메일 형식이 확인되었습니다. 하단의 Send 버튼을 눌러주세요.");
+      }
+  }
 </script>
 </body>
 </html>

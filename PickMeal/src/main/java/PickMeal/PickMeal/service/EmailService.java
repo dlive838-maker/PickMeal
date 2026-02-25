@@ -50,4 +50,16 @@ public class EmailService {
 
         mailSender.send(message);
     }
+
+    // [추가] 비밀번호 재설정 등 자유로운 내용을 보낼 때 쓰는 새 메서드
+    public void sendMail(String toEmail, String subject, String text) {
+        SimpleMailMessage message = new SimpleMailMessage();
+
+        message.setTo(toEmail);
+        message.setSubject(subject); // 매개변수로 받은 제목 설정
+        message.setText(text);       // 매개변수로 받은 본문 설정
+        message.setFrom("PickMeal <" + fromEmail + ">");
+
+        mailSender.send(message);
+    }
 }
