@@ -41,7 +41,7 @@ public class BoardController {
     }
 
     @PostMapping("/write")
-    public String writeBoard(Board board, @RequestParam("file") MultipartFile file, @AuthenticationPrincipal User user) {
+    public String writeBoard(Board board, @RequestParam(value = "file", required = false) MultipartFile file, @AuthenticationPrincipal User user) {
         board.setUser_id(user.getUser_id());
         boardService.writeBoard(board);
 
@@ -59,20 +59,36 @@ public class BoardController {
         else {
             model.addAttribute("isWriter", false);
         }
+        boardService.updateViewCount(boardId);
         Board board = boardService.getBoardByBoardId(boardId);
         model.addAttribute("board", board);
         model.addAttribute("files", fileService.findByBoardId(boardId));
         return "/board/board-detail";
     }
 
-    @GetMapping("/edit")
-    public String editBoard() {
-        return "/board/board-detail";
+    @GetMapping("/edit/{boardId}")
+    public String editBoardForm(@PathVariable long boardId, Model model) {
+        Board board = boardService.getBoardByBoardId(boardId);
+        model.addAttribute("board", board);
+        model.addAttribute("files", fileService.findByBoardId(boardId));
+        return "/board/board-edit";
+    }
+
+    @PostMapping("/edit/{boardId}")
+    public String editBoard(Board board, @PathVariable long boardId, Model model, @RequestParam(value = "file", required = false) MultipartFile file) {
+        board.setBoardId(boardId);
+        boardService.editBoard(board);
+
+        if(file != null && !file.isEmpty()){
+            fileService.deleteByBoardId(boardId);
+            fileService.saveFile(boardId, file);
+        }
+        return "redirect:/board/detail/" + boardId;
     }
 
     @PostMapping("/remove/{boardId}")
     public String removeBoard(@PathVariable long boardId) {
-        boardService.removeBoard();
+        boardService.removeBoard(boardId);
         fileService.deleteByBoardId(boardId);
         return "redirect:/board/list";
     }

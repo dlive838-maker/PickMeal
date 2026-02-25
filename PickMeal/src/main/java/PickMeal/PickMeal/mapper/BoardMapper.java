@@ -14,9 +14,13 @@ public interface BoardMapper {
 
     void writeBoard(Board board);
 
-    void removeBoard();
+    void removeBoard(long boardId);
 
     List<Long> getBoardIdByUser_id(long userId);
 
     Board getBoardByBoardId(long boardId);
+
+    void editBoard(Board board);
+
+    void updateViewCount(long boardId);
 }

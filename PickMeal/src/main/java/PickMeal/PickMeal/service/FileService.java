@@ -2,18 +2,23 @@ package PickMeal.PickMeal.service;
 
 import PickMeal.PickMeal.domain.File;
 import PickMeal.PickMeal.mapper.FileMapper;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.ObjectMetadata;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class FileService {
 
     private final FileMapper fileMapper;
@@ -21,8 +26,36 @@ public class FileService {
     @Value("${file.upload-dir}")
     private String uploadDir;
 
+    @Value("${cloud.aws.s3.bucket}")
+    private String bucket;
+    private final AmazonS3 amazonS3;
+
     public List<File> findByBoardId(long boardId){
         return fileMapper.findByBoardId(boardId);
+    }
+
+
+    public String uploadImageToS3(MultipartFile multipartFile){
+        if(multipartFile.isEmpty()) return null;
+
+        try{
+            String originalName = multipartFile.getOriginalFilename();
+            String extension = originalName.substring(originalName.lastIndexOf("."));
+            String storedName = UUID.randomUUID().toString() + extension;
+
+            ObjectMetadata objMeta = new ObjectMetadata();
+            objMeta.setContentType(multipartFile.getContentType());
+            InputStream inputStream = multipartFile.getInputStream();
+            objMeta.setContentLength(inputStream.available());
+
+            amazonS3.putObject(bucket, storedName, inputStream, objMeta);
+            inputStream.close();
+
+            return "https://s3.ap-northeast-2.amazonaws.com/" + bucket + "/" + storedName;
+        } catch (IOException e){
+            throw new RuntimeException("S3 파일 업로드 실패", e);
+
+        }
     }
 
     public void saveFile(long boardId, MultipartFile multipartFile){
@@ -39,29 +72,22 @@ public class FileService {
             String extension = originalName.substring(originalName.lastIndexOf("."));
             String storedName = uuid + extension; // ex: a1b2...png
 
-            // [수정 포인트 1] 폴더 경로와 파일 전체 경로를 분리합니다.
-            // uploadDir는 "C:/upload/" 같은 폴더 경로여야 합니다.
-            String savePath = uploadDir;
+            ObjectMetadata objMeta = new ObjectMetadata();
+            objMeta.setContentType(multipartFile.getContentType());
+            InputStream inputStream = multipartFile.getInputStream();
+            objMeta.setContentLength(inputStream.available());
 
-            // [수정 포인트 2] 폴더가 없으면 폴더만 생성합니다 (파일 이름 제외)
-            java.io.File uploadFolder = new java.io.File(savePath);
-            if (!uploadFolder.exists()) {
-                uploadFolder.mkdirs(); // mkdir()보다 mkdirs()가 더 안전합니다 (상위 폴더까지 생성)
-            }
+            amazonS3.putObject(bucket, storedName, inputStream, objMeta);
+            inputStream.close();
 
-            // [수정 포인트 3] 저장할 파일 객체 생성 (폴더 경로 + 파일 이름)
-            // File.separator는 운영체제에 맞는 구분자(\ 또는 /)를 넣어줍니다.
-            java.io.File targetFile = new java.io.File(savePath + java.io.File.separator + storedName);
-
-            // 4. 파일을 지정된 경로에 물리적으로 저장
-            multipartFile.transferTo(targetFile);
+            String s3Url = amazonS3.getUrl(bucket, storedName).toString();
 
             // 5. DB 저장을 위한 객체 생성
             File fileEntity = new File();
             fileEntity.setBoardId(boardId);
             fileEntity.setOriginalName(originalName);
             fileEntity.setStoredName(storedName);
-            fileEntity.setFilePath(savePath + java.io.File.separator + storedName); // 전체 경로 저장
+            fileEntity.setFilePath(s3Url);
 
             // 6. DB 저장
             fileMapper.save(fileEntity);
@@ -76,20 +102,15 @@ public class FileService {
         List<File> files = fileMapper.findByBoardId(bno);
 
         for(File file : files){
-            String filePath = file.getFilePath();
-
-            java.io.File deleteFile = new java.io.File(filePath);
-
-            if(deleteFile.exists()){
-                deleteFile.delete();
-            }
-
-            fileMapper.deleteByBoardId(bno);
+            amazonS3.deleteObject(bucket, file.getStoredName());
         }
+        fileMapper.deleteByBoardId(bno);
     }
 
     public File findById(long fileId) {
         return fileMapper.findById(fileId);
     }
+
+
 
 }
