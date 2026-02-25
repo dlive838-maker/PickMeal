@@ -5,7 +5,26 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="cd44bd9e-67ab-4312-b321-9137053ad2e6" name="변경" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/shelf/26__2__25___4_58__________.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/shelf/26__2__25___5_14__________.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/shelf/26__2__25___5_15__________.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/shelf/26__2__25___9_09__________.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/shelf/26__2__25___9_16__________.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/shelf/26__2__25__오전_9_09,_체크아웃_전에_커밋되지_않은_변경_내용_[변경]/shelved.patch" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/shelf/26__2__25__오전_9_16,_체크아웃_전에_커밋되지_않은_변경_내용_[변경]/shelved.patch" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/shelf/26__2__25__오전_9_16,_체크아웃_전에_커밋되지_않은_변경_내용_[변경]1/shelved.patch" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/shelf/26__2__25__오후_4_58,_체크아웃_전에_커밋되지_않은_변경_내용_[변경]/shelved.patch" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/shelf/26__2__25__오후_5_14,_체크아웃_전에_커밋되지_않은_변경_내용_[변경]/shelved.patch" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/shelf/26__2__25__오후_5_15,_체크아웃_전에_커밋되지_않은_변경_내용_[변경]/shelved.patch" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/java/PickMeal/PickMeal/config/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/java/PickMeal/PickMeal/config/SecurityConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/java/PickMeal/PickMeal/controller/EmailController.java" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/java/PickMeal/PickMeal/controller/EmailController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/java/PickMeal/PickMeal/controller/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/java/PickMeal/PickMeal/controller/UserController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/java/PickMeal/PickMeal/service/EmailService.java" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/java/PickMeal/PickMeal/service/EmailService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/templates/users/edit.html" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/templates/users/edit.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/templates/users/signup.html" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/templates/users/signup.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/templates/users/signup1.html" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -13,7 +32,7 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="Git.Merge.Settings">
-    <option name="BRANCH" value="origin/seungkyeong_Kim_KakaoMap" />
+    <option name="BRANCH" value="origin/hansoo-Kang" />
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -48,7 +67,7 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "Spring Boot.PickMealApplication.executor": "Run",
-    "git-widget-placeholder": "jaemin"
+    "git-widget-placeholder": "main"
   }
 }]]></component>
   <component name="RecentsManager">
@@ -73,6 +92,7 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Spring Boot.PickMealApplication" />
         <item itemvalue="Spring Boot.PickMealApplication" />
       </list>
     </recent_temporary>

@@ -2,6 +2,8 @@
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
+  <meta name="_csrf" th:content="${_csrf.token}"/>
+  <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
   <title>Pick Meal - 회원가입</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@700;800&display=swap" rel="stylesheet">
@@ -271,35 +273,51 @@
       }, 1000);
   }
 
-  async function sendAuthMail() {
-      const emailInput = document.querySelector('input[name="email"]');
-      const email = emailInput.value.trim();
-      if(!email) return alert("이메일을 입력해주세요!");
+  /* signup.html의 sendAuthMail 함수 수정 */
+async function sendAuthMail() {
+    const emailInput = document.querySelector('input[name="email"]');
+    const email = emailInput.value.trim();
+    if(!email) return alert("이메일을 입력해주세요!");
 
-      const response = await fetch('/mail/send', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          body: `email=${encodeURIComponent(email)}`
-      });
+    try {
+        const response = await fetch('/mail/send', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                // [수정] CSRF 토큰이 필요할 수 있으므로 메타 태그에서 읽어와 추가하는 것이 안전합니다.
+                'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]')?.content
+            },
+            body: `email=${encodeURIComponent(email)}`
+        });
 
-      if(response.ok) {
-          alert("입력하신 메일로 인증번호가 발송되었습니다! ✉️");
-          startTimer();
-      } else if(response.status === 409) {
-          const result = await response.text();
-          if (result === "basic") {
-              if(confirm("이미 일반 회원으로 등록된 이메일입니다. 😢\n아이디 찾기 페이지로 이동하시겠습니까?")) {
-                  location.href = "/users/find-id";
-              }
-          } else if (result.startsWith("social_")) {
-              const siteName = result.split("_")[1];
-              alert(`이미 ${siteName.toUpperCase()} 계정으로 가입된 이메일입니다. ✨\n해당 소셜 로그인을 이용해주세요!`);
-          }
-          emailInput.focus();
-      } else {
-          alert("메일 발송에 실패했습니다. 다시 시도해주세요.");
-      }
-  }
+        // 1. 성공 시 (200 OK)
+        if(response.ok) {
+            alert("입력하신 메일로 인증번호가 발송되었습니다! ✉️");
+            startTimer();
+        }
+        // 2. 중복 가입 시 (409 Conflict)
+        else if(response.status === 409) {
+            const result = await response.text(); // 서버가 보낸 "basic" 또는 "social_kakao" 등
+
+            if (result === "basic") {
+                if(confirm("이미 일반 회원으로 등록된 이메일입니다. 😢\n아이디 찾기 페이지로 이동하시겠습니까?")) {
+                    location.href = "/users/find-id";
+                }
+            } else if (result.startsWith("social_")) {
+                const siteName = result.split("_")[1];
+                alert(`이미 ${siteName.toUpperCase()} 계정으로 가입된 이메일입니다. ✨\n해당 소셜 로그인을 이용해주세요!`);
+            }
+            emailInput.focus();
+        }
+        // 3. 그 외 에러 (500 등)
+        else {
+            alert("메일 발송에 실패했습니다. 다시 시도해주세요.");
+        }
+    } catch (e) {
+        console.error("통신 오류:", e);
+        alert("서버와 통신 중 오류가 발생했습니다.");
+    }
+}
 
   async function verifyEmailCode() {
       const code = document.getElementById('emailAuthCode').value.trim();

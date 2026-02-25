@@ -51,14 +51,24 @@ public class EmailService {
         mailSender.send(message);
     }
 
-    // [추가] 비밀번호 재설정 등 자유로운 내용을 보낼 때 쓰는 새 메서드
-    public void sendMail(String toEmail, String subject, String text) {
+    /**
+     * 통합 메일 발송 로직
+     * @param toEmail 수신자 이메일
+     * @param code 인증번호
+     * @param type 메일 용도 (JOIN: 회원가입, EDIT: 프로필 수정)
+     */
+    public void sendMail(String toEmail, String code, String type) { // 파라미터 추가
         SimpleMailMessage message = new SimpleMailMessage();
-
         message.setTo(toEmail);
-        message.setSubject(subject); // 매개변수로 받은 제목 설정
-        message.setText(text);       // 매개변수로 받은 본문 설정
         message.setFrom("PickMeal <" + fromEmail + ">");
+
+        if ("EDIT".equals(type)) { // 프로필 수정용 문구
+            message.setSubject("[Pick Meal] 프로필 수정 인증번호입니다. ✉️");
+            message.setText("안녕하세요! Pick Meal입니다.\n\n요청하신 프로필 수정 인증번호는 [" + code + "] 입니다.");
+        } else { // 기본 회원가입용 문구
+            message.setSubject("[Pick Meal] 회원가입 인증번호입니다. ✉️");
+            message.setText("안녕하세요! Pick Meal입니다.\n\n회원가입 인증번호는 [" + code + "] 입니다.");
+        }
 
         mailSender.send(message);
     }

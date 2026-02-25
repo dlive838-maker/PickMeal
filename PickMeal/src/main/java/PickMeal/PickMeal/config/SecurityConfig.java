@@ -33,8 +33,9 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.ignoringRequestMatchers(
                         "/mail/**",
                         "/users/find-id",
-                        "/users/find-password/**", // 비번 찾기 메일 발송 API
-                        "/users/reset-password/**", // 새 비번 저장 API
+                        "/users/check-nickname",
+                        "/users/find-password/**",
+                        "/users/reset-password/**",
                         "/worldcup/win/**",
                         "/users/login"
                 ))

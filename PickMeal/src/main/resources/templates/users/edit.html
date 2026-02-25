@@ -296,19 +296,31 @@
       document.getElementById('emailStep2').classList.remove('hidden');
     }
 
-    async function sendCode() {
-      const newEmail = document.getElementById('newEmail').value;
-      if(!newEmail) return alert("새 이메일을 입력하세요.");
-      try {
-          const response = await fetch('/mail/send', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/x-www-form-urlencoded', [csrfHeader]: csrfToken },
-              body: new URLSearchParams({ email: newEmail })
-          });
-          if (response.ok) { startTimer(300); alert("인증번호가 발송되었습니다."); }
-          else { alert("메일 발송에 실패했습니다."); }
-      } catch (e) { alert("서버 통신 오류"); }
-    }
+async function sendCode() {
+  const newEmail = document.getElementById('newEmail').value.trim();
+  if(!newEmail) return alert("새 이메일을 입력하세요.");
+
+  try {
+      const response = await fetch('/mail/send', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded', [csrfHeader]: csrfToken },
+          // [핵심] type: 'EDIT'를 반드시 포함해서 보냅니다.
+          body: new URLSearchParams({ email: newEmail, type: 'EDIT' })
+      });
+
+      if (response.ok) {
+          startTimer(300);
+          alert("인증번호가 발송되었습니다. ✉️");
+      } else if (response.status === 409) {
+          // [추가] 백엔드 EmailController에서 보낸 409 에러 처리
+          alert("이미 사용 중인 이메일입니다. 😢");
+      } else {
+          alert("메일 발송에 실패했습니다. 다시 시도해주세요.");
+      }
+  } catch (e) {
+      alert("서버 통신 오류가 발생했습니다.");
+  }
+}
 
     async function verifyEmailCode() {
       const code = document.getElementById('verifyCode').value;
@@ -331,24 +343,32 @@
     }
 
     async function apiUpdateEmail() {
-      const newEmail = document.getElementById('newEmail').value;
-      try {
-        const response = await fetch('/users/update-email', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', [csrfHeader]: csrfToken },
-          body: JSON.stringify({ email: newEmail })
-        });
-        if(response.ok) {
-          alert("이메일이 즉시 변경되었습니다!");
-          const atIndex = newEmail.indexOf('@');
-          const idPart = newEmail.substring(0, atIndex);
-          const domainPart = newEmail.substring(atIndex);
-          let maskedId = idPart.length <= 2 ? idPart.substring(0, 1) + "******" : idPart.substring(0, 2) + "******";
-          document.getElementById('emailDisplay').value = maskedId + domainPart;
-          closeModal('emailModal');
-        }
-      } catch (e) { alert("서버 통신 오류"); }
+  const newEmail = document.getElementById('newEmail').value.trim();
+  try {
+    const response = await fetch('/users/update-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', [csrfHeader]: csrfToken },
+      body: JSON.stringify({ email: newEmail })
+    });
+
+    if(response.ok) {
+      alert("이메일이 즉시 변경되었습니다! ✨");
+      const atIndex = newEmail.indexOf('@');
+      const idPart = newEmail.substring(0, atIndex);
+      const domainPart = newEmail.substring(atIndex);
+      let maskedId = idPart.length <= 2 ? idPart.substring(0, 1) + "******" : idPart.substring(0, 2) + "******";
+      document.getElementById('emailDisplay').value = maskedId + domainPart;
+      closeModal('emailModal');
+    } else if (response.status === 409) {
+      // [추가] 백엔드 UserController에서 보낸 409 에러 처리
+      alert("이미 사용 중인 이메일입니다. 😢");
+    } else {
+      alert("이메일 변경에 실패했습니다.");
     }
+  } catch (e) {
+    alert("서버 통신 오류가 발생했습니다.");
+  }
+}
 
     async function apiUpdatePassword() {
       const currPw = document.getElementById('currPw').value;
@@ -391,16 +411,32 @@
       else { isNicknameValid = false; statusMsg.innerText = "중복 확인이 필요합니다."; statusMsg.className = "text-xs mt-2 ml-4 font-bold text-orange-400"; checkBtn.disabled = false; }
     });
 
-    checkBtn.addEventListener('click', async () => {
-      const nickname = nicknameInput.value.trim();
-      if (!nickname) return;
-      try {
-        const response = await fetch(`/users/check-nickname?nickname=${encodeURIComponent(nickname)}`);
-        const isExist = await response.json();
-        if (isExist === false) { statusMsg.innerText = "사용 가능한 닉네임입니다!"; statusMsg.className = "text-xs mt-2 ml-4 font-bold text-green-500"; isNicknameValid = true; checkBtn.disabled = true; }
-        else { statusMsg.innerText = "이미 사용 중인 닉네임입니다."; statusMsg.className = "text-xs mt-2 ml-4 font-bold text-red-500"; isNicknameValid = false; }
-      } catch (err) { console.error("오류:", err); }
-    });
+    // HTML 하단 <script> 내의 checkBtn 클릭 이벤트 부분 수정
+checkBtn.addEventListener('click', async () => {
+  const nickname = nicknameInput.value.trim();
+  if (!nickname) return;
+  try {
+    // 1. 요청 주소가 정확한지 확인 (/users/check-nickname)
+    const response = await fetch(`/users/check-nickname?nickname=${encodeURIComponent(nickname)}`);
+
+    // 2. [중요] .json() 대신 .text()를 사용해야 컨트롤러의 응답을 읽을 수 있습니다.
+    const result = await response.text();
+
+    if (result === "success") { // 서비스에서 중복이 아닐 때 반환하는 값
+      statusMsg.innerText = "사용 가능한 닉네임입니다!";
+      statusMsg.className = "text-xs mt-2 ml-4 font-bold text-green-500";
+      isNicknameValid = true;
+      checkBtn.disabled = true;
+    } else {
+      statusMsg.innerText = "이미 사용 중인 닉네임입니다.";
+      statusMsg.className = "text-xs mt-2 ml-4 font-bold text-red-500";
+      isNicknameValid = false;
+    }
+  } catch (err) {
+    console.error("오류:", err);
+    alert("중복 체크 중 오류가 발생했습니다.");
+  }
+});
 
     document.getElementById('editForm').addEventListener('submit', (e) => {
       if (!isNicknameValid) { e.preventDefault(); return alert("닉네임 중복 확인을 완료해주세요."); }

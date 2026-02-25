@@ -20,6 +20,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.text.SimpleDateFormat;
 import java.util.Map;
+import java.util.Objects;
 
 @Controller
 @RequestMapping("/users")
@@ -218,9 +219,21 @@ public class UserController {
 
             if (loginUser == null) return ResponseEntity.status(401).body("unauthorized");
 
-            // [추가] 소셜 로그인 사용자인지 확인하여 에러 반환
+            // 1. 소셜 로그인 사용자인지 확인
             if (loginUser.getSocialLoginSite() != null && !loginUser.getSocialLoginSite().isEmpty()) {
                 return ResponseEntity.status(403).body("social_user_cannot_change_email");
+            }
+
+            // 2. [추가] 이메일 중복 검사
+            // 수정하려는 이메일이 이미 DB에 존재하는지 확인합니다.
+            User existingUser = userService.findByEmail(userRequest.getEmail());
+            if (existingUser != null) {
+                // 본인이 현재 사용 중인 이메일일 수도 있으므로 ID까지 체크하면 더 정확합니다.
+                // String으로 변환하여 비교
+                // Objects.equals는 null 체크까지 포함하여 안전합니다.
+                if (!Objects.equals(existingUser.getUser_id(), loginUser.getUser_id())) {
+                    return ResponseEntity.status(409).body("already_exists");
+                }
             }
 
             userService.updateEmail(loginUser.getUser_id(), userRequest.getEmail());
