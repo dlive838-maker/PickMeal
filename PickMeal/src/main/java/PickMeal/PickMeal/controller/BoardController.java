@@ -73,7 +73,7 @@ public class BoardController {
         Board board = boardService.getBoardByBoardId(boardId);
 
         List<Comment> comments = commentService.getCommentsByBoardId(boardId);
-
+        model.addAttribute("user", user);
         model.addAttribute("comments", comments);
         model.addAttribute("userReaction", userReaction);
         model.addAttribute("board", board);

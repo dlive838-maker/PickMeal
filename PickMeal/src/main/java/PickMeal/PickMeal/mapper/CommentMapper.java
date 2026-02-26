@@ -10,4 +10,10 @@ public interface CommentMapper {
     List<Comment> getCommentsByBoardId(long boardId);
 
     void writeComment(Comment comment);
+
+    void deleteComment(long comment_id);
+
+    Comment getCommentByCommentID(long comment_id);
+
+    void updateComment(long comment_id, String content);
 }

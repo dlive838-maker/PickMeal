@@ -23,4 +23,22 @@ public class CommentController {
         commentService.writeComment(comment);
         return "redirect:/board/detail/" + boardId;
     }
+
+    @PostMapping("/delete/{comment_id}")
+    public String deleteComment(@PathVariable long comment_id) {
+        long boardId = commentService.getCommentByComment_id(comment_id).getBoardId();
+
+        commentService.deleteComment(comment_id);
+
+        return "redirect:/board/detail/" + boardId;
+    }
+
+
+
+    @PostMapping("/update/{comment_id}")
+    public String updateComment(@PathVariable long comment_id, String content) {
+        long boardId = commentService.getCommentByComment_id(comment_id).getBoardId();
+        commentService.updateComment(comment_id, content);
+        return "redirect:/board/detail/" + boardId;
+    }
 }
