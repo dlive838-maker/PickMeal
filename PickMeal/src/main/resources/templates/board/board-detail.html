@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="_csrf" th:content="${_csrf?.token}" th:if="${_csrf}"/>
+  <meta name="_csrf_header" th:content="${_csrf?.headerName}" th:if="${_csrf}"/>
   <title th:text="${board.title} + ' - PickMeal'">게시글 상세 - PickMeal</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@700;800&family=Jua&family=Nanum+Gothic:wght@700;800&family=Gamja+Flower&family=Black+Han+Sans&display=swap" rel="stylesheet">
@@ -189,7 +191,85 @@
         height: auto;
         border-radius: 1rem; /* 사진 모서리도 둥글고 예쁘게! */
         margin: 1rem 0;
-    }`
+    }
+
+    /* 🌟 좋아요/싫어요 버튼 영역 스타일 🌟 */
+    .reaction-container {
+        display: flex;
+        justify-content: center;
+        gap: 20px; /* 버튼 사이 간격 */
+        margin: 40px 0 20px 0; /* 위아래 여백 */
+    }
+
+    .reaction-btn {
+        display: flex;
+        align-items: center;
+        gap: 10px; /* 이미지와 숫자 사이 간격 */
+        padding: 10px 25px;
+        border-radius: 30px;
+        border: 2px solid #FDF5E6;
+        background-color: white;
+        cursor: pointer;
+        transition: all 0.2s ease-in-out;
+        font-family: 'Fredoka', 'Jua', sans-serif;
+        font-size: 1.3em;
+        font-weight: bold;
+        color: #555;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    }
+
+    .reaction-btn img {
+        width: 28px;
+        height: 28px;
+        transition: transform 0.2s;
+    }
+
+    /* 마우스 올렸을 때 효과 (좋아요는 파란빛, 싫어요는 붉은빛) */
+    .reaction-btn.like:hover {
+        border-color: #007BFF;
+        color: #007BFF;
+        transform: translateY(-3px);
+        box-shadow: 0 6px 15px rgba(0, 123, 255, 0.2);
+    }
+    .reaction-btn.like:hover img {
+        transform: scale(1.1) rotate(-10deg); /* 따봉 흔들기 */
+    }
+
+    .reaction-btn.dislike:hover {
+        border-color: #FF5252;
+        color: #FF5252;
+        transform: translateY(-3px);
+        box-shadow: 0 6px 15px rgba(255, 82, 82, 0.2);
+    }
+    .reaction-btn.dislike:hover img {
+        transform: scale(1.1) rotate(10deg); /* 역따봉 흔들기 */
+    }
+
+    /* 🌟 좋아요 눌렀을 때 디자인 고정 (.active 추가) */
+    .reaction-btn.like:hover,
+    .reaction-btn.like.active {
+        border-color: #007BFF;
+        color: #007BFF;
+        transform: translateY(-3px);
+        box-shadow: 0 6px 15px rgba(0, 123, 255, 0.2);
+    }
+    .reaction-btn.like:hover img,
+    .reaction-btn.like.active img {
+        transform: scale(1.1) rotate(-10deg);
+    }
+
+    /* 🌟 싫어요 눌렀을 때 디자인 고정 (.active 추가) */
+    .reaction-btn.dislike:hover,
+    .reaction-btn.dislike.active {
+        border-color: #FF5252;
+        color: #FF5252;
+        transform: translateY(-3px);
+        box-shadow: 0 6px 15px rgba(255, 82, 82, 0.2);
+    }
+    .reaction-btn.dislike:hover img,
+    .reaction-btn.dislike.active img {
+        transform: scale(1.1) rotate(10deg);
+    }
   </style>
 </head>
 <body>
@@ -221,6 +301,24 @@
 
       <div class="post-content" th:utext="${board.content}"></div>
 
+      <div class="reaction-container">
+
+        <button type="button" class="reaction-btn like"
+                th:classappend="${userReaction == 1} ? 'active' : ''"
+                th:onclick="|updateReaction(1, ${board.boardId})|">
+          <img src="/images/thumbs-up.png" alt="좋아요">
+          <span id="like-count" th:text="${board.likeCount}">0</span>
+        </button>
+
+        <button type="button" class="reaction-btn dislike"
+                th:classappend="${userReaction == -1} ? 'active' : ''"
+                th:onclick="|updateReaction(-1, ${board.boardId})|">
+          <img src="/images/thumbs-down.png" alt="싫어요">
+          <span id="dislike-count" th:text="${board.dislikeCount}">0</span>
+        </button>
+
+      </div>
+
       <div class="board-buttons">
         <a href="/board/list" class="btn btn-light">목록으로</a>
 
@@ -228,6 +326,52 @@
           <a th:href="@{/board/edit/{boardId}(boardId=${board.boardId})}" class="btn btn-orange">수정</a>
           <button type="button" class="btn btn-danger" th:boardId="${board.boardId}" onclick="deleteBoard(this.getAttribute('boardId'))">삭제</button>
         </th:block>
+      </div>
+
+      <hr class="my-5">
+      <div class="comment-section container">
+        <h4 class="mb-4">댓글 <span th:text="${#lists.size(comments)}">0</span></h4>
+
+        <div class="card mb-4 shadow-sm">
+          <div class="card-body">
+            <form th:action="@{/comment/write/{boardId}(boardId=${board.boardId})}" th:method="post">
+              <input type="hidden" name="boardId" th:value="${board.boardId}">
+
+              <div class="form-group mb-2">
+                    <textarea class="form-control" name="content" rows="3"
+                              placeholder="내용을 입력하세요. 로그인 후에 이용 가능합니다." required></textarea>
+              </div>
+              <div class="text-end">
+                <button type="submit" class="btn btn-dark btn-sm">댓글 등록</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <div class="comment-list">
+          <div th:each="comment : ${comments}" class="border-bottom py-3">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <strong class="me-2" th:text="${comment.nickname}">작성자</strong>
+                <small class="text-muted" th:if = "${comment.updateCommentDate == null}" th:text="${#dates.format(comment.createCommentDate, 'yyyy-MM-dd HH:mm')}">2026-02-26</small>
+                <small class="text-muted" th:if = "${comment.updateCommentDate != null}" th:text="${#dates.format(comment.createCommentDate, 'yyyy-MM-dd HH:mm')}">2026-02-26</small>
+              </div>
+
+              <div th:if="${user != null and user.user_id == comment.user_id}">
+                <a th:href="@{/comment/delete/{id}(id=${comment_id}, boardId=${boardId})}"
+                   class="btn btn-outline-danger btn-sm"
+                   onclick="return confirm('정말 삭제하시겠습니까?')">삭제</a>
+              </div>
+            </div>
+            <div class="mt-2 text-secondary">
+              <p class="mb-0" th:text="${comment.content}">여기에 댓글 내용이 출력됩니다.</p>
+            </div>
+          </div>
+
+          <div th:if="${#lists.isEmpty(comments)}" class="text-center py-5 text-muted">
+            첫 번째 댓글을 남겨보세요!
+          </div>
+        </div>
       </div>
 
     </div>
@@ -258,6 +402,31 @@
             document.body.appendChild(form);
             form.submit();
         }
+    }
+
+  // 🌟 좋아요 / 싫어요 클릭 시 실행될 함수 (AJAX 비동기 통신용)
+    function updateReaction(likeType, boardId) {
+        const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+        const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
+
+        const formData = new FormData();
+        formData.append("like_type", likeType);
+
+        fetch(`/board/reaction/${boardId}`, {
+            method: "POST",
+            headers: {
+                [csrfHeader]: csrfToken
+            },
+            body: formData
+        })
+        .then(response => {
+            if (response.ok) {
+                location.reload();
+            }
+        })
+        .catch(error => {
+            console.error("Error:", error);
+        });
     }
 </script>
 </body>

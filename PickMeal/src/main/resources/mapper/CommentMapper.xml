@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="PickMeal.PickMeal.mapper.CommentMapper">
+    <select id="getCommentsByBoardId" parameterType="long" resultType="PickMeal.PickMeal.domain.Comment">
+        SELECT c.comment_id, c.boardId, c.user_id, c.content, c.createCommentDate, c.updateCommentDate, u.nickname
+        FROM comment c
+        JOIN user u ON c.user_id = u.user_id
+        WHERE c.boardId = #{boardId}
+    </select>
+    <insert id="writeComment" parameterType="PickMeal.PickMeal.domain.Comment">
+            INSERT INTO comment(boardId, user_id, content)
+            VALUES(#{boardId}, #{user_id}, #{content})
+    </insert>
+</mapper>

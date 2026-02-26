@@ -73,6 +73,10 @@ public class UserController {
         return authentication.getName(); // 일반 로그인
     }
 
+    public String getLoginUserIdForBoard(Authentication authentication) {
+        return getLoginUserId(authentication);
+    }
+
 
     @GetMapping("/signup")
     public String signupForm(Model model) {

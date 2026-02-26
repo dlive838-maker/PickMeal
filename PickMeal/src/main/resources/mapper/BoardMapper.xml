@@ -4,7 +4,7 @@
 
 <mapper namespace="PickMeal.PickMeal.mapper.BoardMapper">
     <select id="findBoardAll" resultType="PickMeal.PickMeal.domain.Board">
-        SELECT b.boardId, b.title, b.content, b.user_id, b.createDate, b.updateDate, b.viewCount, b.likeCount, b.commentCount, u.nickname
+        SELECT b.boardId, b.title, b.content, b.user_id, b.createDate, b.updateDate, b.viewCount, b.likeCount, b.dislikeCount, b.commentCount, u.nickname
         FROM board b
         JOIN user u ON b.user_id = u.user_id
         ORDER BY b.boardId DESC
@@ -27,7 +27,7 @@
         WHERE user_id = #{userId}
     </select>
     <select id="getBoardByBoardId" parameterType="long" resultType="PickMeal.PickMeal.domain.Board">
-        SELECT b.boardId, b.title, b.content, b.user_id, b.createDate, b.updateDate, b.viewCount, b.likeCount, b.commentCount, u.nickname
+        SELECT b.boardId, b.title, b.content, b.user_id, b.createDate, b.updateDate, b.viewCount, b.likeCount, b.dislikeCount, b.commentCount, u.nickname
         FROM board b
         JOIN user u ON b.user_id = u.user_id
         WHERE b.boardId = #{boardId}
@@ -40,6 +40,27 @@
     <update id="updateViewCount" parameterType="long">
         UPDATE board
         SET viewCount = viewCount + 1
+        WHERE boardId = #{boardId}
+    </update>
+    <update id="removeDislikeCount" parameterType="long">
+        UPDATE board
+        SET dislikeCount = dislikeCount - 1
+        WHERE boardId = #{boardId} AND dislikeCount > 0
+    </update>
+    <update id="removeLikeCount" parameterType="long">
+        UPDATE board
+        SET likeCount = likeCount - 1
+        WHERE boardId = #{boardId} AND likeCount > 0
+    </update>
+
+    <update id="addLikeCount" parameterType="long">
+        UPDATE board
+        SET likeCount = likeCount + 1
+        WHERE boardId = #{boardId}
+    </update>
+    <update id="addDislikeCount" parameterType="long">
+        UPDATE board
+        SET dislikeCount = dislikeCount + 1
         WHERE boardId = #{boardId}
     </update>
 </mapper>
