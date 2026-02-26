@@ -4,45 +4,156 @@ import PickMeal.PickMeal.dto.PlaceStatsDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Service // Spring Bean으로 등록하여 컨트롤러에서 주입받을 수 있게 함
-@RequiredArgsConstructor // JdbcTemplate 생성자 주입을 위해 사용
+@Service
+@RequiredArgsConstructor
 public class PlaceStatsService {
 
     private final JdbcTemplate jdbcTemplate;
 
-    public List<PlaceStatsDto> getStatsByKakaoIds(List<String> placeIds) {
-        if (placeIds == null || placeIds.isEmpty()) {
-            return Collections.emptyList();
+    // 1. 메인 리스트용 통계 합산 조회 (평균 평점 및 내 좋아요 여부 포함)
+    public List<PlaceStatsDto> getStatsByKakaoIds(List<String> placeIds, String userId) {
+        if (placeIds == null || placeIds.isEmpty()) return Collections.emptyList();
+
+        List<Long> longIds = placeIds.stream().map(Long::parseLong).collect(Collectors.toList());
+        String inParams = String.join(",", Collections.nCopies(longIds.size(), "?"));
+
+        String sql = "SELECT res_id, " +
+                "SUM(IFNULL(view_count, 0)) as view_cnt, " +
+                "SUM(CASE WHEN is_wish = 1 THEN 1 ELSE 0 END) as wish_cnt, " +
+                "COUNT(content) as rev_cnt, " +
+                "IFNULL(AVG(CASE WHEN content IS NOT NULL THEN rating END), 0) as avg_rate, " +
+                "MAX(CASE WHEN user_id = ? AND is_wish = 1 THEN 1 ELSE 0 END) as my_wish " +
+                "FROM place_stats " +
+                "WHERE res_id IN (" + inParams + ") " +
+                "GROUP BY res_id";
+
+        // 파라미터 배열 준비 (첫 번째는 userId, 나머지는 placeIds)
+        Object[] params = new Object[longIds.size() + 1];
+        params[0] = (userId != null) ? userId : "";
+        for (int i = 0; i < longIds.size(); i++) {
+            params[i + 1] = longIds.get(i);
         }
 
-        // SQL: 각 테이블(조회, 찜, 리뷰)에서 kakao_place_id별로 갯수를 집계함
-        // IN 절을 사용하여 전달받은 ID 리스트에 해당하는 데이터만 추출
-        String inSql = String.join(",", Collections.nCopies(placeIds.size(), "?"));
-
-        String sql = "SELECT p.kakao_place_id, " +
-                " (SELECT COUNT(*) FROM view_logs WHERE kakao_place_id = p.kakao_place_id) as view_count, " +
-                " (SELECT COUNT(*) FROM hearts WHERE kakao_place_id = p.kakao_place_id) as heart_count, " +
-                " (SELECT COUNT(*) FROM reviews WHERE kakao_place_id = p.kakao_place_id) as review_count " +
-                "FROM (SELECT UNNEST(ARRAY[" + inSql + "])) as p(kakao_place_id)";
-        // 주의: 위 SQL은 예시이며 실제 DB 스키마 구조에 따라 JOIN 등으로 최적화가 필요함
-
-        // 임시 데이터 반환 (DB 연결 전 테스트용)
-        // 실제로는 위 SQL 결과를 mapping하여 리턴해야 함
-        return placeIds.stream().map(id -> {
+        return jdbcTemplate.query(sql, (rs, rowNum) -> {
             PlaceStatsDto dto = new PlaceStatsDto();
-            dto.setKakaoPlaceId(id);
-            dto.setViewCount((int)(Math.random() * 100)); // 테스트용 랜덤 값
-            dto.setHeartCount((int)(Math.random() * 50));
-            dto.setReviewCount((int)(Math.random() * 30));
+            dto.setKakaoPlaceId(String.valueOf(rs.getLong("res_id")));
+            dto.setViewCount(rs.getInt("view_cnt"));
+            dto.setHeartCount(rs.getInt("wish_cnt"));
+            dto.setReviewCount(rs.getInt("rev_cnt"));
+            // 평점 소수점 한자리 반올림
+            dto.setAvgRating(Math.round(rs.getDouble("avg_rate") * 10) / 10.0);
+            dto.setLiked(rs.getInt("my_wish") == 1);
             return dto;
-        }).collect(Collectors.toList());
+        }, params);
     }
 
-    public void addViewLog(String kakaoPlaceId) {
+    // 2. 특정 가게의 모든 댓글 목록 조회
+    // 2. 특정 가게의 모든 댓글 목록 조회
+    public List<PlaceStatsDto> getReviews(String kakaoPlaceId) {
+        Long resId = Long.parseLong(kakaoPlaceId);
+        // [수정] SQL문에 rating 컬럼을 추가해야 합니다.
+        String sql = "SELECT review_id, user_id, content, rating FROM place_stats " +
+                "WHERE res_id = ? AND content IS NOT NULL " +
+                "ORDER BY created_at DESC";
+
+        return jdbcTemplate.query(sql, (rs, rowNum) -> {
+            PlaceStatsDto dto = new PlaceStatsDto();
+            dto.setReviewId(rs.getLong("review_id"));
+            dto.setUserId(rs.getString("user_id"));
+            dto.setContent(rs.getString("content"));
+            // [추가] DB에서 가져온 rating 값을 DTO에 담아줘야 프론트에서 읽을 수 있습니다.
+            dto.setRating(rs.getInt("rating"));
+            return dto;
+        }, resId);
+    }
+
+    // 3. 조회수 증가
+    public void addViewLog(String kakaoPlaceId, String userId) {
+        Long resId = Long.parseLong(kakaoPlaceId);
+        String sql = "INSERT INTO place_stats (res_id, user_id, view_count, is_wish, created_at, updated_at) " +
+                "VALUES (?, ?, 1, 0, NOW(), NOW()) " +
+                "ON DUPLICATE KEY UPDATE view_count = view_count + 1, updated_at = NOW()";
+        jdbcTemplate.update(sql, resId, userId);
+    }
+
+    // 4. 찜 토글
+    public void toggleHeart(String kakaoPlaceId, String userId) {
+        Long resId = Long.parseLong(kakaoPlaceId);
+        String checkSql = "SELECT review_id FROM place_stats WHERE res_id = ? AND user_id = ? LIMIT 1";
+        List<Long> ids = jdbcTemplate.query(checkSql, (rs, rowNum) -> rs.getLong("review_id"), resId, userId);
+
+        if (ids.isEmpty()) {
+            String insertSql = "INSERT INTO place_stats (res_id, user_id, view_count, is_wish, created_at, updated_at) " +
+                    "VALUES (?, ?, 0, 1, NOW(), NOW())";
+            jdbcTemplate.update(insertSql, resId, userId);
+        } else {
+            String updateSql = "UPDATE place_stats SET is_wish = IF(is_wish = 1, 0, 1), updated_at = NOW() " +
+                    "WHERE review_id = ?";
+            jdbcTemplate.update(updateSql, ids.get(0));
+        }
+    }
+
+    // 5. 신규 댓글 추가 (평점 포함)
+    public void addReview(String kakaoPlaceId, String userId, String content, int rating) {
+        Long resId = Long.parseLong(kakaoPlaceId);
+        String sql = "INSERT INTO place_stats (res_id, user_id, content, rating, created_at, updated_at) " +
+                "VALUES (?, ?, ?, ?, NOW(), NOW())";
+        jdbcTemplate.update(sql, resId, userId, content, rating);
+        updateReviewCount(resId);
+    }
+
+    // 6. 댓글 수정
+    public void updateReview(Long reviewId, String content) {
+        String findIdSql = "SELECT res_id FROM place_stats WHERE review_id = ?";
+        Long resId = jdbcTemplate.queryForObject(findIdSql, Long.class, reviewId);
+
+        String updateSql = "UPDATE place_stats SET content = ?, updated_at = NOW() WHERE review_id = ?";
+        jdbcTemplate.update(updateSql, content, reviewId);
+        updateReviewCount(resId);
+    }
+
+    // 7. 댓글 삭제
+    public void deleteReview(Long reviewId) {
+        String findIdSql = "SELECT res_id FROM place_stats WHERE review_id = ?";
+        Long resId = jdbcTemplate.queryForObject(findIdSql, Long.class, reviewId);
+
+        String deleteSql = "DELETE FROM place_stats WHERE review_id = ?";
+        jdbcTemplate.update(deleteSql, reviewId);
+        updateReviewCount(resId);
+    }
+
+    // 8. 댓글 수 동기화
+    private void updateReviewCount(Long resId) {
+        String countSql = "SELECT COUNT(*) FROM place_stats WHERE res_id = ? AND content IS NOT NULL";
+        Integer currentCount = jdbcTemplate.queryForObject(countSql, Integer.class, resId);
+
+        String syncSql = "UPDATE place_stats SET review_count = ? WHERE res_id = ?";
+        jdbcTemplate.update(syncSql, currentCount, resId);
+    }
+
+    // 댓글 수정 (내용 + 별점 업데이트 및 본인 확인)
+    public boolean updateReview(Long reviewId, String userId, String content, int rating) {
+        // 1. 작성자 본인 확인
+        String checkSql = "SELECT user_id FROM place_stats WHERE review_id = ?";
+        String authorId = jdbcTemplate.queryForObject(checkSql, String.class, reviewId);
+
+        if (!authorId.equals(userId)) {
+            return false; // 본인이 아니면 실패 반환
+        }
+
+        // 2. 내용과 별점 함께 수정
+        String updateSql = "UPDATE place_stats SET content = ?, rating = ?, updated_at = NOW() WHERE review_id = ?";
+        jdbcTemplate.update(updateSql, content, rating, reviewId);
+
+        // 3. 해당 가게의 평균 평점 및 댓글 수 동기화
+        String findResIdSql = "SELECT res_id FROM place_stats WHERE review_id = ?";
+        Long resId = jdbcTemplate.queryForObject(findResIdSql, Long.class, reviewId);
+        updateReviewCount(resId);
+
+        return true;
     }
 }
