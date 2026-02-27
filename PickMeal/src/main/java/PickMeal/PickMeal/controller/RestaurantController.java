@@ -34,7 +34,7 @@ public class RestaurantController {
 
         if (userId == null) return; // 로그인이 안 되어 있으면 저장 중단 (null 방어)
 
-        dto.setUserId(userId);
+        //dto.setUserId(userId);
         if (dto.getContent() != null && !dto.getContent().isEmpty()) {
             dto.setWish(true);
         }
@@ -49,7 +49,7 @@ public class RestaurantController {
 
         ReviewWishDTO dto = new ReviewWishDTO();
         dto.setResId(resId);
-        dto.setUserId(userId);
+        //dto.setUserId(userId);
         dto.setWish(true);
         reviewWishMapper.saveInteraction(dto);
     }

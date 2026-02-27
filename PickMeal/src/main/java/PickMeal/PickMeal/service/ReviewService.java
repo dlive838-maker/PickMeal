@@ -9,7 +9,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class ReviewWishService {
+public class ReviewService {
     private final ReviewWishMapper reviewWishMapper;
 
 

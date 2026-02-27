@@ -10,7 +10,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -38,12 +40,13 @@ public class BoardController {
     }
 
     @GetMapping("/list")
-    public String showBoard(@PageableDefault(size = 10, sort = "boardId", direction = Sort.Direction.DESC) Pageable pageable, Model model, Authentication authentication) {
+    public String showBoard(@PageableDefault(size = 10, sort = "boardId", direction = Sort.Direction.DESC) Pageable pageable, Model model) {
         Page<Board> boards = boardService.findBoardAll(pageable);
-        // [수정] user_id가 long이므로 String으로 변환하여 닉네임을 조회하도록 처리
+
         List<String> user_nicknames = boards.stream()
                 .map(board -> userService.findByUser_id(board.getUser_id()))
                 .toList();
+
         model.addAttribute("boards", boards);
         model.addAttribute("user_nicknames", user_nicknames);
         return "/board/board";
@@ -56,34 +59,14 @@ public class BoardController {
 
     @PostMapping("/write")
     public String writeBoard(Board board, @RequestParam(value = "file", required = false) MultipartFile file, Authentication authentication) {
-
-        // 1. [수정] Authentication 객체에서 직접 이름을 가져오는 것이 가장 확실합니다.
-        String principalName = authentication.getName();
-
-        // 2. 소셜 로그인 여부 확인
-        String registrationId = "";
-        if (authentication instanceof org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken token) {
-            registrationId = token.getAuthorizedClientRegistrationId();
-        }
-
-        // 3. ID 재조합
-        // 소셜은 kakao_1234, 일반은 그냥 id 그대로 사용
-        String fullUserId = registrationId.isEmpty() ? principalName : registrationId + "_" + principalName;
-
-        // [디버깅 중요!] 콘솔에서 이 값이 DB의 id 컬럼 값과 '완벽히' 일치하는지 확인하세요.
-        System.out.println("검색하려는 유저 ID: [" + fullUserId + "]");
-
-        User loginUser = userService.findById(fullUserId);
+        // [수정] 서비스의 공통 메서드를 사용하여 유저 객체를 바로 가져옵니다.
+        User loginUser = userService.getAuthenticatedUser(authentication);
 
         if (loginUser != null) {
-            // [디버깅] 유저를 찾았을 때 PK 값 확인
-            System.out.println("유저 찾기 성공! PK: " + loginUser.getUser_id());
-
             board.setUser_id(loginUser.getUser_id());
             boardService.writeBoard(board);
         } else {
-            // 여기가 실행된다면 userService.findById(fullUserId)가 실패한 것입니다.
-            System.out.println("유저 찾기 실패. DB의 id 컬럼에 '" + fullUserId + "'가 있는지 확인하세요.");
+            // 유저를 찾지 못하면 로그인 페이지로 보냅니다.
             return "redirect:/users/login";
         }
 
@@ -95,44 +78,24 @@ public class BoardController {
 
     @GetMapping("/detail/{boardId}")
     public String showBoardDetail(@PathVariable long boardId, Authentication authentication, Model model) {
-        // 1. 게시글 정보를 가져옵니다.
         Board board = boardService.getBoardByBoardId(boardId);
         int userReaction = 0;
 
-        User loginUser;
+        // [수정] 여기도 공통 메서드로 유저 객체를 가져옵니다.
+        User loginUser = userService.getAuthenticatedUser(authentication);
 
-        // 2. 로그인 상태라면 작성자 비교를 수행합니다.
-        if (authentication != null && authentication.isAuthenticated()) {
-            // 이전에 글쓰기에서 썼던 로직을 그대로 가져와서 진짜 user_id를 찾습니다.
-            String principalName = getLoginUserId(authentication);
+        if (authentication != null && authentication.isAuthenticated() && loginUser != null) {
+            // 좋아요/싫어요 상태 확인
+            userReaction = boardReactionService.isLikeOrDislike(boardId, loginUser.getUser_id());
 
-            // 소셜 로그인 구분 (카카오/네이버 등)
-            String registrationId = "";
-            if (authentication instanceof org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken) {
-                registrationId = ((org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId();
-            }
-            String fullUserId = registrationId.isEmpty() ? principalName : registrationId + "_" + principalName;
-
-            // DB에서 현재 로그인한 사람의 진짜 객체를 가져옵니다.
-            loginUser = userService.findById(fullUserId);
-
-            if(loginUser != null){
-                userReaction = boardReactionService.isLikeOrDislike(boardId, user.getUser_id());
-            }
-
-            // [핵심 비교] 게시글의 user_id와 로그인한 사람의 user_id가 같으면 작성자입니다.
-            if (loginUser != null && board.getUser_id() == loginUser.getUser_id()) {
-                model.addAttribute("isWriter", true);
-            } else {
-                model.addAttribute("isWriter", false);
-            }
+            // [수정] 작성자 본인 확인 (Long 타입일 수 있으므로 == 대신 equals 권장이나 long이면 == 유지)
+            model.addAttribute("isWriter", board.getUser_id() == loginUser.getUser_id());
             model.addAttribute("user", loginUser);
         } else {
             model.addAttribute("isWriter", false);
         }
 
         boardService.updateViewCount(boardId);
-
         List<Comment> comments = commentService.getCommentsByBoardId(boardId);
 
         model.addAttribute("comments", comments);
@@ -144,7 +107,12 @@ public class BoardController {
 
     @PostMapping("/reaction/{boardId}")
     @ResponseBody
-    public ResponseEntity<String> boardLikeOrDislikeReaction(@PathVariable long boardId, @AuthenticationPrincipal User user, @RequestParam("like_type") int like_type) {
+    public ResponseEntity<String> boardLikeOrDislikeReaction(@PathVariable long boardId, Authentication authentication, @RequestParam("like_type") int like_type) {
+        // [수정] 중복 제거된 공통 메서드 활용
+        User user = userService.getAuthenticatedUser(authentication);
+
+        if (user == null) return ResponseEntity.status(401).body("LOGIN_REQUIRED");
+
         int currentStatus = boardReactionService.isLikeOrDislike(boardId, user.getUser_id());
 
         if(like_type > 0){

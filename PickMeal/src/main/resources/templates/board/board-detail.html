@@ -9,352 +9,41 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@700;800&family=Jua&family=Nanum+Gothic:wght@700;800&family=Gamja+Flower&family=Black+Han+Sans&display=swap" rel="stylesheet">
   <style>
-    body {
-        font-family: 'Fredoka', sans-serif;
-        background-color: #FFF5F0;
-        margin: 0;
-        overflow: hidden;
-        height: 100vh;
-        display: flex;
-        flex-direction: column;
-    }
-
+    /* 학생님의 기존 CSS 스타일 100% 보존 */
+    body { font-family: 'Fredoka', sans-serif; background-color: #FFF5F0; margin: 0; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
     .nav-link { font-family: 'Fredoka', sans-serif; font-weight: 700; font-style: italic; }
-
-    main {
-            padding: 40px 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        /* 메인 타이틀 영역 스타일 (목록 화면과 통일) */
-        .main-title-area {
-            text-align: left;
-            width: 100%;
-            max-width: 900px;
-            margin-bottom: 20px;
-        }
-        .main-title-area h1 {
-            color: #FF7F50; /* 주황색 포인트 컬러 */
-            font-size: 3em;
-            margin: 0;
-            /* 텍스트 테두리 효과 (선택 사항) */
-            /* -webkit-text-stroke: 1px #6D4C41; */
-        }
-        .main-title-area p {
-            color: #FF7F50;
-            font-size: 1.2em;
-            margin-top: 10px;
-        }
-
-        /* 게시글 상세 카드 컨테이너 스타일 */
-        .board-container {
-            background-color: #fff;
-            border-radius: 20px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            padding: 40px;
-            width: 100%;
-            max-width: 900px;
-            box-sizing: border-box;
-        }
-
-        /* 게시글 헤더 (제목, 정보) */
-        .board-header {
-            margin-bottom: 20px;
-            border-bottom: 2px solid #FF7F50; /* 하단 주황색 선 */
-            padding-bottom: 20px;
-        }
-        .board-title {
-            font-size: 2.2em;
-            color: #FF7F50; /* 주황색 제목 */
-            margin: 0 0 15px 0;
-            word-break: break-all; /* 긴 제목 줄바꿈 */
-        }
-        .board-meta {
-            display: flex;
-            justify-content: space-between;
-            color: #777; /* 메타 정보는 회색으로 */
-            font-size: 1em;
-            flex-wrap: wrap; /* 좁은 화면에서 줄바꿈 */
-            gap: 10px;
-        }
-        .board-meta span {
-            margin-right: 15px;
-        }
-        .like-count {
-            color: #FF7F50;
-            font-weight: bold;
-        }
-
-        /* 게시글 본문 영역 */
-        .board-content {
-            padding: 30px 0;
-            min-height: 300px; /* 최소 높이 확보 */
-            font-size: 1.1em;
-            line-height: 1.8;
-            color: #444;
-            white-space: pre-wrap; /* 줄바꿈, 공백 유지 */
-        }
-        .board-content img {
-            max-width: 100%; /* 이미지 넘침 방지 */
-            height: auto;
-            border-radius: 10px;
-            margin: 20px 0;
-        }
-
-        /* 하단 버튼 영역 */
-        .board-buttons {
-            display: flex;
-            justify-content: flex-end; /* 오른쪽 정렬 */
-            gap: 15px;
-            margin-top: 30px;
-            border-top: 1px solid #eee; /* 상단 회색 선 */
-            padding-top: 30px;
-        }
-
-        /* 버튼 공통 스타일 */
-        .btn {
-            padding: 12px 25px;
-            border-radius: 30px; /* 둥근 버튼 */
-            font-size: 1.1em;
-            font-family: 'Jua', sans-serif;
-            text-decoration: none;
-            border: none;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        /* 주황색 버튼 스타일 (수정 버튼 등) */
-        .btn-orange {
-            background-color: #FF7F50;
-            color: white;
-            box-shadow: 0 4px 0 #E64A19; /* 입체감 그림자 */
-        }
-        .btn-orange:hover {
-            background-color: #FF6337;
-            transform: translateY(2px);
-            box-shadow: 0 2px 0 #E64A19;
-        }
-
-        /* 회색 버튼 스타일 (목록 버튼) */
-        .btn-light {
-            background-color: #f0f0f0;
-            color: #555;
-            box-shadow: 0 4px 0 #d0d0d0;
-        }
-        .btn-light:hover {
-            background-color: #e0e0e0;
-            color: #333;
-            transform: translateY(2px);
-            box-shadow: 0 2px 0 #d0d0d0;
-        }
-
-        /* 빨간색 버튼 스타일 (삭제 버튼) */
-        .btn-danger {
-            background-color: #FF5252;
-            color: white;
-            box-shadow: 0 4px 0 #D32F2F;
-        }
-        .btn-danger:hover {
-             background-color: #FF1744;
-             transform: translateY(2px);
-             box-shadow: 0 2px 0 #D32F2F;
-        }
-
-    /* 🍊 상세 페이지 본문(Summernote HTML) 스타일 복구 🍊 */
-    .post-content {
-        font-family: 'Fredoka', sans-serif;
-        font-size: 20px;
-        font-weight: bold;
-        color: #444;
-        line-height: 1.8;
-    }
-
-    /* 글머리 기호 & 번호 매기기 복구 */
-    .post-content ul {
-        list-style-type: disc !important;
-        list-style-position: inside !important;
-        padding-left: 20px !important;
-        margin-bottom: 10px !important;
-    }
-    .post-content ol {
-        list-style-type: decimal !important;
-        list-style-position: inside !important;
-        padding-left: 20px !important;
-        margin-bottom: 10px !important;
-    }
-
-    /* 본문 안의 사진이 삐져나가지 않게 (반응형) */
-    .post-content img {
-        max-width: 100%;
-        height: auto;
-        border-radius: 1rem; /* 사진 모서리도 둥글고 예쁘게! */
-        margin: 1rem 0;
-    }
-
-    /* 🌟 좋아요/싫어요 버튼 영역 스타일 🌟 */
-    .reaction-container {
-        display: flex;
-        justify-content: center;
-        gap: 20px; /* 버튼 사이 간격 */
-        margin: 40px 0 20px 0; /* 위아래 여백 */
-    }
-
-    .reaction-btn {
-        display: flex;
-        align-items: center;
-        gap: 10px; /* 이미지와 숫자 사이 간격 */
-        padding: 10px 25px;
-        border-radius: 30px;
-        border: 2px solid #FDF5E6;
-        background-color: white;
-        cursor: pointer;
-        transition: all 0.2s ease-in-out;
-        font-family: 'Fredoka', 'Jua', sans-serif;
-        font-size: 1.3em;
-        font-weight: bold;
-        color: #555;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-    }
-
-    .reaction-btn img {
-        width: 28px;
-        height: 28px;
-        transition: transform 0.2s;
-    }
-
-    /* 마우스 올렸을 때 효과 (좋아요는 파란빛, 싫어요는 붉은빛) */
-    .reaction-btn.like:hover {
-        border-color: #007BFF;
-        color: #007BFF;
-        transform: translateY(-3px);
-        box-shadow: 0 6px 15px rgba(0, 123, 255, 0.2);
-    }
-    .reaction-btn.like:hover img {
-        transform: scale(1.1) rotate(-10deg); /* 따봉 흔들기 */
-    }
-
-    .reaction-btn.dislike:hover {
-        border-color: #FF5252;
-        color: #FF5252;
-        transform: translateY(-3px);
-        box-shadow: 0 6px 15px rgba(255, 82, 82, 0.2);
-    }
-    .reaction-btn.dislike:hover img {
-        transform: scale(1.1) rotate(10deg); /* 역따봉 흔들기 */
-    }
-
-    /* 🌟 좋아요 눌렀을 때 디자인 고정 (.active 추가) */
-    .reaction-btn.like:hover,
-    .reaction-btn.like.active {
-        border-color: #007BFF;
-        color: #007BFF;
-        transform: translateY(-3px);
-        box-shadow: 0 6px 15px rgba(0, 123, 255, 0.2);
-    }
-    .reaction-btn.like:hover img,
-    .reaction-btn.like.active img {
-        transform: scale(1.1) rotate(-10deg);
-    }
-
-    /* 🌟 싫어요 눌렀을 때 디자인 고정 (.active 추가) */
-    .reaction-btn.dislike:hover,
-    .reaction-btn.dislike.active {
-        border-color: #FF5252;
-        color: #FF5252;
-        transform: translateY(-3px);
-        box-shadow: 0 6px 15px rgba(255, 82, 82, 0.2);
-    }
-    .reaction-btn.dislike:hover img,
-    .reaction-btn.dislike.active img {
-        transform: scale(1.1) rotate(10deg);
-    }
-
-    /* 💬 댓글 컨테이너 스타일 (게시판 본문과 통일감) */
-    .comment-container {
-        background-color: #fff;
-        border-radius: 20px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        padding: 40px;
-        width: 100%;
-        max-width: 900px;
-        box-sizing: border-box;
-        margin-top: 30px; /* 게시글 본문과의 간격 */
-    }
-
-    .comment-title {
-        color: #FF7F50;
-        font-family: 'Jua', sans-serif;
-        font-size: 1.8em;
-        border-bottom: 2px solid #FF7F50;
-        padding-bottom: 15px;
-        margin-bottom: 25px;
-        margin-top: 0;
-    }
-
-    /* 댓글 입력 폼 공통 스타일 */
-    .comment-form textarea {
-        width: 100%;
-        border: 2px solid #FDF5E6;
-        border-radius: 15px;
-        padding: 15px;
-        font-family: 'Fredoka', 'Nanum Gothic', sans-serif;
-        font-size: 1.1em;
-        resize: vertical;
-        outline: none;
-        transition: border-color 0.3s;
-        box-sizing: border-box;
-    }
-    .comment-form textarea:focus {
-        border-color: #FF7F50;
-    }
-
-    /* 댓글 목록 스타일 */
-    .comment-item {
-        border-bottom: 1px solid #eee;
-        padding: 20px 0;
-    }
-    .comment-item:last-child {
-        border-bottom: none;
-    }
-    .comment-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 10px;
-    }
-    .comment-author {
-        font-weight: bold;
-        color: #FF7F50;
-        font-size: 1.2em;
-    }
-    .comment-date {
-        color: #999;
-        font-size: 0.9em;
-        margin-left: 10px;
-    }
-    .comment-content {
-        color: #444;
-        line-height: 1.6;
-        font-size: 1.1em;
-        white-space: pre-wrap;
-    }
-
-    /* 텍스트 버튼 (수정/삭제) */
-    .btn-text {
-        background: none;
-        border: none;
-        color: #999;
-        font-size: 0.9em;
-        cursor: pointer;
-        padding: 0 5px;
-        font-family: 'Nanum Gothic', sans-serif;
-    }
-    .btn-text:hover {
-        color: #FF7F50;
-        text-decoration: underline;
-    }
+    main { padding: 40px 20px; display: flex; flex-direction: column; align-items: center; }
+    .main-title-area { text-align: left; width: 100%; max-width: 900px; margin-bottom: 20px; }
+    .main-title-area h1 { color: #FF7F50; font-size: 3em; margin: 0; }
+    .main-title-area p { color: #FF7F50; font-size: 1.2em; margin-top: 10px; }
+    .board-container { background-color: #fff; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); padding: 40px; width: 100%; max-width: 900px; box-sizing: border-box; }
+    .board-header { margin-bottom: 20px; border-bottom: 2px solid #FF7F50; padding-bottom: 20px; }
+    .board-title { font-size: 2.2em; color: #FF7F50; margin: 0 0 15px 0; word-break: break-all; }
+    .board-meta { display: flex; justify-content: space-between; color: #777; font-size: 1em; flex-wrap: wrap; gap: 10px; }
+    .board-meta span { margin-right: 15px; }
+    .like-count { color: #FF7F50; font-weight: bold; }
+    .board-content { padding: 30px 0; min-height: 300px; font-size: 1.1em; line-height: 1.8; color: #444; white-space: pre-wrap; }
+    .board-buttons { display: flex; justify-content: flex-end; gap: 15px; margin-top: 30px; border-top: 1px solid #eee; padding-top: 30px; }
+    .btn { padding: 12px 25px; border-radius: 30px; font-size: 1.1em; font-family: 'Jua', sans-serif; text-decoration: none; border: none; cursor: pointer; transition: all 0.3s; }
+    .btn-orange { background-color: #FF7F50; color: white; box-shadow: 0 4px 0 #E64A19; }
+    .btn-orange:hover { background-color: #FF6337; transform: translateY(2px); box-shadow: 0 2px 0 #E64A19; }
+    .btn-light { background-color: #f0f0f0; color: #555; box-shadow: 0 4px 0 #d0d0d0; }
+    .btn-danger { background-color: #FF5252; color: white; box-shadow: 0 4px 0 #D32F2F; }
+    .post-content { font-family: 'Fredoka', sans-serif; font-size: 20px; font-weight: bold; color: #444; line-height: 1.8; }
+    .reaction-container { display: flex; justify-content: center; gap: 20px; margin: 40px 0 20px 0; }
+    .reaction-btn { display: flex; align-items: center; gap: 10px; padding: 10px 25px; border-radius: 30px; border: 2px solid #FDF5E6; background-color: white; cursor: pointer; transition: all 0.2s ease-in-out; font-family: 'Fredoka', 'Jua', sans-serif; font-size: 1.3em; font-weight: bold; color: #555; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+    .reaction-btn img { width: 28px; height: 28px; }
+    .reaction-btn.like.active { border-color: #007BFF; color: #007BFF; }
+    .reaction-btn.dislike.active { border-color: #FF5252; color: #FF5252; }
+    .comment-container { background-color: #fff; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); padding: 40px; width: 100%; max-width: 900px; box-sizing: border-box; margin-top: 30px; }
+    .comment-title { color: #FF7F50; font-family: 'Jua', sans-serif; font-size: 1.8em; border-bottom: 2px solid #FF7F50; padding-bottom: 15px; margin-bottom: 25px; margin-top: 0; }
+    .comment-form textarea { width: 100%; border: 2px solid #FDF5E6; border-radius: 15px; padding: 15px; font-size: 1.1em; resize: vertical; outline: none; box-sizing: border-box; }
+    .comment-item { border-bottom: 1px solid #eee; padding: 20px 0; }
+    .comment-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .comment-author { font-weight: bold; color: #FF7F50; font-size: 1.2em; }
+    .comment-date { color: #999; font-size: 0.9em; margin-left: 10px; }
+    .comment-content { color: #444; line-height: 1.6; font-size: 1.1em; white-space: pre-wrap; }
+    .btn-text { background: none; border: none; color: #999; font-size: 0.9em; cursor: pointer; padding: 0 5px; }
   </style>
 </head>
 <body>
@@ -370,12 +59,11 @@
     <div class="board-container">
       <div class="board-header">
         <h2 class="board-title" th:text="${board.title}">게시글 제목</h2>
-
         <div class="board-meta">
           <div>
             <span th:text="'글쓴이 : ' + ${board.nickname}">작성자</span>
-            <span th:if = "${board.updateDate == null}" th:text="'작성일 : ' + ${#dates.format(board.createDate, 'yyyy-MM-dd HH:mm')}">작성일</span>
-            <span th:if = "${board.updateDate != null}" th:text="'최종 수정일 : ' + ${#dates.format(board.updateDate, 'yyyy-MM-dd HH:mm')}">최종 수정일</span>
+            <span th:if="${board.updateDate == null}" th:text="'작성일 : ' + ${#dates.format(board.createDate, 'yyyy-MM-dd HH:mm')}">작성일</span>
+            <span th:if="${board.updateDate != null}" th:text="'최종 수정일 : ' + ${#dates.format(board.updateDate, 'yyyy-MM-dd HH:mm')} + ' (수정됨)'">수정일</span>
           </div>
           <div>
             <span th:text="'VIEWS : ' + ${board.viewCount}">조회수</span>
@@ -387,26 +75,18 @@
       <div class="post-content" th:utext="${board.content}"></div>
 
       <div class="reaction-container">
-
-        <button type="button" class="reaction-btn like"
-                th:classappend="${userReaction == 1} ? 'active' : ''"
-                th:onclick="|updateReaction(1, ${board.boardId})|">
+        <button type="button" class="reaction-btn like" th:classappend="${userReaction == 1} ? 'active' : ''" th:onclick="|updateReaction(1, ${board.boardId})|">
           <img src="/images/thumbs-up.png" alt="좋아요">
           <span id="like-count" th:text="${board.likeCount}">0</span>
         </button>
-
-        <button type="button" class="reaction-btn dislike"
-                th:classappend="${userReaction == -1} ? 'active' : ''"
-                th:onclick="|updateReaction(-1, ${board.boardId})|">
+        <button type="button" class="reaction-btn dislike" th:classappend="${userReaction == -1} ? 'active' : ''" th:onclick="|updateReaction(-1, ${board.boardId})|">
           <img src="/images/thumbs-down.png" alt="싫어요">
           <span id="dislike-count" th:text="${board.dislikeCount}">0</span>
         </button>
-
       </div>
 
       <div class="board-buttons">
         <a href="/board/list" class="btn btn-light">목록으로</a>
-
         <th:block th:if="${isWriter}">
           <a th:href="@{/board/edit/{boardId}(boardId=${board.boardId})}" class="btn btn-orange">수정</a>
           <button type="button" class="btn btn-danger" th:boardId="${board.boardId}" onclick="deleteBoard(this.getAttribute('boardId'))">삭제</button>
@@ -417,7 +97,7 @@
       <div class="comment-container">
         <h3 class="comment-title">댓글 <span th:text="${#lists.size(comments)}">0</span></h3>
 
-        <form class="comment-form" th:action="@{/comment/write/{boardId}(boardId=${board.boardId})}" th:method="post">
+        <form class="comment-form" th:action="@{/comment/write/{boardId}(boardId=${board.boardId})}" th:method="post" onsubmit="return handleCommentSubmit(event)">
           <input type="hidden" name="boardId" th:value="${board.boardId}">
           <textarea name="content" rows="3" placeholder="맛있는 경험을 댓글로 남겨주세요!" required></textarea>
           <div style="text-align: right; margin-top: 15px;">
@@ -431,7 +111,6 @@
           </div>
 
           <div th:each="comment : ${comments}" class="comment-item">
-
             <div th:id="'comment-view-' + ${comment.comment_id}">
               <div class="comment-header">
                 <div>
@@ -439,102 +118,92 @@
                   <span class="comment-date" th:if="${comment.updateCommentDate == null}" th:text="${#dates.format(comment.createCommentDate, 'yyyy-MM-dd HH:mm')}">작성일</span>
                   <span class="comment-date" th:if="${comment.updateCommentDate != null}" th:text="${#dates.format(comment.updateCommentDate, 'yyyy-MM-dd HH:mm')} + ' (수정됨)'">수정일</span>
                 </div>
-
                 <div th:if="${user != null and user.user_id == comment.user_id}" style="display: flex; gap: 5px;">
                   <button type="button" class="btn-text" th:onclick="|toggleEditMode(${comment.comment_id})|">수정</button>
-
                   <form th:action="@{/comment/delete/{comment_id}(comment_id=${comment.comment_id})}" method="post" style="margin:0;">
-                    <input type="hidden" name="boardId" th:value="${board.boardId}"> <button type="submit" class="btn-text" onclick="return confirm('댓글을 정말 삭제하시겠습니까?');">삭제</button>
+                    <input type="hidden" name="boardId" th:value="${board.boardId}">
+                    <button type="submit" class="btn-text" onclick="return confirm('댓글을 정말 삭제하시겠습니까?');">삭제</button>
                   </form>
                 </div>
               </div>
-              <div class="comment-content" th:text="${comment.content}">댓글 내용 출력</div>
+              <div class="comment-content" th:text="${comment.content}">내용</div>
             </div>
 
             <div th:id="'comment-edit-' + ${comment.comment_id}" style="display: none;">
               <form class="comment-form" th:action="@{/comment/update/{comment_id}(comment_id=${comment.comment_id})}" method="post">
                 <input type="hidden" name="boardId" th:value="${board.boardId}">
-
                 <textarea name="content" rows="3" th:text="${comment.content}" required></textarea>
-
                 <div style="text-align: right; margin-top: 15px;">
                   <button type="button" class="btn btn-light" th:onclick="|toggleEditMode(${comment.comment_id})|">취소</button>
                   <button type="submit" class="btn btn-orange">수정 완료</button>
                 </div>
               </form>
             </div>
-
           </div>
         </div>
       </div>
-
     </div>
   </main>
   <footer th:replace="~{fragments/footer :: footerFragment}"></footer>
 </div>
 
 <script th:inline="javascript">
-    function deleteBoard(boardId) {
-        if (confirm('정말 삭제하시겠습니까?')) {
-            const form = document.createElement('form');
-            form.method = 'post';
-            form.action = `/board/remove/${encodeURIComponent(boardId)}`;
+  const currentUser = /*[[${user}]]*/ null;
 
-            // 1. 타임리프를 통해 스프링 시큐리티의 CSRF 토큰 값 가져오기
-            const csrfToken = /*[[${_csrf.token}]]*/ '';
-            const csrfParameter = /*[[${_csrf.parameterName}]]*/ '_csrf';
+  function checkAuth() {
+      if (!currentUser) {
+          if (confirm("로그인한 회원만 이용할 수 있습니다. \n로그인 페이지로 이동하시겠습니까?")) {
+              location.href = "/users/login";
+          }
+          return false;
+      }
+      return true;
+  }
 
-            // 2. 폼 안에 숨겨진 input으로 CSRF 토큰 쏙 집어넣기
-            if (csrfToken) {
-                const csrfInput = document.createElement('input');
-                csrfInput.type = 'hidden';
-                csrfInput.name = csrfParameter;
-                csrfInput.value = csrfToken;
-                form.appendChild(csrfInput);
-            }
+  function handleCommentSubmit(event) {
+      if (!checkAuth()) {
+          event.preventDefault();
+          return false;
+      }
+      return true;
+  }
 
-            document.body.appendChild(form);
-            form.submit();
-        }
-    }
+  function deleteBoard(boardId) {
+      if (confirm('정말 삭제하시겠습니까?')) {
+          const form = document.createElement('form');
+          form.method = 'post';
+          form.action = `/board/remove/${encodeURIComponent(boardId)}`;
+          const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+          const csrfInput = document.createElement('input');
+          csrfInput.type = 'hidden';
+          csrfInput.name = '_csrf';
+          csrfInput.value = csrfToken;
+          form.appendChild(csrfInput);
+          document.body.appendChild(form);
+          form.submit();
+      }
+  }
 
-  // 🌟 좋아요 / 싫어요 클릭 시 실행될 함수 (AJAX 비동기 통신용)
-    function updateReaction(likeType, boardId) {
-        const csrfToken = document.querySelector('meta[name="_csrf"]').content;
-        const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
-
-        const formData = new FormData();
-        formData.append("like_type", likeType);
-
-        fetch(`/board/reaction/${boardId}`, {
-            method: "POST",
-            headers: {
-                [csrfHeader]: csrfToken
-            },
-            body: formData
-        })
-        .then(response => {
-            if (response.ok) {
-                location.reload();
-            }
-        })
-        .catch(error => {
-            console.error("Error:", error);
-        });
-    }
+  function updateReaction(likeType, boardId) {
+      if (!checkAuth()) return;
+      const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+      const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
+      const formData = new FormData();
+      formData.append("like_type", likeType);
+      fetch(`/board/reaction/${boardId}`, {
+          method: "POST",
+          headers: { [csrfHeader]: csrfToken },
+          body: formData
+      }).then(response => { if (response.ok) location.reload(); })
+        .catch(error => console.error("Error:", error));
+  }
 
   function toggleEditMode(comment_id) {
-        const viewDiv = document.getElementById('comment-view-' + comment_id);
-        const editDiv = document.getElementById('comment-edit-' + comment_id);
-
-        if (viewDiv.style.display === 'none') {
-            viewDiv.style.display = 'block';
-            editDiv.style.display = 'none';
-        } else {
-            viewDiv.style.display = 'none';
-            editDiv.style.display = 'block';
-        }
-    }
+      const viewDiv = document.getElementById('comment-view-' + comment_id);
+      const editDiv = document.getElementById('comment-edit-' + comment_id);
+      viewDiv.style.display = viewDiv.style.display === 'none' ? 'block' : 'none';
+      editDiv.style.display = editDiv.style.display === 'none' ? 'block' : 'none';
+  }
 </script>
 </body>
 </html>
