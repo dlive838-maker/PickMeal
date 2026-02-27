@@ -78,6 +78,7 @@
 
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 999; }
         .modal-window { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; border-radius: 24px; z-index: 1000; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
+        .active-item { background-color: #fff5f0 !important; color: #FF8A5B !important; font-weight: 800; }
         .scroller::-webkit-scrollbar { width: 5px; }
         .scroller::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.05); border-radius: 10px; }
 
@@ -174,7 +175,7 @@
     let activePlaceId = null;
     const currentLoginUser = /*[[${#authentication.name}]]*/ 'guest';
     const keywordInput = document.getElementById('keywordInput');
-const btnSearch = document.getElementById('btnSearch');
+    const btnSearch = document.getElementById('btnSearch');
 
     const overlay = document.getElementById('overlay');
     const modalArea = document.getElementById('modal-area');
@@ -187,7 +188,6 @@ const btnSearch = document.getElementById('btnSearch');
     document.getElementById('btn-food-open').onclick = () => { overlay.style.display = 'block'; modalFood.style.display = 'block'; loadFoodData(); };
     overlay.onclick = closeAll;
 
-    // 로그인 체크 공통 함수
     function checkLogin() {
         if (currentLoginUser === 'anonymousUser' || currentLoginUser === 'guest') {
             if (confirm("로그인이 필요한 서비스입니다. 로그인 페이지로 이동하시겠습니까?")) {
@@ -203,25 +203,17 @@ const btnSearch = document.getElementById('btnSearch');
     }
 
     async function handleHeart(id, event) {
-    event.stopPropagation();
-    const btn = event.currentTarget;
-
-    // [수정] 클릭하자마자 무조건 애니메이션 실행 (로그인 여부/취소 여부 상관없음)
-    btn.classList.add('animate');
-    setTimeout(() => btn.classList.remove('animate'), 400);
-
-    // 1. 로그인 체크 (기존 로직 유지)
-    if (!checkLogin()) return;
-
-    // 2. 서버 통신
-    const res = await fetch(`/hotplace/heart/${id}`, { method: 'POST' });
-
-    if (res.ok) {
-        // 서버 처리가 성공하면 하트 색상(liked 클래스)만 토글
-        btn.classList.toggle('liked');
-        updateStats(id);
+        event.stopPropagation();
+        const btn = event.currentTarget;
+        btn.classList.add('animate');
+        setTimeout(() => btn.classList.remove('animate'), 400);
+        if (!checkLogin()) return;
+        const res = await fetch(`/hotplace/heart/${id}`, { method: 'POST' });
+        if (res.ok) {
+            btn.classList.toggle('liked');
+            updateStats(id);
+        }
     }
-}
 
     async function openReviewModal(id, event) {
         if(event) event.stopPropagation();
@@ -249,37 +241,28 @@ const btnSearch = document.getElementById('btnSearch');
         document.querySelectorAll('input[name="rating"]').forEach(el => el.checked = false);
     }
 
-    // 기존 함수를 아래 내용으로 교체
-function setEditMode(reviewId, content, rating) {
-    document.getElementById('editReviewId').value = reviewId;
-    document.getElementById('reviewInput').value = content;
-    document.getElementById('submitReview').innerText = "UPDATE";
-    document.getElementById('btnDelete').classList.remove('hidden');
-
-const starId = Number(rating) + "-stars";
-    const ratingBtn = document.getElementById(starId);
-
-    if(ratingBtn) {
-        ratingBtn.checked = true;
+    function setEditMode(reviewId, content, rating) {
+        document.getElementById('editReviewId').value = reviewId;
+        document.getElementById('reviewInput').value = content;
+        document.getElementById('submitReview').innerText = "UPDATE";
+        document.getElementById('btnDelete').classList.remove('hidden');
+        const starId = Number(rating) + "-stars";
+        const ratingBtn = document.getElementById(starId);
+        if(ratingBtn) ratingBtn.checked = true;
+        document.getElementById('reviewInput').focus();
     }
 
-    document.getElementById('reviewInput').focus();
-}
     document.getElementById('submitReview').onclick = async () => {
         if (!checkLogin()) return;
         const content = document.getElementById('reviewInput').value;
         const reviewId = document.getElementById('editReviewId').value;
         const rating = document.querySelector('input[name="rating"]:checked')?.value || 0;
-
         if(!content.trim() || rating === 0) { alert("내용과 평점을 모두 입력해주세요!"); return; }
-
         const url = reviewId ? `/hotplace/reviews/update/${reviewId}` : `/hotplace/reviews/${activePlaceId}`;
         const res = await fetch(url, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
+            method: 'POST', headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({ content, rating })
         });
-
         if (res.status === 403) { alert("본인이 작성한 리뷰만 수정할 수 있습니다."); return; }
         if (res.ok) { resetReviewForm(); await loadReviews(activePlaceId); updateStats(activePlaceId); }
     };
@@ -310,24 +293,17 @@ const starId = Number(rating) + "-stars";
         const pinOverlay = new kakao.maps.CustomOverlay({ position: position, content: content, yAnchor: 1.1 });
         pinOverlay.placeId = place.id; pinOverlay.stats = stats;
         content.onmouseover = () => {
-            // 1. 현재 리스트에 이미 표시된 최신 숫자가 있는지 먼저 확인합니다.
-            const latestCountElement = document.querySelector(`#wish-count-${stats.resId}`);
-            // 2. 만약 리스트 숫자가 있다면 그걸 쓰고, 없으면 원래 DB 숫자를 씁니다.
-            const displayCount = latestCountElement ? latestCountElement.innerText : stats.heartCount;
+            const s = pinOverlay.stats;
             const tooltipContent = `
                 <div class="pin-tooltip">
                     <div class="mb-2 text-[15px] font-black border-b pb-1">${place.place_name}</div>
                     <div class="flex gap-4 text-[13px] text-orange-500 font-bold italic items-center">
-                        <span class="flex items-center gap-1.5">👁️ <span class="text-gray-700">${stats.viewCount}</span></span>
-                        <span class="flex items-center gap-1.5">❤️ <span id="wish-count-${stats.resId || place.id}" class="text-gray-700">${stats.heartCount}</span>
-                        <span class="flex items-center gap-1.5">📝 <span class="text-gray-700">${stats.reviewCount}</span></span>
+                        <span class="flex items-center gap-1.5">⭐ <span>${s.avgRating || 0}</span></span>
+                        <span class="flex items-center gap-1.5">👁️ <span>${s.viewCount}</span></span>
+                        <span class="flex items-center gap-1.5">❤️ <span>${s.heartCount}</span></span>
+                        <span class="flex items-center gap-1.5">📝 <span>${s.reviewCount}</span></span>
                     </div>
                 </div>`;
-            hoverTooltip.setContent(tooltipContent);
-            hoverTooltip.setPosition(position);
-            hoverTooltip.setMap(map);
-            const s = pinOverlay.stats;
-            const tooltipContent = `<div class="pin-tooltip"><div class="mb-2 text-[15px] font-black border-b pb-1">${place.place_name}</div><div class="flex gap-4 text-[13px] text-orange-500 font-bold italic items-center"><span class="flex items-center gap-1.5">⭐ <span>${s.avgRating || 0}</span></span><span class="flex items-center gap-1.5">👁️ <span>${s.viewCount}</span></span><span class="flex items-center gap-1.5">❤️ <span>${s.heartCount}</span></span><span class="flex items-center gap-1.5">📝 <span>${s.reviewCount}</span></span></div></div>`;
             hoverTooltip.setContent(tooltipContent); hoverTooltip.setPosition(position); hoverTooltip.setMap(map);
         };
         content.onmouseout = () => hoverTooltip.setMap(null);
@@ -357,10 +333,8 @@ const starId = Number(rating) + "-stars";
                             <span class="flex items-center gap-1.5">📝 <span id="review-count-${place.id}" class="text-gray-700">${stats.reviewCount}</span></span>
                             <button onclick="openReviewModal('${place.id}', event)" class="px-2 py-0.5 bg-orange-100 text-[#FF8A5B] rounded-md text-[10px] hover:bg-[#FF8A5B] hover:text-white transition-all">WRITE</button>
                         </div>
-                        <span class="flex items-center gap-1.5">👁️ <span class="text-gray-700">${stats.viewCount}</span></span>
-                        <span class="flex items-center gap-1.5">❤️ <span id="wish-count-${stats.resId}" class="text-gray-700">${stats.heartCount}</span></span>
-                        <span class="flex items-center gap-1.5">📝 <span class="text-gray-700">${stats.reviewCount}</span></span>
                     </div>
+                    <p class="text-[12px] text-[#FF8A5B] font-black uppercase mb-1 italic">${place.category_name.split('>').pop()}</p>
                     <p class="text-[13px] text-gray-400 font-bold italic">${place.address_name}</p>
                     <button onclick="handleView('${place.id}', '${place.place_url}')" class="info-btn">INFO</button>
                 `;
@@ -417,33 +391,16 @@ const starId = Number(rating) + "-stars";
             list.appendChild(li);
         });
     }
- // [수정된 부분] 기존 기능 + 검색창 통합 함수
+
     function updateSearch() {
         let keyword = "";
-
-        // 1. 선택된 지역 정보 조합
-        if (currentSelection.dong) {
-            keyword += `${currentSelection.sido} ${currentSelection.sigugun} ${currentSelection.dong} `;
-        }
-
-        // 2. 선택된 음식 카테고리 조합
-        if (currentSelection.foodName) {
-            keyword += `${currentSelection.foodName} `;
-        }
-
-        // 3. 검색창 입력값 조합
+        if (currentSelection.dong) keyword += `${currentSelection.sido} ${currentSelection.sigugun} ${currentSelection.dong} `;
+        if (currentSelection.foodName) keyword += currentSelection.foodName + " ";
         const userKeyword = keywordInput.value.trim();
-        if (userKeyword) {
-            keyword += userKeyword;
-        }
+        if (userKeyword) keyword += userKeyword;
 
-        // 필터나 검색어가 아무것도 없으면 '맛집'으로 기본 검색
-        if (!keyword.trim()) {
-            ps.keywordSearch('맛집', renderPlaces);
-            return;
-        }
+        if (!keyword.trim()) { ps.keywordSearch('맛집', renderPlaces); return; }
 
-        // 지도 이동 및 검색 실행
         if (currentSelection.dong) {
             geocoder.addressSearch(`${currentSelection.sido} ${currentSelection.sigugun} ${currentSelection.dong}`, (result, status) => {
                 if (status === kakao.maps.services.Status.OK) {
@@ -451,10 +408,7 @@ const starId = Number(rating) + "-stars";
                     ps.keywordSearch(keyword, renderPlaces);
                 }
             });
-        } else {
-            // 지역 선택이 없는 경우 현재 지도 위치 기준으로 키워드 검색
-            ps.keywordSearch(keyword, renderPlaces);
-        }
+        } else { ps.keywordSearch(keyword, renderPlaces); }
     }
 
     function resetActive(id) {
@@ -462,21 +416,8 @@ const starId = Number(rating) + "-stars";
         if (list) Array.from(list.children).forEach(li => li.classList.remove('active-item'));
     }
 
-    // 초기 로딩 및 이벤트 리스너 설정
-    window.onload = () => {
-        ps.keywordSearch('맛집', renderPlaces);
-    };
-
-    // 검색 버튼 클릭 이벤트
+    window.onload = () => { ps.keywordSearch('맛집', renderPlaces); };
     btnSearch.onclick = () => updateSearch();
-
-    // 검색창에서 Enter키 입력 이벤트
-    keywordInput.onkeypress = (e) => {
-        if (e.key === 'Enter') {
-            updateSearch();
-        }
-    };
-</script>
-</script>
-</body>
+    keywordInput.onkeypress = (e) => { if (e.key === 'Enter') updateSearch(); };
+</script> </body>
 </html>

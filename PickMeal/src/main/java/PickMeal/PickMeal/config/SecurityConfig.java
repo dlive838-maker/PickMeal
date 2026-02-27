@@ -45,7 +45,7 @@ public class SecurityConfig {
                                 "/users/signup", "/users/signup/social", "/users/login",
                                 "/users/check-id", "/users/check-nickname", "/users/find-id",
                                 "/users/forgot-pw", "/users/find-password/**", "/users/reset-password/**",
-                                "/mail/**", "/oauth2/**", "/css/**", "/js/**", "/images/**", "/worldcup/win/**",
+                                "/mail/**", "/oauth2/**", "/css/**", "/js/**", "/images/**", "/Korea_city_List.json", "/Food_List.json","/worldcup/win/**",
                                 "/roulette", "/twentyQuestions/**", "/twenty-questions/**", "/capsule", "/game/**", "/worldcup/**",
                                 "/api/**", "/draw", "/meal-spotter", "/hotplace/**", "/*.json").permitAll()
 
