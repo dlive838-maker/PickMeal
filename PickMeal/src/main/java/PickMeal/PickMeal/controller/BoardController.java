@@ -30,16 +30,9 @@ public class BoardController {
     // [수정] 공통 도우미 메서드: 유저 식별값(String)을 반환합니다.
     private String getLoginUserId(Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()) return null;
-        Object principal = authentication.getPrincipal();
 
-        if (principal instanceof User) {
-            // 일반 유저는 long 타입 id를 문자열로 변환하여 반환
-            return String.valueOf(((User) principal).getUser_id());
-        } else if (principal instanceof OAuth2User) {
-            // 소셜 유저는 OAuth2User의 name(식별값)을 반환
-            return ((OAuth2User) principal).getName();
-        }
-        return null;
+        // 복잡한 타입 체크 대신 시큐리티가 제공하는 기본 Name(ID)을 사용합니다.
+        return authentication.getName();
     }
 
     @GetMapping("/list")
@@ -61,28 +54,34 @@ public class BoardController {
 
     @PostMapping("/write")
     public String writeBoard(Board board, @RequestParam(value = "file", required = false) MultipartFile file, Authentication authentication) {
-        // 1. 현재 어떤 소셜 서비스인지 확인 (예: kakao, naver 등)
+
+        // 1. [수정] Authentication 객체에서 직접 이름을 가져오는 것이 가장 확실합니다.
+        String principalName = authentication.getName();
+
+        // 2. 소셜 로그인 여부 확인
         String registrationId = "";
-        if (authentication instanceof org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken) {
-            registrationId = ((org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId();
+        if (authentication instanceof org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken token) {
+            registrationId = token.getAuthorizedClientRegistrationId();
         }
 
-        // 2. 식별자 가져오기
-        String principalName = getLoginUserId(authentication);
-
-        // 3. [핵심] DB 저장 형식에 맞춰서 ID를 재조합 (예: kakao_4746951582)
+        // 3. ID 재조합
+        // 소셜은 kakao_1234, 일반은 그냥 id 그대로 사용
         String fullUserId = registrationId.isEmpty() ? principalName : registrationId + "_" + principalName;
 
-        System.out.println("DB 조회를 위한 풀 아이디: " + fullUserId);
+        // [디버깅 중요!] 콘솔에서 이 값이 DB의 id 컬럼 값과 '완벽히' 일치하는지 확인하세요.
+        System.out.println("검색하려는 유저 ID: [" + fullUserId + "]");
 
-        // 4. 재조합된 ID로 유저 찾기
         User loginUser = userService.findById(fullUserId);
 
         if (loginUser != null) {
-            board.setUser_id(loginUser.getUser_id()); // 진짜 숫자(long) PK를 넣어줌
+            // [디버깅] 유저를 찾았을 때 PK 값 확인
+            System.out.println("유저 찾기 성공! PK: " + loginUser.getUser_id());
+
+            board.setUser_id(loginUser.getUser_id());
             boardService.writeBoard(board);
         } else {
-            System.out.println("여전히 유저를 못 찾음: " + fullUserId);
+            // 여기가 실행된다면 userService.findById(fullUserId)가 실패한 것입니다.
+            System.out.println("유저 찾기 실패. DB의 id 컬럼에 '" + fullUserId + "'가 있는지 확인하세요.");
             return "redirect:/users/login";
         }
 

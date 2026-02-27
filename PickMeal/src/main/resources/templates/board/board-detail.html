@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="_csrf" th:content="${_csrf.token}"/>
+  <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
   <title th:text="${board.title} + ' - PickMeal'">게시글 상세 - PickMeal</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@700;800&family=Jua&family=Nanum+Gothic:wght@700;800&family=Gamja+Flower&family=Black+Han+Sans&display=swap" rel="stylesheet">
