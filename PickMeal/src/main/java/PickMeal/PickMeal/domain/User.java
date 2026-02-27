@@ -1,6 +1,7 @@
 package PickMeal.PickMeal.domain;
 
 import lombok.Data;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -17,6 +18,7 @@ public class User implements UserDetails { // 시큐리티 연동을 위해 User
     private String nickname; // 별명
     private String name; // 이름
     private String email; // 이메일
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date birthDate; // 생년월일
     private String gender; // 성별
     private String phoneNumber; // 연락처

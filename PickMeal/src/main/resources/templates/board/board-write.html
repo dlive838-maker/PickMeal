@@ -200,6 +200,7 @@
       </div>
 
       <form id="writeForm" th:action="@{/board/write}" method="post" enctype="multipart/form-data" class="space-y-6">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
         <div class="space-y-2">
           <label for = "postTitle" class="font-black text-gray-700 italic ml-2 uppercase text-sm">Title</label>
           <input type="text" id="postTitle" name="title" placeholder="제목" class="input-field px-6 py-4 bg-gray-50 font-bold" required>

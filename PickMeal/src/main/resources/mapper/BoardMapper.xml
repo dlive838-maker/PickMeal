@@ -42,4 +42,9 @@
         SET viewCount = viewCount + 1
         WHERE boardId = #{boardId}
     </update>
+    <select id="findByUser_id" resultType="PickMeal.PickMeal.domain.Board">
+        SELECT * FROM board
+        WHERE user_id = #{userId}
+        ORDER BY boardId DESC
+    </select>
 </mapper>

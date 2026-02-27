@@ -304,16 +304,21 @@ async function sendCode() {
       const response = await fetch('/mail/send', {
           method: 'POST',
           headers: { 'Content-Type': 'application/x-www-form-urlencoded', [csrfHeader]: csrfToken },
-          // [핵심] type: 'EDIT'를 반드시 포함해서 보냅니다.
           body: new URLSearchParams({ email: newEmail, type: 'EDIT' })
       });
 
       if (response.ok) {
           startTimer(300);
           alert("인증번호가 발송되었습니다. ✉️");
-      } else if (response.status === 409) {
-          // [추가] 백엔드 EmailController에서 보낸 409 에러 처리
-          alert("이미 사용 중인 이메일입니다. 😢");
+      }
+      // [핵심 추가] 서버에서 409 에러(중복)를 보냈을 때 처리
+      else if (response.status === 409) {
+          const errorMsg = await response.text();
+          if(errorMsg.startsWith("social_")) {
+              alert("이미 " + errorMsg.split("_")[1] + " 계정으로 가입된 이메일입니다. 😢");
+          } else {
+              alert("이미 사용 중인 이메일입니다. 다른 이메일을 입력해주세요. 😢");
+          }
       } else {
           alert("메일 발송에 실패했습니다. 다시 시도해주세요.");
       }

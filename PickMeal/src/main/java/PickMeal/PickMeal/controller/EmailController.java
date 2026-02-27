@@ -20,23 +20,25 @@ public class EmailController {
     @PostMapping("/send")
     public ResponseEntity<String> sendEmail(
             @RequestParam("email") String email,
-            @RequestParam(value = "type", defaultValue = "JOIN") String type, // [추가] 용도 파라미터
+            @RequestParam(value = "type", defaultValue = "JOIN") String type,
             HttpSession session) {
 
-        // 프로필 수정(EDIT)일 때는 기존 이메일 중복 체크 로직을 건너뜁니다.
-        if ("JOIN".equals(type)) {
-            User existingUser = userService.findByEmail(email);
-            if (existingUser != null) {
-                return ResponseEntity.status(409).body("already_exists");
+        // [핵심 추가] 프로필 수정(EDIT) 시에도 중복 체크를 먼저 수행합니다.
+        User existingUser = userService.findByEmail(email);
+        if (existingUser != null) {
+            // 이미 가입된 계정이 소셜인지 일반인지 구분해서 응답하면 더 친절합니다.
+            if (existingUser.getSocialLoginSite() != null && !existingUser.getSocialLoginSite().isEmpty()) {
+                return ResponseEntity.status(409).body("social_" + existingUser.getSocialLoginSite());
             }
+            return ResponseEntity.status(409).body("already_exists"); // 409 Conflict 에러 반환
         }
 
         try {
+            // 중복이 없을 때만 아래 로직(메일 발송)이 실행됩니다.
             String code = emailService.createCode();
             session.setAttribute("emailCode", code);
             session.setAttribute("sendTime", System.currentTimeMillis());
 
-            // [수정] 서비스 호출 시 type도 함께 전달합니다.
             emailService.sendMail(email, code, type);
             return ResponseEntity.ok("success");
         } catch (Exception e) {

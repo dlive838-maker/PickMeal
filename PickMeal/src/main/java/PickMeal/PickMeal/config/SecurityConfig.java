@@ -29,24 +29,25 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, OAuth2SuccessHandler oauth2SuccessHandler) throws Exception {
         http
-                // 1. CSRF 예외 설정: POST 요청이 오는 경로들을 추가합니다.
                 .csrf(csrf -> csrf.ignoringRequestMatchers(
-                        "/mail/**",
-                        "/users/find-id",
-                        "/users/check-nickname",
-                        "/users/find-password/**",
-                        "/users/reset-password/**",
-                        "/worldcup/win/**",
-                        "/users/login"
+                        "/mail/**", "/users/**", "/worldcup/win/**", "/board/write", "/file/upload"
                 ))
-                // 2. 접근 권한 설정 (누구나 접근 가능한 페이지들)
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/", "/next-page", "/users/signup", "/users/signup/social", "/users/login",
+                        // 1. [구체적인 예외] 게시판 중 'meal-spotter'는 로그인 없이도 볼 수 있게 최상단에 둡니다.
+                        .requestMatchers("/board/meal-spotter").permitAll()
+
+                        // 2. [로그인 필수] 글쓰기, 수정, 삭제 등은 로그인이 필요합니다.
+                        .requestMatchers("/users/mypage", "/users/edit", "/board/write", "/board/edit/**", "/board/remove/**").authenticated()
+
+                        // 3. [공통 허용] 나머지 모든 정적 리소스와 게임, API 경로들을 허용합니다.
+                        .requestMatchers("/", "/next-page", "/hotplace", "/board/**", // 상세보기도 로그인 없이 가능하게 하려면 여기에 포함
+                                "/users/signup", "/users/signup/social", "/users/login",
                                 "/users/check-id", "/users/check-nickname", "/users/find-id",
-                                "/users/forgot-pw",         // 비번 찾기 신청 페이지
-                                "/users/find-password/**",  // 비번 찾기 로직 API
-                                "/users/reset-password/**", // 새 비번 설정 페이지 및 API
-                                "/mail/**", "/oauth2/**", "/css/**", "/js/**", "/images/**", "/worldcup/win/**").permitAll()
+                                "/users/forgot-pw", "/users/find-password/**", "/users/reset-password/**",
+                                "/mail/**", "/oauth2/**", "/css/**", "/js/**", "/images/**", "/worldcup/win/**",
+                                "/roulette", "/twentyQuestions/**", "/twenty-questions/**", "/capsule", "/game/**", "/worldcup/**",
+                                "/api/**", "/draw").permitAll()
+
                         .anyRequest().authenticated()
                 )
                 .formLogin(formLogin -> formLogin

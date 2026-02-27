@@ -1,6 +1,8 @@
 package PickMeal.PickMeal.controller;
 
+import PickMeal.PickMeal.domain.Board;
 import PickMeal.PickMeal.domain.User;
+import PickMeal.PickMeal.service.BoardService;
 import PickMeal.PickMeal.service.UserPasswordService;
 import PickMeal.PickMeal.service.UserService;
 import jakarta.servlet.http.HttpSession;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.text.SimpleDateFormat;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -26,6 +29,7 @@ import java.util.Objects;
 @RequestMapping("/users")
 @RequiredArgsConstructor
 public class UserController {
+    private final BoardService boardService;
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
 
@@ -150,17 +154,45 @@ public class UserController {
 
     @GetMapping("/mypage")
     public String mypage(Authentication authentication, Model model) {
+        // 1. 현재 로그인한 유저의 기본 식별자(ID)를 가져옵니다. (예: 4746951582)
         String userId = getLoginUserId(authentication);
         if (userId == null) return "redirect:/users/login";
 
-        User latestUserInfo = userService.findById(userId);
-        if (latestUserInfo == null) return "redirect:/users/login";
+        // 2. 소셜 로그인 종류(google, kakao, naver)를 가져옵니다.
+        String registrationId = "";
+        if (authentication instanceof org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken) {
+            registrationId = ((org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId();
+        }
 
-        // [리팩토링] 서비스의 공통 메서드 호출
-        String displayId = userService.getMaskedDisplayId(latestUserInfo);
+        // 3. [수정] 이미 접두어가 붙어있는지 확인하고 조합합니다.
+        String fullUserId;
+        if (!registrationId.isEmpty() && userId.startsWith(registrationId)) {
+            // 이미 "kakao_" 등으로 시작한다면 그대로 사용
+            fullUserId = userId;
+        } else {
+            // 일반 로그인이거나 접두어가 없는 경우에만 붙여줌
+            fullUserId = registrationId.isEmpty() ? userId : registrationId + "_" + userId;
+        }
 
+        System.out.println("최종 DB 조회 ID: " + fullUserId); // 여기서 kakao_4746951582 가 나와야 합니다!
+
+        // 4. 조합된 fullUserId로 DB에서 최신 유저 정보를 가져옵니다.
+        User latestUserInfo = userService.findById(fullUserId);
+
+        // [디버깅] 유저를 못 찾을 경우 콘솔에 로그를 남겨 원인을 파악합니다.
+        if (latestUserInfo == null) {
+            System.out.println("마이페이지 조회 실패 - DB에 없는 ID로 접근 시도: " + fullUserId);
+            return "redirect:/users/login";
+        }
+
+        // 5. 내가 작성한 게시글 리스트 가져오기 (User의 long 타입 고유 번호 PK 사용)
+        List<Board> myBoards = boardService.findByUser_id(latestUserInfo.getUser_id());
+
+        // 6. 뷰(HTML)로 전달할 데이터들을 모델에 담습니다.
         model.addAttribute("user", latestUserInfo);
-        model.addAttribute("displayId", displayId);
+        model.addAttribute("displayId", userService.getMaskedDisplayId(latestUserInfo));
+        model.addAttribute("myBoards", myBoards);
+
         return "users/mypage";
     }
 

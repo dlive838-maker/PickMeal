@@ -17,22 +17,20 @@
         .capsule-bottom { height: 50%; }
         .machine-body { position: relative; width: 300px; height: 260px; background: #FF4D4D; border-radius: 50px 50px 60px 60px; margin-top: -85px; z-index: 1; display: flex; flex-direction: column; align-items: center; box-shadow: inset -12px -12px 0px rgba(0,0,0,0.08); }
 
-        /* [기존 캡슐 열기 애니메이션 유지] */
+        /* [캡슐 애니메이션 설정] */
         #result-screen { position: fixed; display: none; flex-direction: column; align-items: center; z-index: 1000; top: 0; left: 0; width: 100%; height: 100%; justify-content: center; pointer-events: none; }
         .capsule-container { position: relative; width: 300px; height: 230px; display: flex; justify-content: center; align-items: center; }
         .cap-half { position: absolute; width: 230px; height: 115px; border: 6px solid #333; transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s 0.7s; z-index: 10; left: 50%; margin-left: -115px; }
         .top-cap { top: 0px; border-radius: 115px 115px 0 0; border-bottom: none; }
         .bottom-cap { top: 115px; border-radius: 0 0 115px 115px; border-top: none; }
+
+        /* 캡슐이 열리는 애니메이션 */
         .is-open .top-cap { transform: translateY(-150px) rotate(-15deg); opacity: 0; }
         .is-open .bottom-cap { transform: translateY(150px) rotate(15deg); opacity: 0; }
-        .result-content { display: flex; flex-direction: column; align-items: center; opacity: 0; transform: scale(0.1); transition: all 0.6s 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); z-index: 5; margin-top: -20px; }
-        .is-open .result-content { opacity: 1; transform: scale(1); }
-        .food-img { width: 200px; height: 200px; border-radius: 30px; object-fit: cover; border: 6px solid white; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
-        .result-txt { margin-top: 12px; font-size: 36px; font-weight: 800; color: #333; text-shadow: 2px 2px 0 white; text-align: center; word-break: keep-all; line-height: 1.1; }
 
-        /* [최종 월드컵 스타일 결과 카드] */
-        .winner-card-mid { max-width: 410px !important; padding: 2rem !important; border-radius: 3.5rem !important; background: white; margin: 0 auto; }
-        .winner-img-mid { height: 280px !important; border-radius: 2.5rem !important; overflow: hidden; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        /* [최종 카드 스타일] */
+        .winner-card-mid { max-width: 410px; padding: 2rem; border-radius: 3.5rem; background: white; margin: 0 auto; transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        .winner-img-mid { height: 280px; border-radius: 2.5rem; overflow: hidden; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
 
         @keyframes mixing { 0%, 100% { transform: translate(0, 0) rotate(0deg); } 25% { transform: translate(120px, -130px) rotate(90deg); } 50% { transform: translate(-120px, -160px) rotate(180deg); } 75% { transform: translate(100px, -60px) rotate(270deg); } }
         @keyframes settle-down { to { transform: translate(var(--rand-x), var(--rand-y)) rotate(var(--rand-rot)); } }
@@ -66,22 +64,19 @@
     <div id="result-screen">
         <div class="capsule-container">
             <div class="cap-half top-cap" id="result-top-cap"></div>
-            <div class="result-content" id="final-content">
-                <img id="food-img" src="" alt="음식" class="food-img">
-                <div class="result-txt" id="food-res">MENU</div>
-            </div>
             <div class="cap-half bottom-cap" id="result-bottom-cap"></div>
         </div>
     </div>
 </main>
-<footer th:replace="~{fragments/footer :: footerFragment}"></footer >
+<footer th:replace="~{fragments/footer :: footerFragment}"></footer>
 
 <script th:inline="javascript">
     const categoryMap = [{ label: "전체", value: "" },{ label: "한식", value: "Korean food" },{ label: "중식", value: "Chinese food" },{ label: "일식", value: "Japanese food" },{ label: "양식", value: "Western food" },{ label: "아시안식", value: "Asian food" }];
     const colors = ["#FFADAD", "#FFD6A5", "#FDFFB6", "#CAFFBF", "#9BF6FF", "#A0C4FF"];
-    let idx = 0; let playing = false; let currentFoodName = "";
+    let idx = 0; let playing = false;
     const sphere = document.getElementById('sphere');
 
+    // 초기 캡슐 생성
     function initCapsules() {
         sphere.innerHTML = '';
         for(let i=0; i<18; i++) {
@@ -119,7 +114,6 @@
             const selectedValue = categoryMap[idx].value;
             const res = await fetch(`/api/food/draw?category=${encodeURIComponent(selectedValue)}`);
             const data = await res.json();
-            currentFoodName = data.foodName;
             const winColor = colors[Math.floor(Math.random() * colors.length)];
 
             setTimeout(() => {
@@ -138,12 +132,9 @@
                     outPos.appendChild(outCap);
 
                     setTimeout(() => {
-                        // 기존 캡슐 열기 애니메이션 실행
+                        // 연출 시작
                         document.getElementById('result-top-cap').style.backgroundColor = 'rgba(255, 255, 255, 0.6)';
                         document.getElementById('result-bottom-cap').style.backgroundColor = winColor;
-                        document.getElementById('food-img').src = data.imagePath;
-                        document.getElementById('food-res').innerText = currentFoodName;
-
                         showCapsuleAnimation(data);
                     }, 1600);
                 }, 2000);
@@ -155,49 +146,60 @@
         }
     }
 
-    // 1단계: 기존의 캡슐 열기 애니메이션 연출
+    // [수정] 캡슐이 벌어지는 애니메이션과 결과창 통합
     function showCapsuleAnimation(data) {
         document.getElementById('machine-all').style.opacity = '0';
+
         setTimeout(() => {
             document.getElementById('machine-all').style.display = 'none';
             const rs = document.getElementById('result-screen');
             rs.style.display = 'flex';
+
             setTimeout(() => {
+                // 1. 캡슐 껍데기가 위아래로 벌어짐
                 rs.classList.add('is-open');
-                // 캡슐이 완전히 열리고 2.5초 뒤에 최종 월드컵 결과창으로 전환
+
+                // 2. [타이밍 핵심] 벌어지는 즉시(0.6초 뒤) 바로 카드와 폭죽 등장!
                 setTimeout(() => {
                     showFinalCHAMPION(data);
-                }, 2500);
+                }, 600);
             }, 100);
         }, 400);
     }
 
-    // 2단계: 최종 월드컵 스타일 결과창 표시
+    // [수정] 최종 월드컵 스타일 결과창 및 풍성한 폭죽 연출
     function showFinalCHAMPION(winner) {
+        // 우승 카운트 업데이트 API 호출
         if (winner.foodId) {
-            fetch('/worldcup/win/' + winner.foodId, { method: 'POST' }).catch(e => {});
+            fetch('/worldcup/win/' + winner.foodId + '?gameType=capsule', { method: 'POST' })
+    .catch(e => {});
         }
 
         const rs = document.getElementById('result-screen');
-        rs.style.display = 'none'; // 캡슐 레이어 제거
+        rs.style.display = 'none';
 
         const main = document.getElementById('game-main');
-        main.classList.add('flex-col', 'items-center', 'pt-[90px]');
+        main.classList.add('flex-col', 'items-center', 'pt-[60px]', 'pb-10');
+
+        // 폭죽 효과 강화 (좌우 동시 발사)
+        const defaults = { startVelocity: 45, spread: 360, ticks: 100, zIndex: 9999, particleCount: 150 };
+        confetti({ ...defaults, origin: { x: 0.2, y: 0.6 } });
+        confetti({ ...defaults, origin: { x: 0.8, y: 0.6 } });
 
         main.innerHTML = `
             <div class="flex flex-col items-center justify-center w-full animate-bounce mb-2">
                 <h2 class="text-[#FF8A5B] font-black text-5xl uppercase italic tracking-tighter">WINNER</h2>
             </div>
-            <div class="bg-white winner-card-mid shadow-2xl border-4 border-[#FF8A5B] w-full text-center">
+            <div class="bg-white winner-card-mid shadow-2xl border-4 border-[#FF8A5B] w-[90%] sm:w-full text-center">
                 <div class="winner-img-mid mb-6 shadow-md">
                     <img src="${winner.imagePath}" class="w-full h-full object-cover" onerror="this.src='/images/meal.png'">
                 </div>
                 <h1 class="text-4xl font-black text-gray-800 italic mb-6 uppercase tracking-tighter">${winner.foodName}</h1>
                 <div class="grid grid-cols-2 gap-3 mb-4">
-                    <button onclick="location.href='/game'" class="py-3 bg-gray-100 rounded-2xl font-bold italic uppercase text-sm hover:bg-gray-200 transition">HOME 🏠</button>
-                    <button onclick="location.reload()" class="py-3 bg-gray-100 rounded-2xl font-bold italic uppercase text-sm hover:bg-gray-200 transition">RESTART 🔄</button>
-                    <button onclick="location.href='/worldcup/ranking'" class="py-3 bg-gray-100 rounded-2xl font-bold italic uppercase text-sm hover:bg-gray-200 transition">RANK 🏆</button>
-                    <button onclick="copyToClipboard('${winner.foodName}')" class="py-3 bg-gray-100 rounded-2xl font-bold italic uppercase text-sm hover:bg-gray-200 transition">SHARE 🔗</button>
+                    <button onclick="location.href='/game'" class="py-3 bg-gray-100 rounded-2xl font-bold italic uppercase text-xs hover:bg-gray-200 transition">HOME 🏠</button>
+                    <button onclick="location.reload()" class="py-3 bg-gray-100 rounded-2xl font-bold italic uppercase text-xs hover:bg-gray-200 transition">RESTART 🔄</button>
+                    <button onclick="location.href='/worldcup/ranking'" class="py-3 bg-gray-100 rounded-2xl font-bold italic uppercase text-xs hover:bg-gray-200 transition">RANK 🏆</button>
+                    <button onclick="copyToClipboard('${winner.foodName}')" class="py-3 bg-gray-100 rounded-2xl font-bold italic uppercase text-xs hover:bg-gray-200 transition">SHARE 🔗</button>
                 </div>
                 <button onclick="window.open('https://map.kakao.com/link/search/' + encodeURIComponent('${winner.foodName}'))"
                         class="w-full py-4 bg-[#FAE100] rounded-full font-black text-lg shadow-md hover:bg-[#ebd300] transition italic">
@@ -205,8 +207,6 @@
                 </button>
             </div>
         `;
-
-        confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, zIndex: 9999 });
     }
 
     window.copyToClipboard = function(foodName) {

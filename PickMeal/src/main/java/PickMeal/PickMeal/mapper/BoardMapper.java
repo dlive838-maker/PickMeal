@@ -23,4 +23,6 @@ public interface BoardMapper {
     void editBoard(Board board);
 
     void updateViewCount(long boardId);
+
+    List<Board> findByUser_id(long userId);
 }

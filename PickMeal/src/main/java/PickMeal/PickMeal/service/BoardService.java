@@ -63,4 +63,9 @@ public class BoardService {
     public void updateViewCount(long boardId) {
         boardMapper.updateViewCount(boardId);
     }
+
+    // 특정 유저가 작성한 모든 게시글 리스트를 가져옵니다.
+    public List<Board> findByUser_id(long userId) {
+        return boardMapper.findByUser_id(userId);
+    }
 }
