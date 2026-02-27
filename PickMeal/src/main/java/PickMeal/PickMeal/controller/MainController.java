@@ -3,12 +3,15 @@ package PickMeal.PickMeal.controller;
 import PickMeal.PickMeal.domain.Food;
 import PickMeal.PickMeal.domain.Game;
 import PickMeal.PickMeal.domain.User;
+import PickMeal.PickMeal.dto.RestaurantDTO;
 import PickMeal.PickMeal.service.FoodService;
 import PickMeal.PickMeal.service.GameService;
+import PickMeal.PickMeal.service.ReviewWishService;
 import PickMeal.PickMeal.service.UserService;
 import PickMeal.PickMeal.domain.Restaurant;
 import PickMeal.PickMeal.service.RestaurantService;
 import org.springframework.security.core.Authentication;
+import lombok.RequiredArgsConstructor;
 import org.springframework.ui.Model;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -24,7 +27,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Controller
+@RequiredArgsConstructor
 public class MainController {
+    private final ReviewWishService reviewWishService;
 
     @Autowired
     private UserService userService;
@@ -44,7 +49,9 @@ public class MainController {
     }
 
     @GetMapping("/next-page") //
-    public String next() {
+    public String next(Model model) {
+        List<RestaurantDTO> popularRestList = reviewWishService.getPopularRest();
+        model.addAttribute("popularRestList", popularRestList);
         return "next-page";
     }
 

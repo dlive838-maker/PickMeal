@@ -191,7 +191,170 @@
         height: auto;
         border-radius: 1rem; /* 사진 모서리도 둥글고 예쁘게! */
         margin: 1rem 0;
-    }`
+    }
+
+    /* 🌟 좋아요/싫어요 버튼 영역 스타일 🌟 */
+    .reaction-container {
+        display: flex;
+        justify-content: center;
+        gap: 20px; /* 버튼 사이 간격 */
+        margin: 40px 0 20px 0; /* 위아래 여백 */
+    }
+
+    .reaction-btn {
+        display: flex;
+        align-items: center;
+        gap: 10px; /* 이미지와 숫자 사이 간격 */
+        padding: 10px 25px;
+        border-radius: 30px;
+        border: 2px solid #FDF5E6;
+        background-color: white;
+        cursor: pointer;
+        transition: all 0.2s ease-in-out;
+        font-family: 'Fredoka', 'Jua', sans-serif;
+        font-size: 1.3em;
+        font-weight: bold;
+        color: #555;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    }
+
+    .reaction-btn img {
+        width: 28px;
+        height: 28px;
+        transition: transform 0.2s;
+    }
+
+    /* 마우스 올렸을 때 효과 (좋아요는 파란빛, 싫어요는 붉은빛) */
+    .reaction-btn.like:hover {
+        border-color: #007BFF;
+        color: #007BFF;
+        transform: translateY(-3px);
+        box-shadow: 0 6px 15px rgba(0, 123, 255, 0.2);
+    }
+    .reaction-btn.like:hover img {
+        transform: scale(1.1) rotate(-10deg); /* 따봉 흔들기 */
+    }
+
+    .reaction-btn.dislike:hover {
+        border-color: #FF5252;
+        color: #FF5252;
+        transform: translateY(-3px);
+        box-shadow: 0 6px 15px rgba(255, 82, 82, 0.2);
+    }
+    .reaction-btn.dislike:hover img {
+        transform: scale(1.1) rotate(10deg); /* 역따봉 흔들기 */
+    }
+
+    /* 🌟 좋아요 눌렀을 때 디자인 고정 (.active 추가) */
+    .reaction-btn.like:hover,
+    .reaction-btn.like.active {
+        border-color: #007BFF;
+        color: #007BFF;
+        transform: translateY(-3px);
+        box-shadow: 0 6px 15px rgba(0, 123, 255, 0.2);
+    }
+    .reaction-btn.like:hover img,
+    .reaction-btn.like.active img {
+        transform: scale(1.1) rotate(-10deg);
+    }
+
+    /* 🌟 싫어요 눌렀을 때 디자인 고정 (.active 추가) */
+    .reaction-btn.dislike:hover,
+    .reaction-btn.dislike.active {
+        border-color: #FF5252;
+        color: #FF5252;
+        transform: translateY(-3px);
+        box-shadow: 0 6px 15px rgba(255, 82, 82, 0.2);
+    }
+    .reaction-btn.dislike:hover img,
+    .reaction-btn.dislike.active img {
+        transform: scale(1.1) rotate(10deg);
+    }
+
+    /* 💬 댓글 컨테이너 스타일 (게시판 본문과 통일감) */
+    .comment-container {
+        background-color: #fff;
+        border-radius: 20px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        padding: 40px;
+        width: 100%;
+        max-width: 900px;
+        box-sizing: border-box;
+        margin-top: 30px; /* 게시글 본문과의 간격 */
+    }
+
+    .comment-title {
+        color: #FF7F50;
+        font-family: 'Jua', sans-serif;
+        font-size: 1.8em;
+        border-bottom: 2px solid #FF7F50;
+        padding-bottom: 15px;
+        margin-bottom: 25px;
+        margin-top: 0;
+    }
+
+    /* 댓글 입력 폼 공통 스타일 */
+    .comment-form textarea {
+        width: 100%;
+        border: 2px solid #FDF5E6;
+        border-radius: 15px;
+        padding: 15px;
+        font-family: 'Fredoka', 'Nanum Gothic', sans-serif;
+        font-size: 1.1em;
+        resize: vertical;
+        outline: none;
+        transition: border-color 0.3s;
+        box-sizing: border-box;
+    }
+    .comment-form textarea:focus {
+        border-color: #FF7F50;
+    }
+
+    /* 댓글 목록 스타일 */
+    .comment-item {
+        border-bottom: 1px solid #eee;
+        padding: 20px 0;
+    }
+    .comment-item:last-child {
+        border-bottom: none;
+    }
+    .comment-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+    .comment-author {
+        font-weight: bold;
+        color: #FF7F50;
+        font-size: 1.2em;
+    }
+    .comment-date {
+        color: #999;
+        font-size: 0.9em;
+        margin-left: 10px;
+    }
+    .comment-content {
+        color: #444;
+        line-height: 1.6;
+        font-size: 1.1em;
+        white-space: pre-wrap;
+    }
+
+    /* 텍스트 버튼 (수정/삭제) */
+    .btn-text {
+        background: none;
+        border: none;
+        color: #999;
+        font-size: 0.9em;
+        cursor: pointer;
+        padding: 0 5px;
+        font-family: 'Nanum Gothic', sans-serif;
+    }
+    .btn-text:hover {
+        color: #FF7F50;
+        text-decoration: underline;
+    }
   </style>
 </head>
 <body>
@@ -223,6 +386,24 @@
 
       <div class="post-content" th:utext="${board.content}"></div>
 
+      <div class="reaction-container">
+
+        <button type="button" class="reaction-btn like"
+                th:classappend="${userReaction == 1} ? 'active' : ''"
+                th:onclick="|updateReaction(1, ${board.boardId})|">
+          <img src="/images/thumbs-up.png" alt="좋아요">
+          <span id="like-count" th:text="${board.likeCount}">0</span>
+        </button>
+
+        <button type="button" class="reaction-btn dislike"
+                th:classappend="${userReaction == -1} ? 'active' : ''"
+                th:onclick="|updateReaction(-1, ${board.boardId})|">
+          <img src="/images/thumbs-down.png" alt="싫어요">
+          <span id="dislike-count" th:text="${board.dislikeCount}">0</span>
+        </button>
+
+      </div>
+
       <div class="board-buttons">
         <a href="/board/list" class="btn btn-light">목록으로</a>
 
@@ -230,6 +411,61 @@
           <a th:href="@{/board/edit/{boardId}(boardId=${board.boardId})}" class="btn btn-orange">수정</a>
           <button type="button" class="btn btn-danger" th:boardId="${board.boardId}" onclick="deleteBoard(this.getAttribute('boardId'))">삭제</button>
         </th:block>
+      </div>
+
+      <hr class="my-5">
+      <div class="comment-container">
+        <h3 class="comment-title">댓글 <span th:text="${#lists.size(comments)}">0</span></h3>
+
+        <form class="comment-form" th:action="@{/comment/write/{boardId}(boardId=${board.boardId})}" th:method="post">
+          <input type="hidden" name="boardId" th:value="${board.boardId}">
+          <textarea name="content" rows="3" placeholder="맛있는 경험을 댓글로 남겨주세요!" required></textarea>
+          <div style="text-align: right; margin-top: 15px;">
+            <button type="submit" class="btn btn-orange">댓글 등록</button>
+          </div>
+        </form>
+
+        <div class="comment-list">
+          <div th:if="${#lists.isEmpty(comments)}" style="text-align: center; color: #999; padding: 40px 0; font-family: 'Jua', sans-serif; font-size: 1.2em;">
+            첫 번째 댓글의 주인공이 되어보세요! 🍔
+          </div>
+
+          <div th:each="comment : ${comments}" class="comment-item">
+
+            <div th:id="'comment-view-' + ${comment.comment_id}">
+              <div class="comment-header">
+                <div>
+                  <span class="comment-author" th:text="${comment.nickname}">작성자</span>
+                  <span class="comment-date" th:if="${comment.updateCommentDate == null}" th:text="${#dates.format(comment.createCommentDate, 'yyyy-MM-dd HH:mm')}">작성일</span>
+                  <span class="comment-date" th:if="${comment.updateCommentDate != null}" th:text="${#dates.format(comment.updateCommentDate, 'yyyy-MM-dd HH:mm')} + ' (수정됨)'">수정일</span>
+                </div>
+
+                <div th:if="${user != null and user.user_id == comment.user_id}" style="display: flex; gap: 5px;">
+                  <button type="button" class="btn-text" th:onclick="|toggleEditMode(${comment.comment_id})|">수정</button>
+
+                  <form th:action="@{/comment/delete/{comment_id}(comment_id=${comment.comment_id})}" method="post" style="margin:0;">
+                    <input type="hidden" name="boardId" th:value="${board.boardId}"> <button type="submit" class="btn-text" onclick="return confirm('댓글을 정말 삭제하시겠습니까?');">삭제</button>
+                  </form>
+                </div>
+              </div>
+              <div class="comment-content" th:text="${comment.content}">댓글 내용 출력</div>
+            </div>
+
+            <div th:id="'comment-edit-' + ${comment.comment_id}" style="display: none;">
+              <form class="comment-form" th:action="@{/comment/update/{comment_id}(comment_id=${comment.comment_id})}" method="post">
+                <input type="hidden" name="boardId" th:value="${board.boardId}">
+
+                <textarea name="content" rows="3" th:text="${comment.content}" required></textarea>
+
+                <div style="text-align: right; margin-top: 15px;">
+                  <button type="button" class="btn btn-light" th:onclick="|toggleEditMode(${comment.comment_id})|">취소</button>
+                  <button type="submit" class="btn btn-orange">수정 완료</button>
+                </div>
+              </form>
+            </div>
+
+          </div>
+        </div>
       </div>
 
     </div>
@@ -259,6 +495,44 @@
 
             document.body.appendChild(form);
             form.submit();
+        }
+    }
+
+  // 🌟 좋아요 / 싫어요 클릭 시 실행될 함수 (AJAX 비동기 통신용)
+    function updateReaction(likeType, boardId) {
+        const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+        const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
+
+        const formData = new FormData();
+        formData.append("like_type", likeType);
+
+        fetch(`/board/reaction/${boardId}`, {
+            method: "POST",
+            headers: {
+                [csrfHeader]: csrfToken
+            },
+            body: formData
+        })
+        .then(response => {
+            if (response.ok) {
+                location.reload();
+            }
+        })
+        .catch(error => {
+            console.error("Error:", error);
+        });
+    }
+
+  function toggleEditMode(comment_id) {
+        const viewDiv = document.getElementById('comment-view-' + comment_id);
+        const editDiv = document.getElementById('comment-edit-' + comment_id);
+
+        if (viewDiv.style.display === 'none') {
+            viewDiv.style.display = 'block';
+            editDiv.style.display = 'none';
+        } else {
+            viewDiv.style.display = 'none';
+            editDiv.style.display = 'block';
         }
     }
 </script>

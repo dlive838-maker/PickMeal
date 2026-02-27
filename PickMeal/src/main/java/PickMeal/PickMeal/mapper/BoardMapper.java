@@ -25,4 +25,12 @@ public interface BoardMapper {
     void updateViewCount(long boardId);
 
     List<Board> findByUser_id(long userId);
+
+    void removeDislikeCount(long boardId);
+
+    void removeLikeCount(long boardId);
+
+    void addLikeCount(long boardId);
+
+    void addDislikeCount(long boardId);
 }

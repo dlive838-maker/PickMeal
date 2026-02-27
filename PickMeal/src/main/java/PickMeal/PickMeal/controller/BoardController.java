@@ -1,10 +1,10 @@
 package PickMeal.PickMeal.controller;
 
 import PickMeal.PickMeal.domain.Board;
+import PickMeal.PickMeal.domain.Comment;
 import PickMeal.PickMeal.domain.User;
-import PickMeal.PickMeal.service.BoardService;
-import PickMeal.PickMeal.service.FileService;
-import PickMeal.PickMeal.service.UserService;
+import PickMeal.PickMeal.domain.oauth.OAuth2Attributes;
+import PickMeal.PickMeal.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,6 +26,8 @@ public class BoardController {
     private final BoardService boardService;
     private final FileService fileService;
     private final UserService userService;
+    private final BoardReactionService boardReactionService;
+    private final CommentService commentService;
 
     // [수정] 공통 도우미 메서드: 유저 식별값(String)을 반환합니다.
     private String getLoginUserId(Authentication authentication) {
@@ -36,7 +38,7 @@ public class BoardController {
     }
 
     @GetMapping("/list")
-    public String showBoard(@PageableDefault(size = 10, sort = "boardId", direction = Sort.Direction.DESC) Pageable pageable, Model model) {
+    public String showBoard(@PageableDefault(size = 10, sort = "boardId", direction = Sort.Direction.DESC) Pageable pageable, Model model, Authentication authentication) {
         Page<Board> boards = boardService.findBoardAll(pageable);
         // [수정] user_id가 long이므로 String으로 변환하여 닉네임을 조회하도록 처리
         List<String> user_nicknames = boards.stream()
@@ -95,6 +97,9 @@ public class BoardController {
     public String showBoardDetail(@PathVariable long boardId, Authentication authentication, Model model) {
         // 1. 게시글 정보를 가져옵니다.
         Board board = boardService.getBoardByBoardId(boardId);
+        int userReaction = 0;
+
+        User loginUser;
 
         // 2. 로그인 상태라면 작성자 비교를 수행합니다.
         if (authentication != null && authentication.isAuthenticated()) {
@@ -109,7 +114,11 @@ public class BoardController {
             String fullUserId = registrationId.isEmpty() ? principalName : registrationId + "_" + principalName;
 
             // DB에서 현재 로그인한 사람의 진짜 객체를 가져옵니다.
-            User loginUser = userService.findById(fullUserId);
+            loginUser = userService.findById(fullUserId);
+
+            if(loginUser != null){
+                userReaction = boardReactionService.isLikeOrDislike(boardId, user.getUser_id());
+            }
 
             // [핵심 비교] 게시글의 user_id와 로그인한 사람의 user_id가 같으면 작성자입니다.
             if (loginUser != null && board.getUser_id() == loginUser.getUser_id()) {
@@ -117,14 +126,59 @@ public class BoardController {
             } else {
                 model.addAttribute("isWriter", false);
             }
+            model.addAttribute("user", loginUser);
         } else {
             model.addAttribute("isWriter", false);
         }
 
         boardService.updateViewCount(boardId);
+
+        List<Comment> comments = commentService.getCommentsByBoardId(boardId);
+
+        model.addAttribute("comments", comments);
+        model.addAttribute("userReaction", userReaction);
         model.addAttribute("board", board);
         model.addAttribute("files", fileService.findByBoardId(boardId));
         return "/board/board-detail";
+    }
+
+    @PostMapping("/reaction/{boardId}")
+    @ResponseBody
+    public ResponseEntity<String> boardLikeOrDislikeReaction(@PathVariable long boardId, @AuthenticationPrincipal User user, @RequestParam("like_type") int like_type) {
+        int currentStatus = boardReactionService.isLikeOrDislike(boardId, user.getUser_id());
+
+        if(like_type > 0){
+            if(currentStatus < 0) {
+                boardService.removeDislikeCount(boardId);
+                boardService.addLikeCount(boardId);
+                boardReactionService.removeLikeOrDislikeReaction(boardId, user.getUser_id());
+                boardReactionService.boardLikeOrDislikeReaction(boardId, user.getUser_id(), 1);
+
+            }else if(currentStatus > 0){
+                boardService.removeLikeCount(boardId);
+                boardReactionService.removeLikeOrDislikeReaction(boardId, user.getUser_id());
+
+            }else{
+                boardService.addLikeCount(boardId);
+                boardReactionService.boardLikeOrDislikeReaction(boardId, user.getUser_id(), 1);
+            }
+        }
+        else if(like_type < 0){
+            if(currentStatus > 0){
+                boardService.removeLikeCount(boardId);
+                boardReactionService.removeLikeOrDislikeReaction(boardId, user.getUser_id());
+                boardService.addDislikeCount(boardId);
+                boardReactionService.boardLikeOrDislikeReaction(boardId, user.getUser_id(), -1);
+
+            }else if(currentStatus < 0) {
+                boardService.removeDislikeCount(boardId);
+                boardReactionService.removeLikeOrDislikeReaction(boardId, user.getUser_id());
+            }else{
+                boardService.addDislikeCount(boardId);
+                boardReactionService.boardLikeOrDislikeReaction(boardId, user.getUser_id(), -1);
+            }
+        }
+        return ResponseEntity.ok("SUCCESS");
     }
 
     @GetMapping("/edit/{boardId}")
@@ -136,7 +190,7 @@ public class BoardController {
     }
 
     @PostMapping("/edit/{boardId}")
-    public String editBoard(Board board, @PathVariable long boardId, Model model, @RequestParam(value = "file", required = false) MultipartFile file) {
+    public String editBoard(Board board, @PathVariable long boardId, @RequestParam(value = "file", required = false) MultipartFile file) {
         board.setBoardId(boardId);
         boardService.editBoard(board);
 
