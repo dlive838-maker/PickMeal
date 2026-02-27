@@ -25,14 +25,14 @@
             DELETE FROM comment
             WHERE comment_id = #{comment_id}
     </delete>
-    <select id="getCommentByCommentID" parameterType="long" resultType="PickMeal.PickMeal.domain.Comment">
-            SELECT comment_id, boardId, user_id, content, createCommentDate, updateCommentDate
-            FROM comment
-            WHERE comment_id = #{comment_id}
+    <select id="getCommentByComment_id" parameterType="long" resultMap="CommentResultMap">
+        SELECT comment_id, boardId, user_id, content, createCommentDate, updateCommentDate
+        FROM comment
+        WHERE comment_id = #{comment_id}
     </select>
     <update id="updateComment" parameterType="PickMeal.PickMeal.domain.Comment">
-            UPDATE comment
-            SET content = #{content}, updateCommentDate = now()
-            WHERE comment_id = #{comment_id}
+        UPDATE comment
+        SET content = #{content}, updateCommentDate = now()
+        WHERE comment_id = #{comment_id}
     </update>
 </mapper>

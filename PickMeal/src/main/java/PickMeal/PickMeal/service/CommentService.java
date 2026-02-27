@@ -25,7 +25,7 @@ public class CommentService {
     }
 
     public Comment getCommentByComment_id(long comment_id) {
-        return commentMapper.getCommentByCommentID(comment_id);
+        return commentMapper.getCommentByComment_id(comment_id);
     }
 
     public void updateComment(long comment_id, String content) {

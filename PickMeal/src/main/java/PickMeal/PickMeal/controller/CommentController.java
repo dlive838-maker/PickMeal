@@ -11,6 +11,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 @RequestMapping("/comment")
@@ -49,19 +50,23 @@ public class CommentController {
 
     // 3. 댓글 수정
     @PostMapping("/update/{comment_id}")
-    public String updateComment(@PathVariable long comment_id, String content, Authentication authentication) {
+    public String updateComment(@PathVariable long comment_id,
+                                @RequestParam("content") String content, // @RequestParam 명시 권장
+                                Authentication authentication) {
         Comment comment = commentService.getCommentByComment_id(comment_id);
         User user = userService.getAuthenticatedUser(authentication);
 
-        // [방어 코드 1] NPE 방지 및 게시글 ID 미리 확보
-        if (comment == null) return "redirect:/board/list";
-        long boardId = comment.getBoardId();
+        if (comment == null || user == null) return "redirect:/board/list";
 
-        // [방어 코드 2] 수정 권한 확인 (남이 내 댓글을 수정하지 못하게 차단)
-        if (user != null && java.util.Objects.equals(comment.getUser_id(), user.getUser_id())) {
+        // 디버깅 로그 추가: 이 값이 콘솔에 어떻게 찍히는지 보세요!
+        System.out.println("댓글 작성자 ID: " + comment.getUser_id());
+        System.out.println("현재 유저 ID: " + user.getUser_id());
+
+        // 권한 확인
+        if (java.util.Objects.equals(comment.getUser_id(), user.getUser_id())) {
             commentService.updateComment(comment_id, content);
         }
 
-        return "redirect:/board/detail/" + boardId;
+        return "redirect:/board/detail/" + comment.getBoardId();
     }
 }
