@@ -15,8 +15,17 @@
         FROM restaurant
     </select>
 
-    <select id="findAll" resultType="PickMeal.PickMeal.domain.Restaurant">
-        SELECT * FROM restaurant
+    <select id="findAll" resultType="PickMeal.PickMeal.dto.RestaurantDTO">
+        SELECT
+        res_id AS restId,
+        res_name AS restName,
+        address AS restAddress,
+        representative_menu AS restMenu,  menu_price AS restPrice,
+        lat AS restLat,
+        lon AS restLng,
+        rest_views AS restViews,
+        (SELECT COUNT(*) FROM review_wish WHERE res_id = r.res_id AND is_wish = 1) AS wish_count
+        FROM restaurant r
     </select>
 
     <update id="updateViewCount">

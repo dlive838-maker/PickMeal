@@ -37,7 +37,10 @@ public class SecurityConfig {
                         "/users/find-password/**",
                         "/users/reset-password/**",
                         "/worldcup/win/**",
-                        "/users/login"
+                        "/users/login",
+                        "/api/wishlist/**",      // ★ 찜하기 POST 요청 허용
+                        "/api/restaurant/**",    // ★ 조회수 증가 POST 요청 허용
+                        "/api/review/**"         // ★ 리뷰 저장 POST 요청 허용
                 ))
                 // 2. 접근 권한 설정 (누구나 접근 가능한 페이지들)
                 .authorizeHttpRequests(authorize -> authorize
@@ -46,7 +49,10 @@ public class SecurityConfig {
                                 "/users/forgot-pw",         // 비번 찾기 신청 페이지
                                 "/users/find-password/**",  // 비번 찾기 로직 API
                                 "/users/reset-password/**", // 새 비번 설정 페이지 및 API
-                                "/mail/**", "/oauth2/**", "/css/**", "/js/**", "/images/**", "/worldcup/win/**").permitAll()
+                                "/mail/**", "/oauth2/**", "/css/**", "/js/**", "/images/**", "/worldcup/win/**",
+                                "/meal-spotter",         // ★ 맛집 탐지기 페이지 접근 허용
+                                "/api/**"                // ★ 맛집 탐지기 API들 접근 허용
+                                ).permitAll()
                         .anyRequest().authenticated()
                 )
                 .formLogin(formLogin -> formLogin
