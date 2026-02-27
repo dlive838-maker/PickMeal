@@ -14,10 +14,11 @@ public class MapController {
     @Autowired // 식당 정보를 관리하는 서비스(요리사)를 자동으로 연결합니다.
     private RestaurantService restaurantService;
 
-    @GetMapping("/meal-spotter") // 브라우저 주소창에 /meal-spotter를 치면 이 메서드가 실행됩니다.
+    // MapController.java 파일 수정
+    @GetMapping("/map-test") // 기존 "/meal-spotter"에서 "/map-test"로 주소를 바꿨습니다!
     public String myHotPlace(Model model) {
-        // 1. 서비스에게 "인기 식당 리스트 다 가져와"라고 시킵니다. (준호 님 미션 4번)
-        List<RestaurantDTO> restaurantList = restaurantService.getAllRestaurants();
+        // 1. 서비스에게 "인기 식당 리스트 다 가져와"라고 시킵니다.
+        List<RestaurantDTO> restaurantList = restaurantService.findAll();
 
         // 2. 'restaurants'라는 바구니에 데이터를 담아 HTML 화면으로 보냅니다.
         model.addAttribute("restaurants", restaurantList);

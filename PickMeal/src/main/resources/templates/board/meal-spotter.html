@@ -14,8 +14,18 @@
         .place-list { flex-grow: 1; overflow-y: auto; padding: 10px; }
         .place-item { padding: 20px; border-bottom: 1px solid #f9f9f9; cursor: pointer; transition: 0.2s; position: relative; }
         .place-item:hover { background: #fffaf8; border-left: 6px solid #FF8A5B; }
-        .wish-btn { position: absolute; top: 20px; right: 20px; font-size: 20px; cursor: pointer; transition: transform 0.2s; }
-        .wish-btn:hover { transform: scale(1.2); }
+
+        /* [추가] 리뷰 목록 팝업 스타일 */
+        #reviewListModal {
+            position: fixed; z-index: 3000; left: 0; top: 0;
+            width: 100%; height: 100%; background-color: rgba(0,0,0,0.6);
+            display: none; align-items: center; justify-content: center;
+        }
+        #reviewListModal .modal-content {
+            background-color: white; padding: 30px; border-radius: 20px;
+            width: 450px; max-height: 80vh; overflow-y: auto; position: relative;
+        }
+        .close { position: absolute; right: 20px; top: 15px; font-size: 28px; cursor: pointer; color: #aaa; }
     </style>
 </head>
 <body>
@@ -24,27 +34,33 @@
 
 <div class="main-container">
     <aside class="side-panel">
-        <div class="p-5 border-bottom bg-gray-50">
-            <h2 class="text-xl font-black italic text-[#FF8A5B]">🍴 Meal-Spotter</h2>
-            <p class="text-[10px] text-gray-400 font-bold uppercase italic">Reviews & Hot Places</p>
-        </div>
-
         <div id="placesList" class="place-list">
-            <div th:each="res : ${restaurants}" class="place-item"
-                 th:onclick="handleStoreClick([[${res.restId}]], [[${res.restLat}]], [[${res.restLng}]])">
+            <div th:each="res : ${restaurantList}"
+                 class="place-item border-b border-gray-100 py-5 px-6 hover:bg-gray-50 transition cursor-pointer"
+                 th:onclick="|handleStoreClick(${res.restId}, ${res.restLat}, ${res.restLng})|">
 
-                <div class="flex justify-between items-start mr-8">
-                    <h4 class="font-black text-gray-800 text-lg mb-1 italic" th:text="${res.restName}">식당이름</h4>
+                <h4 class="font-bold ..." th:text="${res.restName}">식당이름</h4>
+
+                <div class="wish-btn text-xl flex items-center gap-1 cursor-pointer"
+                     th:onclick="'toggleWish(event, ' + ${res.restId} + ')'">
+                    <span th:id="'heart-shape-' + ${res.restId}">[[${res.isWished ? '❤️' : '🤍'}]]</span>
+                    <span th:id="'wish-count-' + ${res.restId}" class="wish-count text-sm"
+                          th:text="${res.wishCount != null ? res.wishCount : 0}">0</span>
                 </div>
 
-                <div class="wish-btn" th:onclick="'toggleWish(event, ' + ${res.restId} + ')'">❤️</div>
+                <p class="text-[12px] ..." th:text="${res.restAddress}">식당 주소</p>
 
-                <p class="text-[11px] text-[#FF8A5B] font-black uppercase mb-1 italic" th:text="${res.restMenu}">카테고리</p>
+                <p class="text-[12px] ..." th:text="|대표메뉴 : ${res.restMenu}|">대표메뉴</p>
 
-                <div class="flex items-center gap-3 mt-2">
-                    <span class="text-[11px] text-gray-400 font-bold italic">👁️ [[${res.restViews}]]</span>
-                    <button class="text-[11px] bg-[#FF8A5B] text-white px-2 py-0.5 rounded italic font-bold"
-                            th:onclick="'openReviewModal(event, ' + ${res.restId} + ')'">EVALUATION</button>
+                <div class="flex items-center gap-3">
+                    <span class="...">👁️ [[${res.restViews}]]</span>
+
+                    <span class="..." th:onclick="showReviewList([[${res.restId}]], [[${res.restName}]])">
+            📝 <span th:id="'review-count-' + ${res.restId}"
+                    th:text="${res.reviewCount}">0</span>
+        </span>
+
+                    <button class="..." th:onclick="'openReviewModal(event, ' + ${res.restId} + ')'">EVALUATION</button>
                 </div>
             </div>
         </div>
@@ -52,24 +68,12 @@
     <div id="map"></div>
 </div>
 
-<div id="reviewModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-[1000] flex items-center justify-center">
-    <div class="bg-white p-8 rounded-2xl w-96">
-        <h2 class="text-xl font-black italic text-[#FF8A5B] mb-4">LEAVE A REVIEW</h2>
-        <input type="hidden" id="targetRestId">
-        <div class="mb-4">
-            <label class="block text-sm font-bold mb-2 italic text-gray-400">RATING (1-5)</label>
-            <select id="reviewRating" class="w-full border p-2 rounded-lg italic font-bold">
-                <option value="5">⭐⭐⭐⭐⭐ (5)</option>
-                <option value="4">⭐⭐⭐⭐ (4)</option>
-                <option value="3">⭐⭐⭐ (3)</option>
-                <option value="2">⭐⭐ (2)</option>
-                <option value="1">⭐ (1)</option>
-            </select>
-        </div>
-        <textarea id="reviewContent" class="w-full border p-3 rounded-lg h-32 mb-4 italic" placeholder="맛은 어떠셨나요?"></textarea>
-        <div class="flex gap-2">
-            <button onclick="closeReviewModal()" class="flex-1 py-3 bg-gray-100 rounded-xl font-bold italic text-gray-400">CANCEL</button>
-            <button onclick="submitReview()" class="flex-1 py-3 bg-[#FF8A5B] text-white rounded-xl font-bold italic">POST</button>
+<div id="reviewListModal">
+    <div class="modal-content">
+        <span class="close" onclick="closeReviewListModal()">&times;</span>
+        <h2 id="modalRestName" class="text-xl font-black italic text-[#FF8A5B] mb-4">식당 이름</h2>
+        <hr class="mb-4">
+        <div id="reviewListContainer">
         </div>
     </div>
 </div>
@@ -82,16 +86,53 @@
     });
 
     // 2. 마커 표시 로직 (DTO 필드명 연동)
-    const restaurants = /*[[${restaurants}]]*/ [];
+    const restaurants = /*[[${restaurantList}]]*/ [];
+
     restaurants.forEach(res => {
-        const marker = new kakao.maps.Marker({
-            map: map,
-            position: new kakao.maps.LatLng(res.restLat, res.restLng),
-            image: new kakao.maps.MarkerImage('https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png', new kakao.maps.Size(24, 35))
-        });
+    // 1. 마커 생성 로직
+    const marker = new kakao.maps.Marker({
+        map: map,
+        position: new kakao.maps.LatLng(res.restLat, res.restLng),
+        image: new kakao.maps.MarkerImage('https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png', new kakao.maps.Size(24, 35))
     });
 
-    // 3. 기능 함수들
+    // 2. 커스텀 오버레이 생성 로직
+    const content = '<div class="custom-overlay" style="padding:10px; background:white; border:2px solid #FF8A5B; border-radius:15px; box-shadow:0 2px 10px rgba(0,0,0,0.1); min-width:150px;">' +
+        '<div style="font-weight:bold; font-size:14px; margin-bottom:8px; text-align:center; border-bottom:1px solid #eee; padding-bottom:5px; color:#333;">' +
+            res.restName +
+        '</div>' +
+        '<div style="display:flex; justify-content:center; gap:10px; font-size:12px; color:#666;">' +
+            '<span>👁️ ' + res.restViews + '</span>' +
+            '<span style="color:#FF4081;">❤️ <span id="wish-count-' + res.restId + '">' + (res.wishCount ? res.wishCount : 0) + '</span></span>' +
+            '<span style="color:#4CAF50;">📝 ' + (res.reviewCount ? res.reviewCount : 0) + '</span>' +
+    '</div>' +
+        '</div>' +
+    '</div>';
+
+    const overlay = new kakao.maps.CustomOverlay({
+        content: content,
+        position: marker.getPosition(),
+        yAnchor: 1.5 //
+    });
+
+    // ★ [중요] 상태 변수는 마커 생성 직후에 선언되어야 합니다!
+    let isOpen = false;
+
+    // 3. 마커 클릭 시 켜고 끄기 로직 (객체 존재 여부로 판단)
+    kakao.maps.event.addListener(marker, 'click', function() {
+        // 현재 오버레이가 지도(map) 위에 올라가 있는지 직접 물어봅니다.
+        if (!overlay.getMap()) {
+            // 지도에 없다면 -> 띄웁니다.
+            overlay.setMap(map);
+            handleStoreClick(res.restId, res.restLat, res.restLng); // 조회수 증가 실행
+        } else {
+            // 이미 지도에 있다면 -> 지웁니다.
+            overlay.setMap(null);
+        }
+    });
+});
+
+    // 기능 함수들
     function handleStoreClick(restId, lat, lng) {
         map.panTo(new kakao.maps.LatLng(lat, lng));
         // 비동기로 조회수 증가 요청 (Fetch API)
@@ -99,40 +140,152 @@
     }
 
     function toggleWish(event, restId) {
-        event.stopPropagation(); // 부모 리스트 클릭 방지
-        fetch('/api/wishlist/' + restId, { method: 'POST' })
-            .then(() => alert("찜 목록에 반영되었습니다!"));
+    // 1. 이벤트 전파 방지: 하트를 눌렀을 때 식당 상세페이지로 이동하는 것을 막습니다.
+    event.stopPropagation();
+
+    // 2. 서버에 찜 상태 변경 요청 (POST 방식)
+    fetch(`/api/wishlist/${restId}`, { method: 'POST' })
+    .then(res => res.text())
+    .then(data => {
+        // 3. 서버 응답이 숫자인지 확인 (정상적인 최신 찜 개수인지 확인)
+        if (!isNaN(data)) {
+            const totalWishCount = parseInt(data);
+
+            // [핵심 1] 본점(리스트) 하트 모양과 숫자를 '즉시' 바꿉니다. (사용자 체감 속도 UP!)
+            const listHearts = document.querySelectorAll(`[id="heart-shape-${restId}"]`);
+            listHearts.forEach(span => {
+                // 숫자가 0보다 크면 내가 찜한 상태이므로 빨간 하트, 아니면 빈 하트로 표시합니다.
+                span.innerText = (totalWishCount > 0) ? '❤️' : '🤍';
+            });
+
+            const listCounts = document.querySelectorAll(`[id="wish-count-${restId}"]`);
+            listCounts.forEach(el => {
+                el.innerText = totalWishCount; // 리스트의 숫자판을 최신 값으로 교체
+            });
+
+            // [핵심 2] 분점(지도 팝업)은 그려지는 시간이 필요하므로 0.1초의 여유를 줍니다.
+            setTimeout(() => {
+                // 0.1초 뒤에 화면 전체를 다시 훑어서 지도 위에 새로 생긴 팝업의 숫자판을 찾아 바꿉니다.
+                const allCounts = document.querySelectorAll(`[id="wish-count-${restId}"]`);
+                allCounts.forEach(el => {
+                    el.innerText = totalWishCount;
+                });
+
+                // [핵심 3] 모든 전광판이 다 바뀐 것을 눈으로 확인한 '직후'에 안내창을 띄웁니다.
+                // 이 순서여야만 알림창 때문에 화면이 멈추는 현상이 발생하지 않습니다.
+                alert("찜 상태가 변경되었습니다! ❤️");
+            }, 100);
+
+        } else {
+            // 서버에서 숫자가 아닌 메시지가 왔을 때 (예: "로그인이 필요합니다")
+            alert(data);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert("통신 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
+    });
+}
+
+// 리뷰 목록 가져오기
+    function showReviewList(restId, restName) {
+        fetch(`/api/reviews/${restId}`)
+            .then(res => {
+                if (!res.ok) throw new Error('Network response was not ok');
+            return res.json();
+            })
+            .then(data => {
+                const container = document.getElementById('reviewListContainer');
+                document.getElementById('modalRestName').innerText = restName + " 리뷰 📝";
+                container.innerHTML = "";
+
+                if (data.length === 0) {
+                    container.innerHTML = "<p class='text-center py-5'>아직 리뷰가 없습니다. 😊</p>";
+                } else {
+                    data.forEach(review => {
+                        const item = `
+                            <div style="border-bottom: 1px solid #eee; padding: 10px 0;">
+                                <strong>👤 ${review.userId}</strong> <span style="color:#ff9f43">⭐ ${review.rating}</span>
+                                <p>${review.content}</p>
+                                <small style="color:#999">${review.createdAt}</small>
+                            </div>`;
+                        container.innerHTML += item;
+                    });
+                }
+                document.getElementById('reviewListModal').style.display = "flex";
+            })
+            .catch(err => {
+        // [추가] 통신 중 에러가 발생하면 콘솔창에 빨간색으로 표시해줍니다.
+        console.error("리뷰 로드 실패:", err);
+    });
     }
 
+    function closeReviewListModal() {
+        document.getElementById('reviewListModal').style.display = "none";
+    }
+
+    // [추가] 1. 리뷰 작성창 열기 함수
     function openReviewModal(event, restId) {
-        event.stopPropagation();
-        document.getElementById('targetRestId').value = restId;
-        document.getElementById('reviewModal').classList.remove('hidden');
-    }
+    // 식당 리스트 자체를 클릭하는 이벤트와 겹치지 않게 방지합니다.
+    event.stopPropagation();
 
+    // 어느 식당에 리뷰를 쓰는지 번호(ID)를 숨겨진 입력창에 저장합니다.
+    document.getElementById('targetRestId').value = restId;
+
+    // 숨겨져 있던 리뷰 작성 모달창(reviewModal)을 화면에 보이게 합니다.
+    document.getElementById('reviewModal').classList.remove('hidden');
+}
+
+    // [추가] 2. 리뷰 작성창 닫기 함수 (취소 버튼용)
     function closeReviewModal() {
-        document.getElementById('reviewModal').classList.add('hidden');
-    }
+    document.getElementById('reviewModal').classList.add('hidden'); // 창을 숨깁니다.
+    document.getElementById('reviewContent').value = ""; // 입력했던 내용을 지웁니다.
+}
 
+    // 리뷰 저장
     function submitReview() {
+        const resId = document.getElementById('targetRestId').value;
         const data = {
-            resId: document.getElementById('targetRestId').value,
+            resId: resId,
             rating: document.getElementById('reviewRating').value,
-            content: document.getElementById('reviewContent').value,
-            isWish: true
+            content: document.getElementById('reviewContent').value
         };
 
         fetch('/api/review/save', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
-        }).then(() => {
-            alert("리뷰가 등록되었습니다!");
-            closeReviewModal();
+        }).then(response => {
+            if (response.ok) {
+                alert("리뷰가 등록되었습니다! 📝");
+                closeReviewModal();
+                location.reload(); // 숫자 업데이트를 위해 새로고침
+            }
         });
     }
 </script>
 
 <footer th:replace="~{fragments/footer :: footerFragment}"></footer>
+<div id="reviewModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-[1000] flex items-center justify-center">
+    <div class="bg-white p-8 rounded-2xl w-96">
+        <h2 class="text-xl font-black italic text-[#FF8A5B] mb-4">LEAVE A REVIEW</h2>
+        <input type="hidden" id="targetRestId">
+        <div class="mb-4">
+            <label class="block text-sm font-bold mb-2 italic text-gray-400">RATING (1-5)</label>
+            <select id="reviewRating" class="w-full border p-2 rounded-lg italic font-bold text-[#FF8A5B]">
+                <option value="5">⭐⭐⭐⭐⭐ (5점)</option>
+                <option value="4">⭐⭐⭐⭐ (4점)</option>
+                <option value="3">⭐⭐⭐ (3점)</option>
+                <option value="2">⭐⭐ (2점)</option>
+                <option value="1">⭐ (1점)</option>
+            </select>
+        </div>
+        <textarea id="reviewContent" class="w-full border p-3 rounded-lg h-32 mb-4 italic" placeholder="맛은 어떠셨나요?"></textarea>
+        <div class="flex gap-2">
+            <button onclick="closeReviewModal()" class="flex-1 py-3 bg-gray-100 rounded-xl font-bold italic text-gray-400">CANCEL</button>
+            <button onclick="submitReview()" class="flex-1 py-3 bg-[#FF8A5B] text-white rounded-xl font-bold italic">POST</button>
+        </div>
+    </div>
+</div>
 </body>
 </html>

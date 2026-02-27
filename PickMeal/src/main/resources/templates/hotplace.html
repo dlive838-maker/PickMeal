@@ -113,12 +113,16 @@
         });
 
         content.onmouseover = () => {
+            // 1. 현재 리스트에 이미 표시된 최신 숫자가 있는지 먼저 확인합니다.
+            const latestCountElement = document.querySelector(`#wish-count-${stats.resId}`);
+            // 2. 만약 리스트 숫자가 있다면 그걸 쓰고, 없으면 원래 DB 숫자를 씁니다.
+            const displayCount = latestCountElement ? latestCountElement.innerText : stats.heartCount;
             const tooltipContent = `
                 <div class="pin-tooltip">
                     <div class="mb-2 text-[15px] font-black border-b pb-1">${place.place_name}</div>
                     <div class="flex gap-4 text-[13px] text-orange-500 font-bold italic items-center">
                         <span class="flex items-center gap-1.5">👁️ <span class="text-gray-700">${stats.viewCount}</span></span>
-                        <span class="flex items-center gap-1.5">❤️ <span class="text-gray-700">${stats.heartCount}</span></span>
+                        <span class="flex items-center gap-1.5">❤️ <span id="wish-count-${stats.resId || place.id}" class="text-gray-700">${stats.heartCount}</span>
                         <span class="flex items-center gap-1.5">📝 <span class="text-gray-700">${stats.reviewCount}</span></span>
                     </div>
                 </div>`;
@@ -166,7 +170,7 @@
                     <h4 class="font-black text-gray-800 text-xl mb-1 italic">${place.place_name}</h4>
                     <div class="flex gap-4 mb-2 text-[13px] font-bold text-orange-400 italic items-center">
                         <span class="flex items-center gap-1.5">👁️ <span class="text-gray-700">${stats.viewCount}</span></span>
-                        <span class="flex items-center gap-1.5">❤️ <span class="text-gray-700">${stats.heartCount}</span></span>
+                        <span class="flex items-center gap-1.5">❤️ <span id="wish-count-${stats.resId}" class="text-gray-700">${stats.heartCount}</span></span>
                         <span class="flex items-center gap-1.5">📝 <span class="text-gray-700">${stats.reviewCount}</span></span>
                     </div>
                     <p class="text-[12px] text-[#FF8A5B] font-black uppercase mb-1 italic">${place.category_name.split('>').pop()}</p>

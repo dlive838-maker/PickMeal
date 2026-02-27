@@ -30,7 +30,8 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http, OAuth2SuccessHandler oauth2SuccessHandler) throws Exception {
         http
                 .csrf(csrf -> csrf.ignoringRequestMatchers(
-                        "/mail/**", "/users/**", "/worldcup/win/**", "/board/write", "/file/upload"
+                        "/mail/**", "/users/**", "/worldcup/win/**",
+                        "/board/write", "/file/upload", "/api/wishlist/**", "/api/restaurant/**", "/api/review/**"
                 ))
                 .authorizeHttpRequests(authorize -> authorize
                         // 1. [구체적인 예외] 게시판 중 'meal-spotter'는 로그인 없이도 볼 수 있게 최상단에 둡니다.
@@ -46,7 +47,7 @@ public class SecurityConfig {
                                 "/users/forgot-pw", "/users/find-password/**", "/users/reset-password/**",
                                 "/mail/**", "/oauth2/**", "/css/**", "/js/**", "/images/**", "/worldcup/win/**",
                                 "/roulette", "/twentyQuestions/**", "/twenty-questions/**", "/capsule", "/game/**", "/worldcup/**",
-                                "/api/**", "/draw").permitAll()
+                                "/api/**", "/draw", "/meal-spotter").permitAll()
 
                         .anyRequest().authenticated()
                 )

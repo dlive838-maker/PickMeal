@@ -3,16 +3,58 @@
 
 <mapper namespace="PickMeal.PickMeal.mapper.ReviewWishMapper">
 
-    <insert id="saveInteraction" parameterType="PickMeal.PickMeal.dto.ReviewWishDTO">
+    <select id="checkWish" resultType="int">
+        SELECT COUNT(*) FROM review_wish
+        WHERE user_id = #{userId} AND res_id = #{resId}
+    </select>
+
+    <delete id="deleteWish">
+        DELETE FROM review_wish
+        WHERE user_id = #{userId} AND res_id = #{resId}
+    </delete>
+
+    <insert id="saveInteraction">
+        /* 덮어쓰지 않고 새로운 리뷰를 계속 쌓습니다. */
         INSERT INTO review_wish (res_id, user_id, rating, content, is_wish)
-        VALUES (#{resId}, #{userId}, #{rating}, #{content}, #{isWish})
-        ON DUPLICATE KEY UPDATE
-        rating = COALESCE(#{rating}, rating),
-        content = COALESCE(#{content}, content),
-        is_wish = COALESCE(#{isWish}, is_wish),
-        updated_at = CURRENT_TIMESTAMP
+        VALUES (#{resId}, #{userId}, #{rating}, #{content}, 0)
     </insert>
 
+    <insert id="insertWish">
+        /* restId를 resId로, is_wish 컬럼명을 DB와 일치시킵니다. */
+        INSERT INTO review_wish (res_id, user_id, is_wish)
+        VALUES (#{restId}, #{userId}, 1)
+        ON DUPLICATE KEY UPDATE is_wish = 1
+    </insert>
+
+    <select id="getTotalWishCount" resultType="int">
+        SELECT COUNT(*)
+        FROM review_wish
+        WHERE res_id = #{resId}
+        /* ★ [수정] 찜 컬럼(is_wish)이 1인 것만 하트 숫자로 인정합니다! */
+        AND is_wish = 1
+    </select>
+
+    <select id="getReviewCount" resultType="int">
+        /* 해당 식당(res_id)의 데이터 중 리뷰 내용(content)이 작성된 것만 세어줍니다. */
+        SELECT COUNT(*)
+        FROM review_wish
+        WHERE res_id = #{resId}
+        AND content IS NOT NULL
+        AND content != ''
+    </select>
+
+    <select id="getReviewsByRestaurant" resultType="PickMeal.PickMeal.dto.ReviewWishDTO">
+        SELECT
+        user_id,
+        rating,
+        content,
+        created_at
+        FROM review_wish
+        WHERE res_id = #{resId}
+        /* ★ 내용이 아예 없는(null) 데이터만 제외하고, 공백이 포함된 리뷰도 모두 가져오도록 조건을 완화했습니다. */
+        AND content IS NOT NULL
+        ORDER BY created_at DESC
+    </select>
     <select id="getPopularRest" resultType="PickMeal.PickMeal.dto.RestaurantDTO">
         SELECT r.res_id, r.res_name, r.address, r.lon, r.lat, r.region_name, r.representative_menu, r.menu_price, r.rest_views
         FROM restaurant r

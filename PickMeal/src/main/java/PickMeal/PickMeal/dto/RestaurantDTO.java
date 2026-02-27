@@ -13,4 +13,7 @@ public class RestaurantDTO {
     private Double restLat;     // 지도 위도 (Latitude) - 지도를 찍을 때 필수!
     private Double restLng;     // 지도 경도 (Longitude) - 지도를 찍을 때 필수!
     private int restViews;      // 새로 추가된 조회수
+    private Integer wishCount;   // 찜 개수를 담을 그릇
+    private Integer reviewCount; // 리뷰 개수를 담을 그릇
+    private boolean isWished; // 현재 사용자가 이 식당을 찜했는지 여부
 }

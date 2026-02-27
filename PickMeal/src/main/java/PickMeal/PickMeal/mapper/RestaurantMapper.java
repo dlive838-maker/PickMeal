@@ -11,7 +11,7 @@ public interface RestaurantMapper {
 
     // 대형 냉장고(MySQL)의 'restaurant' 테이블에서 모든 데이터를 가져오는 마법의 주문입니다.
 //    @Select("SELECT * FROM restaurant")
-    List<Restaurant> findAll();
+    List<RestaurantDTO> findAll();
 
     List<RestaurantDTO> findAllRestaurants();
 
