@@ -36,11 +36,20 @@ public class TwentyQuestionsController {
         } else {
             response.setStatus("QUESTION");
             Questions nextQuestion = twentyQuestionsService.getNextValidQuestion((request));
+
+            // 🌟 [수정 포인트] 안전장치 추가!
+            // 주방장이 다음 질문지를 제대로 가져왔는지(null이 아닌지) 확인합니다.
+            if (nextQuestion != null) {
             response.setNextQuestion_id(nextQuestion.getQuestion_id());
             response.setNextQuestion_text(nextQuestion.getQuestion_text());
             response.setNextAttribute_name(nextQuestion.getAttribute_name());
+        }   else {
+                // 더 이상 물어볼 질문이 없는데 음식은 아직 많이 남은 경우입니다.
+                // 이럴 때는 "결과가 없어요" 혹은 "남은 음식 중에 골라보세요"로 상태를 바꿉니다.
+                response.setStatus("NO_MORE_QUESTIONS");
+                response.setRemain_foodList(remainingFoods);
+            }
         }
-
         return ResponseEntity.ok(response);
     }
 
