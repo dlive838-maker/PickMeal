@@ -23,4 +23,12 @@ public interface BoardMapper {
     void editBoard(Board board);
 
     void updateViewCount(long boardId);
+    
+    void removeDislikeCount(long boardId);
+
+    void removeLikeCount(long boardId);
+
+    void addLikeCount(long boardId);
+
+    void addDislikeCount(long boardId);
 }

@@ -13,4 +13,19 @@
         updated_at = CURRENT_TIMESTAMP
     </insert>
 
+    <select id="getPopularRest" resultType="Pickmeal.Pickmeal.RestaurantDTO">
+        SELECT r.res_id, r.res_name, r.address, r.lon, r.lat, r.region_name, r.representative_menu, r.menu_price, r.rest_views
+        FROM restaurant r
+        JOIN (
+            SELECT res_id, COUNT(*) AS wish_count
+            FROM review_wish
+            WHERE is_wish = 1
+            GROUP BY res_id
+            ORDER BY wish_count DESC
+            LIMIT 10
+        ) rw ON r.res_id
+        ORDER BY rw.wish_count DESC
+        LIMIT 10
+    </select>
+
 </mapper>

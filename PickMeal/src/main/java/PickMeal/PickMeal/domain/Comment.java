@@ -2,12 +2,15 @@ package PickMeal.PickMeal.domain;
 
 import lombok.Data;
 
+import java.util.Date;
+
 @Data
 public class Comment {
-    private long commentId;
+    private long comment_id;
     private long boardId;
     private long user_id;
     private String content;
-    private java.util.Date createCommentDate;
-    private java.util.Date updateCommentDate;
+    private Date createCommentDate;
+    private Date updateCommentDate;
+    private String nickname;
 }

@@ -63,4 +63,20 @@ public class BoardService {
     public void updateViewCount(long boardId) {
         boardMapper.updateViewCount(boardId);
     }
+
+    public void removeDislikeCount(long boardId) {
+        boardMapper.removeDislikeCount(boardId);
+    }
+
+    public void removeLikeCount(long boardId) {
+        boardMapper.removeLikeCount(boardId);
+    }
+
+    public void addLikeCount(long boardId) {
+        boardMapper.addLikeCount(boardId);
+    }
+
+    public void addDislikeCount(long boardId) {
+        boardMapper.addDislikeCount(boardId);
+    }
 }
