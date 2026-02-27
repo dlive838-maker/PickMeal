@@ -4,13 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="cd44bd9e-67ab-4312-b321-9137053ad2e6" name="변경" comment="">
+    <list default="true" id="cd44bd9e-67ab-4312-b321-9137053ad2e6" name="변경" comment="26.02.26 재민 병합 코드">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/java/PickMeal/PickMeal/config/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/java/PickMeal/PickMeal/config/SecurityConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/java/PickMeal/PickMeal/controller/HotPlaceController.java" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/java/PickMeal/PickMeal/controller/HotPlaceController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/java/PickMeal/PickMeal/domain/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/java/PickMeal/PickMeal/domain/User.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/java/PickMeal/PickMeal/dto/PlaceStatsDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/java/PickMeal/PickMeal/dto/PlaceStatsDto.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/java/PickMeal/PickMeal/service/PlaceStatsService.java" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/java/PickMeal/PickMeal/service/PlaceStatsService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/templates/hotplace.html" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/templates/hotplace.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -30,12 +25,12 @@
     &quot;assignee&quot;: &quot;juno1007&quot;
   }
 }</component>
-  <component name="GithubPullRequestsUISettings">{
-  &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/dlive838-maker/PickMeal.git&quot;,
-    &quot;accountId&quot;: &quot;453e9330-37b0-4881-b769-ab3dfe353017&quot;
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/dlive838-maker/PickMeal.git",
+    "accountId": "04b0600f-f63c-406a-b753-1f5c3038be60"
   }
-}</component>
+}]]></component>
   <component name="MavenImportPreferences">
     <option name="generalSettings">
       <MavenGeneralSettings>
@@ -53,8 +48,10 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "RunOnceActivity.git.unshallow": "true",
     "Spring Boot.PickMealApplication.executor": "Run",
-    "git-widget-placeholder": "jaemin"
+    "git-widget-placeholder": "jaemin",
+    "kotlin-language-version-configured": "true"
   }
 }]]></component>
   <component name="RecentsManager">
@@ -99,6 +96,19 @@
       <option name="presentableId" value="Default" />
       <updated>1772064122157</updated>
     </task>
+    <task id="LOCAL-00001" summary="26.02.26 재민 병합 코드">
+      <option name="closed" value="true" />
+      <created>1772093323600</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1772093323600</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="26.02.26 재민 병합 코드" />
+    <option name="LAST_COMMIT_MESSAGE" value="26.02.26 재민 병합 코드" />
   </component>
 </project>

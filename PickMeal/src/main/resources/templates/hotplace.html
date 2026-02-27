@@ -97,6 +97,19 @@
         <div class="filter-header-section">
             <div class="location-badge" id="btn-area-open"><span id="display-area">📍 지역을 선택하세요</span></div>
             <div class="location-badge food-badge" id="btn-food-open"><span id="display-food">🍴 음식 종류 선택</span></div>
+
+            <div class="relative mt-2 flex items-center gap-2">
+                <div class="relative flex-grow">
+                    <input type="text" id="keywordInput"
+                           class="w-full p-3 pr-10 rounded-xl border-2 border-gray-100 outline-none focus:border-[#FF8A5B] transition-all font-semibold text-sm"
+                           placeholder="가게명 혹은 키워드 입력">
+                    <button id="btnSearch" class="absolute right-3 top-1/2 -translate-y-1/2 text-[#FF8A5B] hover:scale-110 transition-transform">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
         </div>
         <div id="placesList" class="place-list scroller"></div>
     </aside>
@@ -160,6 +173,8 @@
     let currentSelection = { sido: null, sigugun: null, dong: null, foodName: null };
     let activePlaceId = null;
     const currentLoginUser = /*[[${#authentication.name}]]*/ 'guest';
+    const keywordInput = document.getElementById('keywordInput');
+const btnSearch = document.getElementById('btnSearch');
 
     const overlay = document.getElementById('overlay');
     const modalArea = document.getElementById('modal-area');
@@ -383,14 +398,66 @@ const starId = Number(rating) + "-stars";
             list.appendChild(li);
         });
     }
+ // [수정된 부분] 기존 기능 + 검색창 통합 함수
     function updateSearch() {
-        let keyword = ""; if (currentSelection.dong) keyword += `${currentSelection.sido} ${currentSelection.sigugun} ${currentSelection.dong} `; if (currentSelection.foodName) keyword += currentSelection.foodName;
-        if (!keyword.trim()) return;
-        geocoder.addressSearch(`${currentSelection.sido} ${currentSelection.sigugun} ${currentSelection.dong}`, (result, status) => { if (status === kakao.maps.services.Status.OK) { map.setCenter(new kakao.maps.LatLng(result[0].y, result[0].x)); ps.keywordSearch(keyword, renderPlaces); } });
-    }
-    function resetActive(id) { const list = document.getElementById(id); if (list) Array.from(list.children).forEach(li => li.classList.remove('active-item')); }
+        let keyword = "";
 
-    window.onload = () => { ps.keywordSearch('맛집', renderPlaces); };
+        // 1. 선택된 지역 정보 조합
+        if (currentSelection.dong) {
+            keyword += `${currentSelection.sido} ${currentSelection.sigugun} ${currentSelection.dong} `;
+        }
+
+        // 2. 선택된 음식 카테고리 조합
+        if (currentSelection.foodName) {
+            keyword += `${currentSelection.foodName} `;
+        }
+
+        // 3. 검색창 입력값 조합
+        const userKeyword = keywordInput.value.trim();
+        if (userKeyword) {
+            keyword += userKeyword;
+        }
+
+        // 필터나 검색어가 아무것도 없으면 '맛집'으로 기본 검색
+        if (!keyword.trim()) {
+            ps.keywordSearch('맛집', renderPlaces);
+            return;
+        }
+
+        // 지도 이동 및 검색 실행
+        if (currentSelection.dong) {
+            geocoder.addressSearch(`${currentSelection.sido} ${currentSelection.sigugun} ${currentSelection.dong}`, (result, status) => {
+                if (status === kakao.maps.services.Status.OK) {
+                    map.setCenter(new kakao.maps.LatLng(result[0].y, result[0].x));
+                    ps.keywordSearch(keyword, renderPlaces);
+                }
+            });
+        } else {
+            // 지역 선택이 없는 경우 현재 지도 위치 기준으로 키워드 검색
+            ps.keywordSearch(keyword, renderPlaces);
+        }
+    }
+
+    function resetActive(id) {
+        const list = document.getElementById(id);
+        if (list) Array.from(list.children).forEach(li => li.classList.remove('active-item'));
+    }
+
+    // 초기 로딩 및 이벤트 리스너 설정
+    window.onload = () => {
+        ps.keywordSearch('맛집', renderPlaces);
+    };
+
+    // 검색 버튼 클릭 이벤트
+    btnSearch.onclick = () => updateSearch();
+
+    // 검색창에서 Enter키 입력 이벤트
+    keywordInput.onkeypress = (e) => {
+        if (e.key === 'Enter') {
+            updateSearch();
+        }
+    };
+</script>
 </script>
 </body>
 </html>
