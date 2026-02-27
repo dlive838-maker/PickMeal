@@ -89,7 +89,7 @@ public class RestaurantController {
         if (userPk != null) {
             // [수정] DTO에 문자열 대신 숫자 PK를 담아줍니다.
             // DTO의 userId 필드 타입도 Long으로 바뀌어 있어야 합니다!
-            dto.setUserId(userPk.toString());
+            dto.setUserId(userPk);
         }
 
         reviewService.save(dto);

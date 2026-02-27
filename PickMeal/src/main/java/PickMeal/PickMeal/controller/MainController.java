@@ -1,25 +1,32 @@
 package PickMeal.PickMeal.controller;
 
 import PickMeal.PickMeal.domain.Food;
+import PickMeal.PickMeal.domain.Game;
 import PickMeal.PickMeal.domain.User;
 import PickMeal.PickMeal.service.FoodService;
+import PickMeal.PickMeal.service.GameService;
+import PickMeal.PickMeal.service.ReviewService;
 import PickMeal.PickMeal.service.UserService;
-import PickMeal.PickMeal.domain.Restaurant;
 import PickMeal.PickMeal.service.RestaurantService;
+import org.springframework.security.core.Authentication;
+import lombok.RequiredArgsConstructor;
 import org.springframework.ui.Model;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Controller
+@RequiredArgsConstructor
 public class MainController {
+    private final ReviewService reviewService;
 
     @Autowired
     private UserService userService;
@@ -30,13 +37,18 @@ public class MainController {
     @Autowired
     private FoodService foodService;
 
+    @Autowired
+    private GameService gameService;
+
     @GetMapping("/")
     public String index() {
         return "index"; // 인트로 화면
     }
 
     @GetMapping("/next-page") //
-    public String next() {
+    public String next(Model model) {
+//        List<RestaurantDTO> popularRestList = reviewWishService.getPopularRest();
+//        model.addAttribute("popularRestList", popularRestList);
         return "next-page";
     }
 
@@ -141,16 +153,60 @@ public class MainController {
     }
 
     @PostMapping("/worldcup/win/{foodId}")
-    @ResponseBody // [비유] 화면 이동 없이 "기록 완료!"라는 짧은 메시지만 보냅니다.
-    public String updateWinCount(@PathVariable("foodId") Long foodId) {
+    @ResponseBody
+    public String updateWinCount(@PathVariable("foodId") Long foodId,
+                                 @RequestParam(value="gameType", defaultValue="worldcup") String gameType,
+                                 Authentication authentication) {
         try {
-            // 일꾼(Service)에게 해당 ID 음식의 우승 횟수를 1 증가시키라고 시킵니다.
+            // 1. 기존 전체 카운트 증가
             userService.updateFoodWinCount(foodId);
+
+            // 2. game 테이블 상세 기록 저장
+            Game game = new Game();
+            game.setFood_id(foodId);
+            game.setGameType(gameType);
+            game.setPlayDate(LocalDateTime.now()); // java.time.LocalDateTime
+
+            // 3. 로그인 사용자 정보 처리
+            if (authentication != null && authentication.isAuthenticated()) {
+                String userId = authentication.getName(); // 기본 ID 추출
+
+                // 소셜 로그인 접두어 처리 로직
+                String registrationId = "";
+                if (authentication instanceof org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken) {
+                    registrationId = ((org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId();
+                }
+
+                // DB 조회용 fullUserId 조합 (예: kakao_4746951582)
+                String fullUserId = (registrationId == null || registrationId.isEmpty() || userId.startsWith(registrationId))
+                        ? userId : registrationId + "_" + userId;
+
+                // DB에서 유저 객체를 찾아 PK(숫자)를 가져옵니다.
+                User user = userService.findById(fullUserId);
+                if (user != null) {
+                    game.setUser_id(user.getUser_id()); // Long 타입 PK 저장
+                }
+            }
+
+            gameService.insertGameRecord(game);
             return "success";
         } catch (Exception e) {
+            e.printStackTrace(); // 빨간 줄 대신 로그를 남겨서 확인
             return "fail";
         }
     }
+
+    @GetMapping("/api/food/getIdByName")
+    @ResponseBody
+    public Long getFoodIdByName(@RequestParam("foodName") String foodName) {
+        Food food = foodService.findFoodByName(foodName);
+
+        if (food != null) {
+            return food.getFoodId(); // 음식의 PK(숫자 ID) 반환
+        }
+        return null; // 찾지 못했을 경우
+    }
+
 }
 
 

@@ -4,10 +4,12 @@ import PickMeal.PickMeal.domain.Food;
 import PickMeal.PickMeal.domain.User;
 import PickMeal.PickMeal.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -221,6 +223,27 @@ public class UserService implements UserDetailsService {
     // 비밀번호 재설정 대상 확인
     public User checkUserForPasswordReset(String id, String email) {
         return userMapper.findUserByIdAndEmail(id, email);
+    }
+
+    public User getAuthenticatedUser(Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return null;
+        }
+
+        // 1. 기본 식별값(ID) 가져오기
+        String principalName = authentication.getName();
+
+        // 2. 소셜 로그인인 경우 registrationId(kakao, naver 등) 추출
+        String registrationId = "";
+        if (authentication instanceof OAuth2AuthenticationToken token) {
+            registrationId = token.getAuthorizedClientRegistrationId();
+        }
+
+        // 3. DB 저장 형식에 맞게 ID 재조합 (일반: id, 소셜: kakao_id)
+        String fullUserId = registrationId.isEmpty() ? principalName : registrationId + "_" + principalName;
+
+        // 4. 재조합된 ID로 DB에서 유저 조회
+        return findById(fullUserId);
     }
 
 

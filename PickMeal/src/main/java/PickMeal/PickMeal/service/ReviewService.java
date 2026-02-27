@@ -1,8 +1,10 @@
 package PickMeal.PickMeal.service;
 
 import PickMeal.PickMeal.dto.ReviewWishDTO;
+import PickMeal.PickMeal.dto.RestaurantDTO;
 import PickMeal.PickMeal.mapper.ReviewWishMapper;
 import org.springframework.stereotype.Service;
+import java.util.List;
 
 @Service
 public class ReviewService {
@@ -14,6 +16,9 @@ public class ReviewService {
         this.reviewWishMapper = reviewWishMapper;
     }
 
+    public List<RestaurantDTO> getPopularRest() {
+        return reviewWishMapper.getPopularRest();
+    }
     /**
      * 리뷰 정보를 받아서 DB 장부에 기록하는 요리법입니다.
      */
