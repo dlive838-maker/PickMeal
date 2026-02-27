@@ -30,7 +30,7 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http, OAuth2SuccessHandler oauth2SuccessHandler) throws Exception {
         http
                 .csrf(csrf -> csrf.ignoringRequestMatchers(
-                        "/mail/**", "/users/**", "/worldcup/win/**",
+                        "/mail/**", "/users/**", "/worldcup/win/**", "/hotplace/**",
                         "/board/write", "/file/upload", "/api/wishlist/**", "/api/restaurant/**", "/api/review/**"
                 ))
                 .authorizeHttpRequests(authorize -> authorize
@@ -47,7 +47,7 @@ public class SecurityConfig {
                                 "/users/forgot-pw", "/users/find-password/**", "/users/reset-password/**",
                                 "/mail/**", "/oauth2/**", "/css/**", "/js/**", "/images/**", "/worldcup/win/**",
                                 "/roulette", "/twentyQuestions/**", "/twenty-questions/**", "/capsule", "/game/**", "/worldcup/**",
-                                "/api/**", "/draw", "/meal-spotter").permitAll()
+                                "/api/**", "/draw", "/meal-spotter", "/hotplace/**", "/*.json").permitAll()
 
                         .anyRequest().authenticated()
                 )
