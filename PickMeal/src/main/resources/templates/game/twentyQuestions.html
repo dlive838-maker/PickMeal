@@ -12,113 +12,18 @@
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@700;800&display=swap" rel="stylesheet">
 
     <style>
-        body {
-            font-family: 'Fredoka', sans-serif;
-            background-color: #FFF5F0;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-            margin: 0;
-            overflow-x: hidden;
-        }
-
-        [data-custom-header] a, [data-custom-header] button, [data-custom-header] span, .custom-italic {
-            font-family: 'Fredoka', sans-serif !important;
-            font-weight: 800 !important;
-            font-style: italic !important;
-            display: inline-block !important;
-        }
-
-        main {
-            flex: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-            padding: 100px 20px 40px;
-        }
-
-        .container {
-            background-color: #FFFDF0;
-            border-radius: 2.5rem;
-            padding: 40px;
-            box-shadow: 0 20px 50px rgba(255, 138, 91, 0.1);
-            width: 100%;
-            max-width: 600px;
-            text-align: center;
-            border: 4px solid #FF8A5B;
-        }
-
-        .question-box {
-            background-color: #FFF;
-            border: 4px solid #FF8A5B;
-            border-radius: 2rem;
-            padding: 30px;
-            font-size: 1.6em;
-            color: #333;
-            margin-bottom: 40px;
-            position: relative;
-            font-weight: 700;
-        }
-
-        .btn {
-            background-color: #FF8A5B;
-            color: white;
-            border: 4px solid #6D4C41;
-            border-radius: 50px;
-            padding: 15px 45px;
-            font-size: 1.5em;
-            font-weight: 800;
-            font-style: italic;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            box-shadow: 0 6px 0 rgba(0,0,0,0.1);
-        }
-
-        .progress-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-            height: 80px;
-            position: relative;
-            margin-top: 20px;
-        }
-
-        .character {
-            font-size: 3em;
-            position: absolute;
-            bottom: 25px;
-            left: 0;
-            transition: left 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            z-index: 10;
-        }
-
-        .progress-step {
-            width: 18px;
-            height: 18px;
-            background-color: #E2E8F0;
-            border-radius: 50%;
-            border: 3px solid #FF8A5B;
-            z-index: 1;
-        }
+        body { font-family: 'Fredoka', sans-serif; background-color: #FFF5F0; display: flex; flex-direction: column; min-height: 100vh; margin: 0; overflow-x: hidden; }
+        [data-custom-header] a, [data-custom-header] button, [data-custom-header] span, .custom-italic { font-family: 'Fredoka', sans-serif !important; font-weight: 800 !important; font-style: italic !important; display: inline-block !important; }
+        main { flex: 1; display: flex; justify-content: center; align-items: center; width: 100%; padding: 100px 20px 40px; }
+        .container { background-color: #FFFDF0; border-radius: 2.5rem; padding: 40px; box-shadow: 0 20px 50px rgba(255, 138, 91, 0.1); width: 100%; max-width: 600px; text-align: center; border: 4px solid #FF8A5B; }
+        .question-box { background-color: #FFF; border: 4px solid #FF8A5B; border-radius: 2rem; padding: 30px; font-size: 1.6em; color: #333; margin-bottom: 40px; position: relative; font-weight: 700; }
+        .btn { background-color: #FF8A5B; color: white; border: 4px solid #6D4C41; border-radius: 50px; padding: 15px 45px; font-size: 1.5em; font-weight: 800; font-style: italic; cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; box-shadow: 0 6px 0 rgba(0,0,0,0.1); }
+        .progress-bar { display: flex; justify-content: space-between; align-items: flex-end; height: 80px; position: relative; margin-top: 20px; }
+        .character { font-size: 3em; position: absolute; bottom: 25px; left: 0; transition: left 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 10; }
+        .progress-step { width: 18px; height: 18px; background-color: #E2E8F0; border-radius: 50%; border: 3px solid #FF8A5B; z-index: 1; }
         .progress-step.active { background-color: #FFEB3B; }
-
-        /* 결과창 전용 스타일 */
-        .winner-card-mid {
-            max-width: 410px !important;
-            padding: 2rem !important;
-            border-radius: 3.5rem !important;
-            background: white;
-            margin: 0 auto;
-        }
-        .winner-img-mid {
-            height: 220px !important;
-            border-radius: 2.5rem !important;
-            overflow: hidden;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-        }
+        .winner-card-mid { max-width: 410px !important; padding: 2rem !important; border-radius: 3.5rem !important; background: white; margin: 0 auto; }
+        .winner-img-mid { height: 220px !important; border-radius: 2.5rem !important; overflow: hidden; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
     </style>
 </head>
 <body>
@@ -153,48 +58,28 @@
     </div>
 </main>
 
-<footer th:replace="~{fragments/footer :: footerFragment}"></footer>
+<footer th:replace="~{fragments/footer :: footerFragment}"></footer >
 
 <script th:inline="javascript">
     let currentState = {
-        category_korean: null,
-        category_western: null,
-        category_chinese: null,
-        category_japanese: null,
-        category_asian: null,
-        isSpicy: null,
-        isSoup: null,
-        isFried: null,
-        isRoasted: null,
-        hasPork: null,
-        hasBeef: null,
-        askedQuestionIds: []
+        category_korean: null, category_western: null, category_chinese: null, category_japanese: null, category_asian: null,
+        isSpicy: null, isSoup: null, isFried: null, isRoasted: null, hasPork: null, hasBeef: null, askedQuestionIds: []
     };
 
-    let currentAttribute = "";
-    let currentQuestionStep = 0;
-    const maxSteps = 20;
-    let remainingFoods = [];
-    let finalTemplate = "";
-    let currentSuggestingFood = "";
+    let currentAttribute = ""; let currentQuestionStep = 0; const maxSteps = 20;
+    let remainingFoods = []; let finalTemplate = ""; let currentSuggestingFood = "";
 
-    window.onload = () => {
-        fetchNextStep();
-    };
+    window.onload = () => { fetchNextStep(); };
 
     async function fetchNextStep() {
         const csrfHeaderMeta = document.querySelector('meta[name="_csrf_header"]');
         const csrfTokenMeta = document.querySelector('meta[name="_csrf"]');
-
         const headers = { 'Content-Type': 'application/json' };
-        if (csrfHeaderMeta && csrfTokenMeta) {
-            headers[csrfHeaderMeta.content] = csrfTokenMeta.content;
-        }
+        if (csrfHeaderMeta && csrfTokenMeta) headers[csrfHeaderMeta.content] = csrfTokenMeta.content;
 
         try {
             const response = await fetch('/twenty-questions/next', {
-                method: 'POST',
-                headers: headers,
+                method: 'POST', headers: headers,
                 body: JSON.stringify(currentState)
             });
             const data = await response.json();
@@ -205,12 +90,10 @@
                 currentState.askedQuestionIds.push(parseInt(data.nextQuestion_id));
                 currentQuestionStep++;
                 updateProgressBar();
-
             } else if (data.status === "FINAL_CHOICE") {
                 remainingFoods = data.remain_foodList;
                 finalTemplate = data.nextQuestion_text;
                 askFinalFood();
-
             } else if (data.status === "NO_FOOD") {
                 alert("헉! 조건에 딱 맞는 음식이 없네요 😢 처음부터 다시 찾아볼까요?");
                 location.reload();
@@ -224,8 +107,7 @@
     function askFinalFood() {
         if (remainingFoods.length > 0) {
             currentSuggestingFood = remainingFoods.shift();
-            let text = currentSuggestingFood + finalTemplate;
-            document.getElementById('question-text').innerText = text;
+            document.getElementById('question-text').innerText = currentSuggestingFood + finalTemplate;
             currentQuestionStep++;
             updateProgressBar();
         } else {
@@ -235,62 +117,71 @@
     }
 
     async function nextQuestion(isYes) {
-        if (currentSuggestingFood !== "") {
-            if (isYes) {
-                try {
-                    const response = await fetch(`/twenty-questions/api/food/imagePath?foodName=${encodeURIComponent(currentSuggestingFood)}`);
-                    const realImagePath = await response.text();
+    if (currentSuggestingFood !== "") {
+        if (isYes) {
+    try {
+        // 1. 사진 경로 가져오기 (기존 기능)
+        const imgRes = await fetch(`/twenty-questions/api/food/imagePath?foodName=${encodeURIComponent(currentSuggestingFood)}`);
+        const realImagePath = await imgRes.text();
 
-                    const main = document.getElementById('game-main');
-                    main.className = "flex flex-col items-center justify-center w-full min-h-[70vh] px-10";
-                    main.innerHTML = `
-                        <div class="flex flex-col items-center justify-center w-full animate-bounce mb-2">
-                            <h2 class="text-[#FF8A5B] font-black text-5xl uppercase italic tracking-tighter">WINNER</h2>
+        // 2. [랭킹 반영] 이름으로 ID 찾아서 승리 카운트 업데이트
+        const idRes = await fetch(`/api/food/getIdByName?foodName=${encodeURIComponent(currentSuggestingFood)}`);
+        const foodId = await idRes.json();
+
+        if (foodId) {
+            // 학생님이 찾으신 월드컵용 승리 업데이트 API 호출!
+            fetch('/worldcup/win/' + foodId + '?gameType=twenty', { method: 'POST' })
+    .catch(e => {});
+        }
+
+                // 3. 결과 화면 렌더링 (사진 출력)
+                const main = document.getElementById('game-main');
+                main.className = "flex flex-col items-center justify-center w-full min-h-[70vh] px-10";
+                main.innerHTML = `
+                    <div class="flex flex-col items-center justify-center w-full animate-bounce mb-2">
+                        <h2 class="text-[#FF8A5B] font-black text-5xl uppercase italic tracking-tighter">WINNER</h2>
+                    </div>
+                    <div class="bg-white winner-card-mid shadow-2xl border-4 border-[#FF8A5B] w-full text-center">
+                        <div class="winner-img-mid mb-6 shadow-md bg-gray-50">
+                            <img src="${realImagePath}" class="w-full h-full object-cover" onerror="this.src='/images/meal.png'">
                         </div>
-                        <div class="bg-white winner-card-mid shadow-2xl border-4 border-[#FF8A5B] w-full text-center">
-                            <div class="winner-img-mid mb-6 shadow-md bg-gray-50">
-                                <img src="${realImagePath}" class="w-full h-full object-cover" onerror="this.src='/images/meal.png'">
-                            </div>
-                            <h1 class="text-4xl font-black text-gray-800 italic mb-6 uppercase tracking-tighter">${currentSuggestingFood}</h1>
-                            <div class="grid grid-cols-2 gap-3 mb-4">
-                                <button onclick="location.href='/game'" class="py-3 bg-gray-100 rounded-2xl font-bold italic uppercase text-sm hover:bg-gray-200 transition">HOME 🏠</button>
-                                <button onclick="location.reload()" class="py-3 bg-gray-100 rounded-2xl font-bold italic uppercase text-sm hover:bg-gray-200 transition">RESTART 🔄</button>
-                                <button onclick="location.href='/worldcup/ranking'" class="py-3 bg-gray-100 rounded-2xl font-bold italic uppercase text-sm hover:bg-gray-200 transition">RANK 🏆</button>
-                                <button onclick="copyToClipboard('${currentSuggestingFood}')" class="py-3 bg-gray-100 rounded-2xl font-bold italic uppercase text-sm hover:bg-gray-200 transition">SHARE 🔗</button>
-                            </div>
-                            <button onclick="window.open('https://map.kakao.com/link/search/' + encodeURIComponent('${currentSuggestingFood}'))"
-                                    class="w-full py-4 bg-[#FAE100] rounded-full font-black text-lg shadow-md hover:bg-[#ebd300] transition italic">
-                                주변 맛집 찾기 📍
-                            </button>
+                        <h1 class="text-4xl font-black text-gray-800 italic mb-6 uppercase tracking-tighter">${currentSuggestingFood}</h1>
+                        <div class="grid grid-cols-2 gap-3 mb-4">
+                            <button onclick="location.href='/game'" class="py-3 bg-gray-100 rounded-2xl font-bold italic uppercase text-sm hover:bg-gray-200 transition">HOME 🏠</button>
+                            <button onclick="location.reload()" class="py-3 bg-gray-100 rounded-2xl font-bold italic uppercase text-sm hover:bg-gray-200 transition">RESTART 🔄</button>
+                            <button onclick="location.href='/worldcup/ranking'" class="py-3 bg-gray-100 rounded-2xl font-bold italic uppercase text-sm hover:bg-gray-200 transition">RANK 🏆</button>
+                            <button onclick="copyToClipboard('${currentSuggestingFood}')" class="py-3 bg-gray-100 rounded-2xl font-bold italic uppercase text-sm hover:bg-gray-200 transition">SHARE 🔗</button>
                         </div>
-                    `;
+                        <button onclick="window.open('https://map.kakao.com/link/search/' + encodeURIComponent('${currentSuggestingFood}'))"
+                                class="w-full py-4 bg-[#FAE100] rounded-full font-black text-lg shadow-md hover:bg-[#ebd300] transition italic">
+                            주변 맛집 찾기 📍
+                        </button>
+                    </div>
+                `;
+                confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, zIndex: 9999 });
 
-                    confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, zIndex: 9999 });
-
-                } catch(error) {
-                    console.error("이미지 경로 로딩 실패:", error);
-                    alert("결과 화면을 불러오는 중 오류가 발생했습니다.");
-                }
-            } else {
-                askFinalFood();
+            } catch(error) {
+                console.error("결과 처리 중 에러:", error);
+                alert("결과 화면을 불러오는 중 오류가 발생했습니다.");
             }
-            return;
+        } else {
+            askFinalFood();
         }
-
-        if (currentAttribute) {
-            currentState[currentAttribute] = isYes ? 1 : 0;
-        }
-        fetchNextStep();
+        return;
     }
+
+    if (currentAttribute) {
+        currentState[currentAttribute] = isYes ? 1 : 0;
+    }
+    fetchNextStep();
+}
 
     function updateProgressBar() {
         const track = document.getElementById('progress-track');
         const character = document.getElementById('character');
         track.innerHTML = '<div class="progress-line absolute top-1/2 left-0 w-full h-[4px] bg-[#FED7D7] translate-y-[-50%] z-0"></div>';
-
         let displayStep = currentQuestionStep > maxSteps ? maxSteps : currentQuestionStep;
         document.getElementById('progress-count').innerText = `${displayStep}/${maxSteps}`;
-
         for (let i = 1; i <= maxSteps; i++) {
             const step = document.createElement('div');
             step.classList.add('progress-step', 'z-10');
@@ -301,7 +192,6 @@
             }
             track.appendChild(step);
         }
-
         setTimeout(() => {
             const stepWidth = track.offsetWidth / (maxSteps - 1);
             const characterPosition = (displayStep - 1) * stepWidth;

@@ -76,7 +76,10 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         User findUser = userService.findById(userId);
 
         if (findUser != null) {
-            // 7-1. 이미 회원이라면 환영하며 메인 페이지('/')로 바로 보냅니다.
+            // [중요 수정] 정식 회원이라면 시큐리티 세션에 우리 도메인 User 정보를 심어줍니다.
+            // 이 과정이 있어야 컨트롤러에서 @AuthenticationPrincipal User로 정보를 받을 수 있습니다.
+
+            // 7-1. 이미 회원이라면 메인 페이지로 보냅니다.
             getRedirectStrategy().sendRedirect(request, response, "/next-page");
         } else {
             // 7-2. 처음 방문한 사람이라면 추가 정보를 받기 위해 회원가입 페이지로 정보를 들고 이동시킵니다.
