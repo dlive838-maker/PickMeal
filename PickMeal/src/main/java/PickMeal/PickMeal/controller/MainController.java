@@ -1,8 +1,10 @@
 package PickMeal.PickMeal.controller;
 
+import PickMeal.PickMeal.domain.Admin;
 import PickMeal.PickMeal.domain.Food;
 import PickMeal.PickMeal.domain.Game;
 import PickMeal.PickMeal.domain.User;
+import PickMeal.PickMeal.mapper.AdminMapper;
 import PickMeal.PickMeal.service.FoodService;
 import PickMeal.PickMeal.service.GameService;
 import PickMeal.PickMeal.service.ReviewService;
@@ -39,6 +41,9 @@ public class MainController {
 
     @Autowired
     private GameService gameService;
+
+    @Autowired
+    private AdminMapper adminMapper;
 
     @GetMapping("/")
     public String index() {
@@ -161,40 +166,62 @@ public class MainController {
             // 1. 기존 전체 카운트 증가
             userService.updateFoodWinCount(foodId);
 
-            // 2. game 테이블 상세 기록 저장
+            // 2. game 객체 생성 및 초기화
             Game game = new Game();
+            game.setUser_id(null);
+            game.setAdmin_id(null);
             game.setFood_id(foodId);
             game.setGameType(gameType);
-            game.setPlayDate(LocalDateTime.now()); // java.time.LocalDateTime
+            game.setPlayDate(LocalDateTime.now());
 
             // 3. 로그인 사용자 정보 처리
             if (authentication != null && authentication.isAuthenticated()) {
-                String userId = authentication.getName(); // 기본 ID 추출
+                String loginName = authentication.getName();
+                boolean isAdmin = authentication.getAuthorities().stream()
+                        .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
 
-                // 소셜 로그인 접두어 처리 로직
-                String registrationId = "";
-                if (authentication instanceof org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken) {
-                    registrationId = ((org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId();
+                if (isAdmin) {
+                    // 관리자 로직
+                    Admin admin = adminMapper.findByLoginId(loginName);
+                    if (admin != null) {
+                        game.setAdmin_id(admin.getAdminId());
+                    }
+                } else {
+                    // 일반 유저 로직
+                    String registrationId = "";
+                    if (authentication instanceof org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken token) {
+                        registrationId = token.getAuthorizedClientRegistrationId();
+                    }
+
+                    String fullUserId = (registrationId == null || registrationId.isEmpty() || loginName.startsWith(registrationId))
+                            ? loginName : registrationId + "_" + loginName;
+
+                    System.out.println("검색하려는 ID: " + fullUserId);
+                    User user = userService.findById(fullUserId);
+
+                    if (user != null) {
+                        System.out.println("유저 찾기 성공! PK: " + user.getUser_id());
+                        game.setUser_id(user.getUser_id());
+                    } else {
+                        System.out.println("유저 찾기 실패... DB를 확인하세요.");
+                    }
                 }
+            } // <--- authentication 체크 블록 끝
 
-                // DB 조회용 fullUserId 조합 (예: kakao_4746951582)
-                String fullUserId = (registrationId == null || registrationId.isEmpty() || userId.startsWith(registrationId))
-                        ? userId : registrationId + "_" + userId;
-
-                // DB에서 유저 객체를 찾아 PK(숫자)를 가져옵니다.
-                User user = userService.findById(fullUserId);
-                if (user != null) {
-                    game.setUser_id(user.getUser_id()); // Long 타입 PK 저장
-                }
+            // [중요] 0 방어 로직 (항상 실행되도록 블록 밖으로 뺌)
+            if (game.getUser_id() != null && game.getUser_id() == 0L) {
+                game.setUser_id(null);
             }
 
+            // [핵심] 로그인 여부와 상관없이 게임 기록 저장 시도
             gameService.insertGameRecord(game);
             return "success";
-        } catch (Exception e) {
-            e.printStackTrace(); // 빨간 줄 대신 로그를 남겨서 확인
+
+        } catch (Exception e) { // <--- try 블록 끝 및 catch 시작
+            e.printStackTrace();
             return "fail";
         }
-    }
+    } // <--- 메서드 끝
 
     @GetMapping("/api/food/getIdByName")
     @ResponseBody

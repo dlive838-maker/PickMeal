@@ -4,6 +4,12 @@
 <mapper namespace="PickMeal.PickMeal.mapper.GameMapper">
     <insert id="insertGameRecord" parameterType="PickMeal.PickMeal.domain.Game">
         INSERT INTO game (user_id, admin_id, food_id, gameType, playDate)
-        VALUES (#{user_id}, #{admin_id}, #{food_id}, #{gameType}, #{playDate})
+        VALUES (
+        #{user_id, jdbcType=BIGINT},
+        #{admin_id, jdbcType=BIGINT},
+        #{food_id},
+        #{gameType},
+        #{playDate}
+        )
     </insert>
 </mapper>

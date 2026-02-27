@@ -9,8 +9,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@700;800&family=Jua&family=Nanum+Gothic:wght@700;800&family=Gamja+Flower&family=Black+Han+Sans&display=swap" rel="stylesheet">
   <style>
-    /* 학생님의 기존 CSS 스타일 100% 보존 */
-    body { font-family: 'Fredoka', sans-serif; background-color: #FFF5F0; margin: 0; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
+    body { font-family: 'Fredoka', sans-serif; background-color: #FFF5F0; margin: 0; overflow-y: auto; height: 100vh; display: flex; flex-direction: column; }
     .nav-link { font-family: 'Fredoka', sans-serif; font-weight: 700; font-style: italic; }
     main { padding: 40px 20px; display: flex; flex-direction: column; align-items: center; }
     .main-title-area { text-align: left; width: 100%; max-width: 900px; margin-bottom: 20px; }
@@ -49,7 +48,8 @@
 <body>
 
 <header th:replace="~{fragments/header :: headerFragment}"></header>
-<div class="overflow-y-auto flex-grow" >
+
+<div class="overflow-y-auto flex-grow">
   <main class="flex items-center justify-center content-slide-up py-10">
     <div class="main-title-area">
       <h1>COMMUNITY BOARD</h1>
@@ -94,6 +94,7 @@
       </div>
 
       <hr class="my-5">
+
       <div class="comment-container">
         <h3 class="comment-title">댓글 <span th:text="${#lists.size(comments)}">0</span></h3>
 
@@ -118,7 +119,7 @@
                   <span class="comment-date" th:if="${comment.updateCommentDate == null}" th:text="${#dates.format(comment.createCommentDate, 'yyyy-MM-dd HH:mm')}">작성일</span>
                   <span class="comment-date" th:if="${comment.updateCommentDate != null}" th:text="${#dates.format(comment.updateCommentDate, 'yyyy-MM-dd HH:mm')} + ' (수정됨)'">수정일</span>
                 </div>
-                <div th:if="${user != null and user.user_id == comment.user_id}" style="display: flex; gap: 5px;">
+                <div th:if="${user != null and comment.user_id != null and user.user_id.equals(comment.user_id)}" style="display: flex; gap: 5px;">
                   <button type="button" class="btn-text" th:onclick="|toggleEditMode(${comment.comment_id})|">수정</button>
                   <form th:action="@{/comment/delete/{comment_id}(comment_id=${comment.comment_id})}" method="post" style="margin:0;">
                     <input type="hidden" name="boardId" th:value="${board.boardId}">
@@ -150,6 +151,7 @@
 <script th:inline="javascript">
   const currentUser = /*[[${user}]]*/ null;
 
+  // 권한 확인 공통 함수
   function checkAuth() {
       if (!currentUser) {
           if (confirm("로그인한 회원만 이용할 수 있습니다. \n로그인 페이지로 이동하시겠습니까?")) {
@@ -160,6 +162,7 @@
       return true;
   }
 
+  // 댓글 제출 핸들러
   function handleCommentSubmit(event) {
       if (!checkAuth()) {
           event.preventDefault();
@@ -168,28 +171,35 @@
       return true;
   }
 
+  // 게시글 삭제 요청 (폼 생성 방식)
   function deleteBoard(boardId) {
       if (confirm('정말 삭제하시겠습니까?')) {
           const form = document.createElement('form');
           form.method = 'post';
           form.action = `/board/remove/${encodeURIComponent(boardId)}`;
+
+          // 시큐리티 CSRF 토큰 삽입
           const csrfToken = document.querySelector('meta[name="_csrf"]').content;
           const csrfInput = document.createElement('input');
           csrfInput.type = 'hidden';
           csrfInput.name = '_csrf';
           csrfInput.value = csrfToken;
+
           form.appendChild(csrfInput);
           document.body.appendChild(form);
           form.submit();
       }
   }
 
+  // 좋아요/싫어요 비동기 요청
   function updateReaction(likeType, boardId) {
       if (!checkAuth()) return;
       const csrfToken = document.querySelector('meta[name="_csrf"]').content;
       const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
+
       const formData = new FormData();
       formData.append("like_type", likeType);
+
       fetch(`/board/reaction/${boardId}`, {
           method: "POST",
           headers: { [csrfHeader]: csrfToken },
@@ -198,6 +208,7 @@
         .catch(error => console.error("Error:", error));
   }
 
+  // 댓글 수정 모드 토글
   function toggleEditMode(comment_id) {
       const viewDiv = document.getElementById('comment-view-' + comment_id);
       const editDiv = document.getElementById('comment-edit-' + comment_id);

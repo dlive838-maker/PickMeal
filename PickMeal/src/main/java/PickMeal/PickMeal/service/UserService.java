@@ -2,6 +2,7 @@ package PickMeal.PickMeal.service;
 
 import PickMeal.PickMeal.domain.Food;
 import PickMeal.PickMeal.domain.User;
+import PickMeal.PickMeal.mapper.AdminMapper;
 import PickMeal.PickMeal.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -20,6 +21,7 @@ import java.util.List;
 @Transactional(readOnly = true) // 기본적으로 읽기 전용 트랜잭션 적용
 public class UserService implements UserDetailsService {
     private final UserMapper userMapper;
+    private final AdminMapper adminMapper;
     private final PasswordEncoder passwordEncoder;
 
     @Transactional // 쓰기 작업이므로 트랜잭션 별도 지정
@@ -85,13 +87,31 @@ public class UserService implements UserDetailsService {
         return userMapper.findByEmail(email);
     }
 
+    // UserService.java 수정
     @Override
-    public UserDetails loadUserByUsername(String id) throws UsernameNotFoundException {
-        User user = userMapper.findById(id); // 시큐리티 로그인 시 아이디로 조회
-        if (user == null) {
-            throw new UsernameNotFoundException("사용자를 찾을 수 없습니다: " + id);
+    public UserDetails loadUserByUsername(String loginId) throws UsernameNotFoundException {
+
+        // 1. 관리자 테이블 확인
+        PickMeal.PickMeal.domain.Admin admin = adminMapper.findByLoginId(loginId);
+
+        if (admin != null) {
+            // [중요] .username()은 식별자이므로 loginId를 유지하되,
+            // 관리자의 실제 이름(name)을 활용할 수 있도록 세팅이 필요합니다.
+            return org.springframework.security.core.userdetails.User.builder()
+                    .username(admin.getName())
+                    .password(admin.getPassword())
+                    .roles("ADMIN")
+                    .build();
         }
-        return user; // UserDetails 구현체인 User 반환
+
+        // 2. 일반 유저 테이블 확인
+        User user = userMapper.findById(loginId);
+        if (user != null) {
+            // 일반 유저도 이름으로 나오게 하고 싶다면 여기서 user.getName() 등으로 처리 가능합니다.
+            return user;
+        }
+
+        throw new UsernameNotFoundException("사용자를 찾을 수 없습니다.");
     }
 
     private void validateDuplicateUser(String id) {

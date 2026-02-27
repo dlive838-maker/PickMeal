@@ -77,37 +77,41 @@ public class BoardController {
     }
 
     @GetMapping("/detail/{boardId}")
-    public String showBoardDetail(@PathVariable long boardId, Authentication authentication, Model model) {
+    public String showBoardDetail(@PathVariable Long boardId, Authentication authentication, Model model) {
         Board board = boardService.getBoardByBoardId(boardId);
-        int userReaction = 0;
-
-        // [수정] 여기도 공통 메서드로 유저 객체를 가져옵니다.
         User loginUser = userService.getAuthenticatedUser(authentication);
 
-        if (authentication != null && authentication.isAuthenticated() && loginUser != null) {
-            // 좋아요/싫어요 상태 확인
+        boolean isWriter = false;
+        int userReaction = 0;
+
+        if (loginUser != null) {
+            // 1. 좋아요 상태 확인
             userReaction = boardReactionService.isLikeOrDislike(boardId, loginUser.getUser_id());
 
-            // [수정] 작성자 본인 확인 (Long 타입일 수 있으므로 == 대신 equals 권장이나 long이면 == 유지)
-            model.addAttribute("isWriter", board.getUser_id() == loginUser.getUser_id());
+            // 2. 작성자 비교 (Objects.equals 사용으로 널 체크와 타입 비교를 동시에)
+            isWriter = java.util.Objects.equals(board.getUser_id(), loginUser.getUser_id());
+
+            // 3. 디버깅용 로그 (서버 콘솔에서 확인 필수!)
+            System.out.println("=== 작성자 확인 로그 ===");
+            System.out.println("게시글 작성자 PK: " + board.getUser_id());
+            System.out.println("현재 로그인 유저 PK: " + loginUser.getUser_id());
+            System.out.println("결과 (isWriter): " + isWriter);
+
             model.addAttribute("user", loginUser);
-        } else {
-            model.addAttribute("isWriter", false);
         }
 
-        boardService.updateViewCount(boardId);
-        List<Comment> comments = commentService.getCommentsByBoardId(boardId);
-
-        model.addAttribute("comments", comments);
-        model.addAttribute("userReaction", userReaction);
         model.addAttribute("board", board);
+        model.addAttribute("isWriter", isWriter); // 블록 밖에서 명시적으로 전달
+        model.addAttribute("userReaction", userReaction);
+        model.addAttribute("comments", commentService.getCommentsByBoardId(boardId));
         model.addAttribute("files", fileService.findByBoardId(boardId));
+
         return "/board/board-detail";
     }
 
     @PostMapping("/reaction/{boardId}")
     @ResponseBody
-    public ResponseEntity<String> boardLikeOrDislikeReaction(@PathVariable long boardId, Authentication authentication, @RequestParam("like_type") int like_type) {
+    public ResponseEntity<String> boardLikeOrDislikeReaction(@PathVariable Long boardId, Authentication authentication, @RequestParam("like_type") int like_type) {
         // [수정] 중복 제거된 공통 메서드 활용
         User user = userService.getAuthenticatedUser(authentication);
 
@@ -150,7 +154,7 @@ public class BoardController {
     }
 
     @GetMapping("/edit/{boardId}")
-    public String editBoardForm(@PathVariable long boardId, Model model) {
+    public String editBoardForm(@PathVariable Long boardId, Model model) {
         Board board = boardService.getBoardByBoardId(boardId);
         model.addAttribute("board", board);
         model.addAttribute("files", fileService.findByBoardId(boardId));
@@ -158,7 +162,7 @@ public class BoardController {
     }
 
     @PostMapping("/edit/{boardId}")
-    public String editBoard(Board board, @PathVariable long boardId, @RequestParam(value = "file", required = false) MultipartFile file) {
+    public String editBoard(Board board, @PathVariable Long boardId, @RequestParam(value = "file", required = false) MultipartFile file) {
         board.setBoardId(boardId);
         boardService.editBoard(board);
 
@@ -170,7 +174,7 @@ public class BoardController {
     }
 
     @PostMapping("/remove/{boardId}")
-    public String removeBoard(@PathVariable long boardId) {
+    public String removeBoard(@PathVariable Long boardId) {
         boardService.removeBoard(boardId);
         fileService.deleteByBoardId(boardId);
         return "redirect:/board/list";

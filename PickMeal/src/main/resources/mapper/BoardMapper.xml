@@ -3,6 +3,18 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="PickMeal.PickMeal.mapper.BoardMapper">
+    <resultMap id="BoardDetailMap" type="PickMeal.PickMeal.domain.Board">
+        <id property="boardId" column="boardId" />
+        <result property="user_id" column="user_id" /> <result property="title" column="title" />
+        <result property="content" column="content" />
+        <result property="createDate" column="createDate" />
+        <result property="updateDate" column="updateDate" />
+        <result property="viewCount" column="viewCount" />
+        <result property="likeCount" column="likeCount" />
+        <result property="dislikeCount" column="dislikeCount" />
+        <result property="commentCount" column="commentCount" />
+        <result property="nickname" column="nickname" />
+    </resultMap>
     <select id="findBoardAll" resultType="PickMeal.PickMeal.domain.Board">
         SELECT b.boardId, b.title, b.content, b.user_id, b.createDate, b.updateDate, b.viewCount, b.likeCount, b.dislikeCount, b.commentCount, u.nickname
         FROM board b
@@ -26,8 +38,12 @@
         FROM board
         WHERE user_id = #{userId}
     </select>
-    <select id="getBoardByBoardId" parameterType="long" resultType="PickMeal.PickMeal.domain.Board">
-        SELECT b.boardId, b.title, b.content, b.user_id, b.createDate, b.updateDate, b.viewCount, b.likeCount, b.dislikeCount, b.commentCount, u.nickname
+    <select id="getBoardByBoardId" parameterType="long" resultMap="BoardDetailMap">
+        SELECT
+        b.boardId, b.title, b.content, b.user_id,
+        b.createDate, b.updateDate, b.viewCount,
+        b.likeCount, b.dislikeCount, b.commentCount,
+        u.nickname
         FROM board b
         JOIN user u ON b.user_id = u.user_id
         WHERE b.boardId = #{boardId}

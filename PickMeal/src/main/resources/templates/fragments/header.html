@@ -24,9 +24,20 @@
         </th:block>
 
         <th:block sec:authorize="isAuthenticated()">
-            <a href="/users/mypage" class="nav-link text-gray-800 hover:text-[#FF8A5B] transition font-black whitespace-nowrap uppercase">MY PAGE</a>
+            <a sec:authorize="hasRole('USER')"
+               href="/users/mypage"
+               class="nav-link text-gray-800 hover:text-[#FF8A5B] transition font-black whitespace-nowrap uppercase">
+                MY PAGE
+            </a>
+            <div sec:authorize="hasRole('ADMIN')"
+                 class="flex items-center gap-2 px-4 py-1 bg-gray-100 rounded-full border border-gray-200">
+                <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">Admin Mode : </span>
+                <span class="text-sm font-black text-[#FF8A5B]">
+            관리자 <span th:text="${#authentication.name}"></span>님</span>
+            </div>
             <form th:action="@{/users/logout}" method="post" class="inline">
-                <button type="submit" class="nav-link text-[#FF8A5B] font-black italic bg-transparent border-0 cursor-pointer hover:scale-105 transition whitespace-nowrap">
+                <button type="submit"
+                        class="nav-link text-[#FF8A5B] font-black italic bg-transparent border-0 cursor-pointer hover:scale-105 transition whitespace-nowrap">
                     LOGOUT
                 </button>
             </form>
