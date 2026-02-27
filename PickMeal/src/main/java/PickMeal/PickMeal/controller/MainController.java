@@ -3,6 +3,7 @@ package PickMeal.PickMeal.controller;
 import PickMeal.PickMeal.domain.Food;
 import PickMeal.PickMeal.domain.Game;
 import PickMeal.PickMeal.domain.User;
+import PickMeal.PickMeal.dto.RestaurantDTO;
 import PickMeal.PickMeal.service.FoodService;
 import PickMeal.PickMeal.service.GameService;
 import PickMeal.PickMeal.service.ReviewService;
@@ -47,8 +48,9 @@ public class MainController {
 
     @GetMapping("/next-page") //
     public String next(Model model) {
-//        List<RestaurantDTO> popularRestList = reviewWishService.getPopularRest();
-//        model.addAttribute("popularRestList", popularRestList);
+        List<RestaurantDTO> popularRestList = reviewService.getPopularRest();
+        model.addAttribute("popularRestList", popularRestList);
+        System.out.println(popularRestList);
         return "next-page";
     }
 

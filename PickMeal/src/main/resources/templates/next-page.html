@@ -38,13 +38,13 @@
         </div>
     </div>
 
-    <div class="swiper-container-wrapper">
+    <div th:if = "${popularRestList.size() > 0}" class="swiper-container-wrapper">
         <div class="swiper mySwiper">
             <div class="swiper-wrapper" id="menuWrapper">
                 <div class="swiper-slide p-2" th:each="rest : ${popularRestList}">
 
-                    <div class="food-card bg-white overflow-hidden shadow-lg border-2 border-gray-50 p-6"
-                         th:onclick="|location.href='@{/restaurant/detail/{id}(res_id=${rest.res_id})}'|">
+                    <div class="food-card bg-white overflow-hidden shadow-lg border-2 border-gray-50 p-6">
+                        <!-- th:onclick="|location.href='@{/restaurant/detail/{res_id}(res_id=${rest.restId})}'|" -->
 
                         <div class="bg-[#FFF5F0] h-56 rounded-[2.5rem] mb-5 flex flex-col items-center justify-center select-none transition hover:bg-[#FF8A5B] hover:text-white group">
                             <div class="text-5xl mb-2 group-hover:scale-125 transition">❤️</div>
@@ -54,13 +54,13 @@
 
                         <div class="px-4 text-center">
                             <h3 class="text-2xl font-black text-gray-800 italic uppercase truncate"
-                                th:text="${rest.representative_menu}">대표 메뉴</h3>
+                                th:text="${rest.restMenu}">대표 메뉴</h3>
 
-                            <p class="text-gray-500 mt-2 font-bold" th:text="${rest.res_name}">식당 이름</p>
+                            <p class="text-gray-500 mt-2 font-bold" th:text="${rest.restName}">식당 이름</p>
 
                             <div class="flex justify-between items-center mt-6">
                                 <span class="text-[#FF8A5B] text-xl font-black"
-                                      th:text="${#numbers.formatInteger(rest.menu_price, 0, 'COMMA')} + ' 원'">15,000 원</span>
+                                      th:text="${rest.restPrice} + ' 원'">15,000 원</span>
                                 <button class="bg-[#A8D5BA] text-white px-5 py-2 rounded-full font-black shadow-md hover:bg-[#8fc7a5] transition text-sm">보러가기</button>
                             </div>
                         </div>
@@ -75,29 +75,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 <script>
-    const menuItems = [
-        { name: "Pepperoni Pizza", price: "15,000", emoji: "🍕" },
-        { name: "Cheese Burger", price: "12,000", emoji: "🍔" },
-        { name: "Premium Sushi", price: "18,000", emoji: "🍣" },
-        { name: "Cream Pasta", price: "14,000", emoji: "🍝" },
-        { name: "Beef Steak", price: "35,000", emoji: "🥩" },
-        { name: "Fried Chicken", price: "20,000", emoji: "🍗" }
-    ];
 
-    document.getElementById('menuWrapper').innerHTML = menuItems.map(item => `
-        <div class="swiper-slide p-2">
-            <div class="food-card bg-white overflow-hidden shadow-lg border-2 border-gray-50 p-6">
-                <div class="bg-[#FFF5F0] h-56 rounded-[2.5rem] mb-5 flex items-center justify-center text-7xl select-none">${item.emoji}</div>
-                <div class="px-4 text-center">
-                    <h3 class="text-2xl font-black text-gray-800 italic uppercase">${item.name}</h3>
-                    <div class="flex justify-between items-center mt-6">
-                        <span class="text-[#FF8A5B] text-xl font-black">${item.price} KRW</span>
-                        <button class="bg-[#A8D5BA] text-white px-6 py-2 rounded-full font-black shadow-md hover:bg-[#8fc7a5] transition uppercase text-sm">Add</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `).join('');
 
     new Swiper(".mySwiper", {
         slidesPerView: 3,

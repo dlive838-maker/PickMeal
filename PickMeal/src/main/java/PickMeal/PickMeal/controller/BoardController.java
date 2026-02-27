@@ -94,6 +94,8 @@ public class BoardController {
         } else {
             model.addAttribute("isWriter", false);
         }
+        System.out.println("isWriter: " + model.getAttribute("isWriter"));
+        System.out.println("user: " + model.getAttribute("user"));
 
         boardService.updateViewCount(boardId);
         List<Comment> comments = commentService.getCommentsByBoardId(boardId);

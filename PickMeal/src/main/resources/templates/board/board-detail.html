@@ -118,7 +118,7 @@
                   <span class="comment-date" th:if="${comment.updateCommentDate == null}" th:text="${#dates.format(comment.createCommentDate, 'yyyy-MM-dd HH:mm')}">작성일</span>
                   <span class="comment-date" th:if="${comment.updateCommentDate != null}" th:text="${#dates.format(comment.updateCommentDate, 'yyyy-MM-dd HH:mm')} + ' (수정됨)'">수정일</span>
                 </div>
-                <div th:if="${user != null and user.user_id == comment.user_id}" style="display: flex; gap: 5px;">
+                <div th:if="${user.user_id == comment.user_id}" style="display: flex; gap: 5px;">
                   <button type="button" class="btn-text" th:onclick="|toggleEditMode(${comment.comment_id})|">수정</button>
                   <form th:action="@{/comment/delete/{comment_id}(comment_id=${comment.comment_id})}" method="post" style="margin:0;">
                     <input type="hidden" name="boardId" th:value="${board.boardId}">
