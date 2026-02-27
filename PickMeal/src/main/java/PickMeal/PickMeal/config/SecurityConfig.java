@@ -49,10 +49,9 @@ public class SecurityConfig {
                                 "/users/forgot-pw",         // 비번 찾기 신청 페이지
                                 "/users/find-password/**",  // 비번 찾기 로직 API
                                 "/users/reset-password/**", // 새 비번 설정 페이지 및 API
-                                "/mail/**", "/oauth2/**", "/css/**", "/js/**", "/images/**", "/worldcup/win/**",
-                                "/meal-spotter",         // ★ 맛집 탐지기 페이지 접근 허용
-                                "/api/**"                // ★ 맛집 탐지기 API들 접근 허용
+                                "/mail/**", "/oauth2/**", "/css/**", "/js/**", "/images/**", "/worldcup/win/**"
                                 ).permitAll()
+                        .requestMatchers("/meal-spotter/**", "/api/**").authenticated()
                         .anyRequest().authenticated()
                 )
                 .formLogin(formLogin -> formLogin

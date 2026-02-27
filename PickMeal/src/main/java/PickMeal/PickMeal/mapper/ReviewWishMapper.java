@@ -28,5 +28,5 @@ public interface ReviewWishMapper {
 
     List<ReviewWishDTO> getReviewsByRestaurant(@Param("resId") Long resId);
 
-
+    void deleteReview(Long reviewId);
 }
