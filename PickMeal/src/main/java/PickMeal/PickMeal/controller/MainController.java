@@ -3,12 +3,9 @@ package PickMeal.PickMeal.controller;
 import PickMeal.PickMeal.domain.Food;
 import PickMeal.PickMeal.domain.Game;
 import PickMeal.PickMeal.domain.User;
+import PickMeal.PickMeal.dto.PlaceStatsDto;
 import PickMeal.PickMeal.dto.RestaurantDTO;
-import PickMeal.PickMeal.service.FoodService;
-import PickMeal.PickMeal.service.GameService;
-import PickMeal.PickMeal.service.ReviewService;
-import PickMeal.PickMeal.service.UserService;
-import PickMeal.PickMeal.service.RestaurantService;
+import PickMeal.PickMeal.service.*;
 import org.springframework.security.core.Authentication;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ui.Model;
@@ -28,6 +25,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MainController {
     private final ReviewService reviewService;
+    private final PlaceStatsService placeStatsService;
 
     @Autowired
     private UserService userService;
@@ -51,6 +49,11 @@ public class MainController {
         List<RestaurantDTO> popularRestList = reviewService.getPopularRest();
         model.addAttribute("popularRestList", popularRestList);
         System.out.println(popularRestList);
+
+
+        List<PlaceStatsDto> popularPlaceList = placeStatsService.getPopularPlace();
+        model.addAttribute("popularPlaceList", popularPlaceList);
+        System.out.println("popularPlaceList: " + popularPlaceList);
         return "next-page";
     }
 

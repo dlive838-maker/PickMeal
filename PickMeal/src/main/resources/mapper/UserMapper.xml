@@ -21,7 +21,6 @@
         <result property="socialLoginSite" column="socialLoginSite" />
         <result property="socialId" column="socialId" />
     </resultMap>
-
     <insert id="save" parameterType="PickMeal.PickMeal.domain.User">
         INSERT INTO user (
         id, password, nickname, name, email, birthDate, gender,

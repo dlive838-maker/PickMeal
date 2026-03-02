@@ -20,27 +20,31 @@ public class TwentyQuestionsController {
 
     @PostMapping("/next")
     public ResponseEntity<GameResponseDto> getNextStep(@RequestBody GameRequestDto request) {
-
         GameResponseDto response = new GameResponseDto();
-
         List<String> remainingFoods = twentyQuestionsService.getFilteredFoods(request);
 
         if (remainingFoods.size() <= 3 && remainingFoods.size() > 0) {
-            String finalQuestion = twentyQuestionsService.getFinalQuestion();
             response.setStatus("FINAL_CHOICE");
             response.setRemain_foodList(remainingFoods);
-            response.setNextQuestion_text(finalQuestion);
-
-        } else if (remainingFoods.isEmpty()) {
+            response.setNextQuestion_text(twentyQuestionsService.getFinalQuestion());
+        }
+        else if (remainingFoods.isEmpty()) {
             response.setStatus("NO_FOOD");
-        } else {
+        }
+        else {
             response.setStatus("QUESTION");
-            Questions nextQuestion = twentyQuestionsService.getNextValidQuestion((request));
+            Questions nextQuestion = twentyQuestionsService.getNextValidQuestion(request);
+
+            if (nextQuestion == null) {
+                response.setStatus("NO_FOOD");
+                return ResponseEntity.ok(response);
+            }
+
             response.setNextQuestion_id(nextQuestion.getQuestion_id());
             response.setNextQuestion_text(nextQuestion.getQuestion_text());
             response.setNextAttribute_name(nextQuestion.getAttribute_name());
         }
-
+        // 모든 경로에 대해 최종 결과 반환
         return ResponseEntity.ok(response);
     }
 

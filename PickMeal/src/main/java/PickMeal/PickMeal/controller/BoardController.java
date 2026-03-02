@@ -59,14 +59,12 @@ public class BoardController {
 
     @PostMapping("/write")
     public String writeBoard(Board board, @RequestParam(value = "file", required = false) MultipartFile file, Authentication authentication) {
-        // [수정] 서비스의 공통 메서드를 사용하여 유저 객체를 바로 가져옵니다.
         User loginUser = userService.getAuthenticatedUser(authentication);
 
         if (loginUser != null) {
             board.setUser_id(loginUser.getUser_id());
             boardService.writeBoard(board);
         } else {
-            // 유저를 찾지 못하면 로그인 페이지로 보냅니다.
             return "redirect:/users/login";
         }
 
@@ -77,40 +75,32 @@ public class BoardController {
     }
 
     @GetMapping("/detail/{boardId}")
-    public String showBoardDetail(@PathVariable long boardId, Authentication authentication, Model model) {
+    public String showBoardDetail(@PathVariable Long boardId, Authentication authentication, Model model) {
         Board board = boardService.getBoardByBoardId(boardId);
-        int userReaction = 0;
-
-        // [수정] 여기도 공통 메서드로 유저 객체를 가져옵니다.
         User loginUser = userService.getAuthenticatedUser(authentication);
 
-        if (authentication != null && authentication.isAuthenticated() && loginUser != null) {
-            // 좋아요/싫어요 상태 확인
+        boolean isWriter = false;
+        int userReaction = 0;
+
+        if (loginUser != null) {
             userReaction = boardReactionService.isLikeOrDislike(boardId, loginUser.getUser_id());
-
-            // [수정] 작성자 본인 확인 (Long 타입일 수 있으므로 == 대신 equals 권장이나 long이면 == 유지)
-            model.addAttribute("isWriter", board.getUser_id() == loginUser.getUser_id());
+            isWriter = java.util.Objects.equals(board.getUser_id(), loginUser.getUser_id());
             model.addAttribute("user", loginUser);
-        } else {
-            model.addAttribute("isWriter", false);
         }
-        System.out.println("isWriter: " + model.getAttribute("isWriter"));
-        System.out.println("user: " + model.getAttribute("user"));
 
-        boardService.updateViewCount(boardId);
-        List<Comment> comments = commentService.getCommentsByBoardId(boardId);
-
-        model.addAttribute("comments", comments);
-        model.addAttribute("userReaction", userReaction);
         model.addAttribute("board", board);
+        model.addAttribute("isWriter", isWriter);
+        model.addAttribute("userReaction", userReaction);
+        model.addAttribute("comments", commentService.getCommentsByBoardId(boardId));
         model.addAttribute("files", fileService.findByBoardId(boardId));
+
         return "/board/board-detail";
     }
 
     @PostMapping("/reaction/{boardId}")
     @ResponseBody
-    public ResponseEntity<String> boardLikeOrDislikeReaction(@PathVariable long boardId, Authentication authentication, @RequestParam("like_type") int like_type) {
-        // [수정] 중복 제거된 공통 메서드 활용
+    public ResponseEntity<String> boardLikeOrDislikeReaction(@PathVariable Long boardId, Authentication authentication, @RequestParam("like_type") int like_type) {
+
         User user = userService.getAuthenticatedUser(authentication);
 
         if (user == null) return ResponseEntity.status(401).body("LOGIN_REQUIRED");
@@ -152,7 +142,7 @@ public class BoardController {
     }
 
     @GetMapping("/edit/{boardId}")
-    public String editBoardForm(@PathVariable long boardId, Model model) {
+    public String editBoardForm(@PathVariable Long boardId, Model model) {
         Board board = boardService.getBoardByBoardId(boardId);
         model.addAttribute("board", board);
         model.addAttribute("files", fileService.findByBoardId(boardId));
@@ -160,7 +150,7 @@ public class BoardController {
     }
 
     @PostMapping("/edit/{boardId}")
-    public String editBoard(Board board, @PathVariable long boardId, @RequestParam(value = "file", required = false) MultipartFile file) {
+    public String editBoard(Board board, @PathVariable Long boardId, @RequestParam(value = "file", required = false) MultipartFile file) {
         board.setBoardId(boardId);
         boardService.editBoard(board);
 
@@ -172,7 +162,7 @@ public class BoardController {
     }
 
     @PostMapping("/remove/{boardId}")
-    public String removeBoard(@PathVariable long boardId) {
+    public String removeBoard(@PathVariable Long boardId) {
         boardService.removeBoard(boardId);
         fileService.deleteByBoardId(boardId);
         return "redirect:/board/list";

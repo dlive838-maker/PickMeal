@@ -55,18 +55,26 @@
         AND content IS NOT NULL
         ORDER BY created_at DESC
     </select>
-
     <select id="getPopularRest" resultType="PickMeal.PickMeal.dto.RestaurantDTO">
         SELECT
-        r.res_id AS restId, r.res_name AS restName, r.address AS restAddress, r.representative_menu AS restMenu, r.menu_price AS restPrice, r.lat AS restLat, r.lon AS restLng, r.rest_views AS restViews, COUNT(rw.review_id) AS wishCount
+            r.res_id AS restId,
+            r.res_name AS restName,
+            r.address AS restAddress,
+            r.lon AS restLng,
+            r.lat AS restLat,
+            r.representative_menu AS restMenu,
+            r.menu_price AS restPrice,
+            r.rest_views AS restViews
         FROM restaurant r
-        JOIN review_wish rw ON r.res_id = rw.res_id
-        WHERE rw.is_wish = 1
-        GROUP BY r.res_id, r.res_name, r.address, r.representative_menu, r.menu_price, r.lat, r.lon, r.rest_views
-        HAVING COUNT(rw.review_id) >= 3
-        ORDER BY wishCount DESC
-        LIMIT 5
+        JOIN (
+            SELECT res_id, COUNT(*) AS wish_count
+            FROM review_wish
+            WHERE is_wish = 1
+            GROUP BY res_id
+            ORDER BY wish_count DESC
+            LIMIT 10
+        ) rw ON r.res_id = rw.res_id
+        ORDER BY rw.wish_count DESC
     </select>
-
 
 </mapper>
