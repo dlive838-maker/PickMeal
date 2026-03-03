@@ -247,7 +247,7 @@
         listEl.innerHTML = reviews.length > 0
             ? reviews.map(r => `
                 <div class="review-card shadow-sm">
-                    <div class="review-user">@${r.nickname || r.userId || '익명'}</div>
+                    <div class="review-user">@${r.nickname ? r.nickname : (r.userId || '익명')}</div>
                     <div class="review-text">${r.content}</div>
                     ${r.userId === currentLoginUser ? `<span class="edit-label" onclick="setEditMode('${r.reviewId}', '${r.content}', '${r.rating}')">EDIT</span>` : ''}
                 </div>`).join('')
@@ -278,7 +278,8 @@
         const rating = document.querySelector('input[name="rating"]:checked')?.value || 0;
         if(!content.trim() || rating === 0) { alert("내용과 평점을 모두 입력해주세요!"); return; }
         const url = reviewId ? `/hotplace/reviews/update/${reviewId}` : `/hotplace/reviews/${activePlaceId}`;
-        const placeName = placeNameMap[activePlaceId] || '이름 없음';
+        const info = placeInfoMap[activePlaceId] || { name: '이름 없음' };
+        const placeName = info.name;
 
         const res = await fetch(url, {
             method: 'POST', headers: {'Content-Type': 'application/json'},

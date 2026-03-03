@@ -277,6 +277,7 @@
         const rating = document.querySelector('input[name="rating"]:checked')?.value || 0;
         if(!content.trim() || rating === 0) { alert("내용과 평점을 모두 입력해주세요!"); return; }
         const url = reviewId ? `/hotplace/reviews/update/${reviewId}` : `/hotplace/reviews/${activePlaceId}`;
+
         const res = await fetch(url, {
             method: 'POST', headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({ content, rating })

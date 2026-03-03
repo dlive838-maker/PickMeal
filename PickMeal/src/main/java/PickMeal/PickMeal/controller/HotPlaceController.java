@@ -77,7 +77,7 @@ public class HotPlaceController {
         // JSON으로 넘어온 데이터 분리
         String content = (String) data.get("content");
         int rating = Integer.parseInt(data.get("rating").toString());
-        String placeName = data.get("placeName").toString();
+        String placeName = (String) data.get("placeName");
 
         placeStatsService.addReview(kakaoPlaceId, principal.getName(), content, rating, placeName);
         return ResponseEntity.ok().build();
