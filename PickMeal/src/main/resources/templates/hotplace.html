@@ -247,7 +247,7 @@
         listEl.innerHTML = reviews.length > 0
             ? reviews.map(r => `
                 <div class="review-card shadow-sm">
-                    <div class="review-user">@${r.nickname || r.userId || '익명'}</div>
+                    <div class="review-user">@${r.nickname ? r.nickname : (r.userId || '익명')}</div>
                     <div class="review-text">${r.content}</div>
                     ${r.userId === currentLoginUser ? `<span class="edit-label" onclick="setEditMode('${r.reviewId}', '${r.content}', '${r.rating}')">EDIT</span>` : ''}
                 </div>`).join('')

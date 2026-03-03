@@ -127,7 +127,7 @@ public class UserController {
     }
 
     @GetMapping("/signup/social")
-    public String socialSignupForm(@RequestParam String socialId, @RequestParam String email, @RequestParam String site, @RequestParam String name, Model model) {
+    public String socialSignupForm(@RequestParam String socialId, @RequestParam String email, @RequestParam String site,  @RequestParam(value = "name", required = false) String name, Model model) {
         User socialUser = new User(); // 소셜 전용 유저 객체 생성
         socialUser.setSocialId(socialId);
         socialUser.setSocialLoginSite(site);

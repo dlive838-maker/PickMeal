@@ -4,7 +4,17 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
+<<<<<<< HEAD
     <list default="true" id="962a907c-5717-43aa-b917-26da9a3b7f8c" name="변경" comment="26.03.03 1134 재민 코드 병합" />
+=======
+    <list default="true" id="962a907c-5717-43aa-b917-26da9a3b7f8c" name="변경" comment="26.03.03 1642 재민 코드 병합">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/java/PickMeal/PickMeal/controller/HotPlaceController.java" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/java/PickMeal/PickMeal/controller/HotPlaceController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/java/PickMeal/PickMeal/controller/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/java/PickMeal/PickMeal/controller/UserController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/templates/board/meal-spotter.html" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/templates/board/meal-spotter.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/templates/hotplace.html" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/templates/hotplace.html" afterDir="false" />
+    </list>
+>>>>>>> origin/jaemin
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -80,6 +90,7 @@
       <option name="project" value="LOCAL" />
       <updated>1772505257847</updated>
     </task>
+<<<<<<< HEAD
     <task active="true" id="Default" summary="디폴트 작업">
       <changelist id="962a907c-5717-43aa-b917-26da9a3b7f8c" name="변경" comment="26.03.03 1134 재민 코드 병합" />
       <created>1772526549208</created>
@@ -88,10 +99,22 @@
       <updated>1772526549208</updated>
     </task>
     <option name="localTasksCounter" value="2" />
+=======
+    <task id="LOCAL-00002" summary="26.03.03 1642 재민 코드 병합">
+      <option name="closed" value="true" />
+      <created>1772523751677</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1772523751677</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
+>>>>>>> origin/jaemin
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="26.03.03 1134 재민 코드 병합" />
-    <option name="LAST_COMMIT_MESSAGE" value="26.03.03 1134 재민 코드 병합" />
+    <MESSAGE value="26.03.03 1642 재민 코드 병합" />
+    <option name="LAST_COMMIT_MESSAGE" value="26.03.03 1642 재민 코드 병합" />
   </component>
 </project>
