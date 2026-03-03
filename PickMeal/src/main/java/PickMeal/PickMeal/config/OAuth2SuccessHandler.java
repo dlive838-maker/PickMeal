@@ -31,68 +31,40 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                                         Authentication authentication) throws IOException, ServletException {
 
-        // 1. 로그인 성공 정보를 OAuth2 전용 토큰 형태로 변환하여 세부 정보를 꺼냅니다.
-        // OAuth2 전용 토큰 : 소셜 서버로부터 전달받은 유저의 모든 정보가 담긴 '공식 인증서 객체'
-        OAuth2AuthenticationToken authToken = (OAuth2AuthenticationToken) authentication;
-
-        // 2. 어떤 소셜 서비스(google, kakao, naver 등)를 통해 들어왔는지 확인합니다.
-        String registrationId = authToken.getAuthorizedClientRegistrationId();
-
-        // 3. 소셜 서버에서 넘겨준 사용자의 상세 속성값(이메일, 이름 등)을 가져옵니다.
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
+        String registrationId = ((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId();
 
-        String email = "";
-        String name = "";
-        String socialId = ""; // 각 소셜 서비스가 부여한 사용자의 고유 식별 번호를 담을 변수입니다.
+        // [핵심 수정] 서비스에서 이미 완벽하게 만들어둔 ID를 그대로 가져옵니다.
+        // 더 이상 registrationId + "_" 같은 짓을 하지 않습니다.
+        String userId = (String) oAuth2User.getAttributes().get("db_id");
 
-        // 4. 소셜 서비스마다 데이터 보따리를 푸는 방식이 다르므로 서비스별로 분기 처리합니다.
-        if ("kakao".equals(registrationId)) {
-            socialId = oAuth2User.getName(); // 카카오는 최상위에 id가 있어 바로 꺼냅니다.
-            Map<String, Object> kakaoAccount = oAuth2User.getAttribute("kakao_account");
-            if (kakaoAccount != null) {
-                email = (String) kakaoAccount.get("email"); // 카카오 계정 내 이메일 추출
-                Map<String, Object> profile = (Map<String, Object>) kakaoAccount.get("profile");
-                if (profile != null) name = (String) profile.get("nickname"); // 프로필 내 닉네임 추출
-            }
-        } else if ("naver".equals(registrationId)) {
-            // 네이버는 모든 정보가 'response'라는 이름의 주머니(Map) 안에 들어있습니다.
-            Map<String, Object> naverResponse = oAuth2User.getAttribute("response");
-            if (naverResponse != null) {
-                socialId = (String) naverResponse.get("id"); // 주머니 안에서 진짜 고유 ID만 쏙 골라냅니다.
-                email = (String) naverResponse.get("email"); // 주머니 내 이메일 추출
-                name = (String) naverResponse.get("name"); // 주머니 내 이름 추출
-            }
+        // 만약 db_id가 없으면 기본 name이라도 씁니다.
+        if (userId == null) userId = oAuth2User.getName();
 
-        } else { // Google 등 기타 서비스 처리
-            socialId = oAuth2User.getName(); // 구글은 getName()이 고유 ID를 반환합니다.
-            email = oAuth2User.getAttribute("email");
-            name = oAuth2User.getAttribute("name");
-        }
+        System.out.println(">>> [핸들러 최종 검증] DB 조회할 ID: " + userId);
 
-        // 5. 우리 DB에 저장할 '고유 아이디'를 만듭니다 (예: naver_12345). 중복 방지를 위해 소셜사 이름을 붙입니다.
-        String userId = registrationId + "_" + socialId;
-
-        // 6. 생성된 아이디로 우리 DB에 이미 가입된 회원인지 확인합니다.
         User findUser = userService.findById(userId);
 
         if (findUser != null) {
-            // [중요 수정] 정식 회원이라면 시큐리티 세션에 우리 도메인 User 정보를 심어줍니다.
-            // 이 과정이 있어야 컨트롤러에서 @AuthenticationPrincipal User로 정보를 받을 수 있습니다.
-
-            // 7-1. 이미 회원이라면 메인 페이지로 보냅니다.
+            // 기존 회원: 메인으로 이동
             getRedirectStrategy().sendRedirect(request, response, "/next-page");
         } else {
-            // 7-2. 처음 방문한 사람이라면 추가 정보를 받기 위해 회원가입 페이지로 정보를 들고 이동시킵니다.
+            // 신규 회원: 가입 페이지로 이동 (기존 파라미터 로직 유지)
+            // socialId 추출 시 이미 붙어있는 접두사를 제거해서 보냅니다 (가입폼 깔끔하게)
+            String pureSocialId = userId.replace(registrationId + "_", "");
+
+            Map<String, Object> kakaoAccount = (Map<String, Object>) oAuth2User.getAttribute("kakao_account");
+            String email = (kakaoAccount != null) ? (String) kakaoAccount.get("email") : "";
+
             String targetUrl = UriComponentsBuilder.fromUriString("/users/signup/social")
-                    .queryParam("socialId", socialId) // 소셜 고유 ID를 파라미터로 전달
-                    .queryParam("email", email)      // 가져온 이메일을 가입 폼에 미리 채워주기 위해 전달
-                    .queryParam("name", name)        // 가져온 이름을 가입 폼에 미리 채워주기 위해 전달
-                    .queryParam("site", registrationId) // 어느 소셜 출신인지 전달
+                    .queryParam("socialId", pureSocialId)
+                    .queryParam("email", email)
+                    .queryParam("site", registrationId)
                     .build()
-                    .encode(StandardCharsets.UTF_8) // 한글 이름이 깨지지 않도록 UTF-8로 인코딩합니다.
+                    .encode(StandardCharsets.UTF_8)
                     .toUriString();
 
-            getRedirectStrategy().sendRedirect(request, response, targetUrl); // 만들어진 주소로 강제 이동(리다이렉트)시킵니다.
+            getRedirectStrategy().sendRedirect(request, response, targetUrl);
         }
     }
 }

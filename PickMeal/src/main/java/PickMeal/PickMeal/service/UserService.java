@@ -5,11 +5,14 @@ import PickMeal.PickMeal.domain.User;
 import PickMeal.PickMeal.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -56,6 +59,24 @@ public class UserService implements UserDetailsService {
             user.setPassword(passwordEncoder.encode(user.getPassword())); // 비번 암호화
         }
 
+        // [추가] 5. 전화번호 하이픈 보정 및 형식 검증
+        if (user.getPhoneNumber() != null && !user.getPhoneNumber().isEmpty()) {
+            // 숫자 이외의 모든 문자 제거 (01011112222 추출)
+            String cleanNumber = user.getPhoneNumber().replaceAll("[^0-9]", "");
+
+            // 11자리(010) 또는 10자리(지역번호 등)일 때 하이픈 삽입
+            if (cleanNumber.length() == 11) {
+                user.setPhoneNumber(cleanNumber.replaceFirst("(\\d{3})(\\d{4})(\\d{4})", "$1-$2-$3"));
+            } else if (cleanNumber.length() == 10) {
+                user.setPhoneNumber(cleanNumber.replaceFirst("(\\d{3})(\\d{3})(\\d{4})", "$1-$2-$3"));
+            } else {
+                // 형식이 너무 다르면 예외를 던져서 가입 차단
+                throw new IllegalArgumentException("유효하지 않은 전화번호 형식입니다.");
+            }
+        } else {
+            throw new IllegalArgumentException("전화번호는 필수 입력 항목입니다.");
+        }
+
         user.setRole("ROLE_USER");
         user.setStatus("ACTIVE");
         userMapper.save(user); // DB 저장
@@ -92,13 +113,17 @@ public class UserService implements UserDetailsService {
         User user = userMapper.findById(loginId);
         if (user == null) throw new UsernameNotFoundException("사용자 없음");
 
+        // 1. 권한 처리
         String roleName = user.getRole().replace("ROLE_", "");
+        List<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList("ROLE_" + roleName);
 
-        return org.springframework.security.core.userdetails.User.builder()
-                .username(user.getId())
-                .password(user.getPassword())
-                .roles(roleName)
-                .build();
+        // 2. CustomUserDetails 가방에 ID와 실명을 각각 제자리에 담아줌
+        return new CustomUserDetails(
+                user.getId(),       // 가방의 ID 칸에는 실제 ID(admin)를 넣음
+                user.getPassword(),
+                authorities,
+                user.getName()      // 가방의 Name 칸에는 실명(관리자)을 넣음
+        );
     }
 
     private void validateDuplicateUser(String id) {
@@ -147,11 +172,24 @@ public class UserService implements UserDetailsService {
 
     @Transactional
     public void edit(User user, boolean isNewPassword) {
+        // 1. 비밀번호 암호화 처리
         if (isNewPassword) {
-            // 새 비밀번호가 입력된 경우에만 암호화 수행
             user.setPassword(passwordEncoder.encode(user.getPassword()));
         }
-        // 이미 암호화된 기존 비번일 경우(isNewPassword=false) 그대로 DB 업데이트
+
+        // 2. [추가] 전화번호 하이픈 보정 로직
+        if (user.getPhoneNumber() != null && !user.getPhoneNumber().isEmpty()) {
+            // 숫자만 추출
+            String cleanNumber = user.getPhoneNumber().replaceAll("[^0-9]", "");
+
+            // 11자리인 경우 다시 010-0000-0000 형식으로 재조립
+            if (cleanNumber.length() == 11) {
+                String formatted = cleanNumber.replaceFirst("(\\d{3})(\\d{4})(\\d{4})", "$1-$2-$3");
+                user.setPhoneNumber(formatted);
+            }
+        }
+
+        // 3. 수정된 데이터 DB 업데이트
         userMapper.edit(user);
     }
 
@@ -234,12 +272,31 @@ public class UserService implements UserDetailsService {
     public User getAuthenticatedUser(Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()) return null;
 
-        // 테이블이 하나이므로 principalName(ID)으로 바로 findById 호출
-        String principalName = authentication.getName();
+        String loginId = null;
 
-        // 소셜 로그인 ID 조합 로직이 있다면 그대로 유지하되,
-        // 일반/관리자 로그인은 그냥 principalName이 ID가 됩니다.
-        return findById(principalName);
+        if (authentication instanceof OAuth2AuthenticationToken) {
+            OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
+            // CustomOAuth2UserService에서 넣은 "db_id"를 꺼냄
+            Object dbIdValue = oAuth2User.getAttributes().get("db_id");
+            if (dbIdValue != null) {
+                loginId = String.valueOf(dbIdValue);
+            } else {
+                loginId = oAuth2User.getName();
+            }
+        } else {
+            loginId = authentication.getName(); // 일반 로그인 aaa
+        }
+
+        // [중요 로그] 여기서 null인지, 값이 이상한지 꼭 보세요.
+        System.out.println(">>> [DB 조회 직전 ID 확인] : " + loginId);
+
+        if (loginId == null || loginId.isEmpty()) return null;
+
+        try {
+            return userMapper.findById(loginId);
+        } catch (Exception e) {
+            System.out.println(">>> [findById 에러 발생] : " + e.getMessage());
+            return null;
+        }
     }
-
 }

@@ -219,28 +219,22 @@ public class BoardController {
 
     @PostMapping("/remove/{boardId}")
     public String removeBoard(@PathVariable Long boardId, Authentication authentication) {
-        // 1. 로그인 여부 확인
         if (authentication == null || !authentication.isAuthenticated()) {
             return "redirect:/users/login";
         }
 
-        // 2. 현재 로그인한 유저 정보 및 권한 파악
-        // SecurityService에서 만든 로직을 활용해 User 객체를 가져옵니다.
         User loginUser = userService.getAuthenticatedUser(authentication);
-
         if (loginUser == null) {
             return "redirect:/users/login";
         }
 
-        // 3. 권한 및 ID 추출
         String role = authentication.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN")) ? "ADMIN" : "USER";
 
-        // 일반 유저라면 본인 확인을 위해 ID를 넘기고, 관리자라면 검증을 건너뛰도록 처리
-        String userId = loginUser.getId();
+        // [수정 핵심] getId() (예: aaa) 대신 getUser_id() (예: 1)를 넘겨야 합니다.
+        // BoardService가 기대하는 "숫자 형태의 문자열"을 전달합니다.
+        String userId = String.valueOf(loginUser.getUser_id());
 
-        // 4. 서비스 호출 (기존 role 기반 로직 유지)
-        // 관리자일 경우 서비스 단에서 이 role을 보고 본인 확인 로직을 생략하게 구현되어 있어야 합니다.
         boardService.removeBoard(boardId, userId, role);
         fileService.deleteByBoardId(boardId);
 
