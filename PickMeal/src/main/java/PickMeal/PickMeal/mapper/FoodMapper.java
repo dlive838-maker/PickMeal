@@ -19,4 +19,6 @@ public interface FoodMapper {
     String findImagePathByName(String foodName);
 
     Food findByName(@Param("name") String name);
+
+    List<Food> getWinnerFoodList();
 }

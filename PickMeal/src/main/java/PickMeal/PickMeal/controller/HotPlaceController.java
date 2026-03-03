@@ -1,6 +1,7 @@
 package PickMeal.PickMeal.controller;
 
 import PickMeal.PickMeal.dto.PlaceStatsDto;
+import PickMeal.PickMeal.service.HotSpotService;
 import PickMeal.PickMeal.service.PlaceStatsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -16,6 +17,7 @@ import java.util.List;
 public class HotPlaceController {
 
     private final PlaceStatsService placeStatsService;
+    private final HotSpotService hotSpotService;
 
     @GetMapping("")
     public String hotPlacePage() {
@@ -42,9 +44,22 @@ public class HotPlaceController {
 
     @PostMapping("/heart/{kakaoPlaceId}")
     @ResponseBody
-    public ResponseEntity<?> toggleHeart(@PathVariable("kakaoPlaceId") String kakaoPlaceId, Principal principal) {
+    public ResponseEntity<?> toggleHeart(@PathVariable("kakaoPlaceId") String kakaoPlaceId, Principal principal, @RequestParam(value = "placeName", required = false) String placeName,
+                                         @RequestParam(value = "categoryName", required = false) String categoryName,
+                                         @RequestParam(value = "addressName", required = false) String addressName) {
         if (principal == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        placeStatsService.toggleHeart(kakaoPlaceId, principal.getName());
+        boolean isLiked = placeStatsService.toggleHeart(kakaoPlaceId, principal.getName(), placeName, categoryName, addressName);
+
+        if(isLiked){
+            if(placeStatsService.countHeart(kakaoPlaceId) == 10){
+                hotSpotService.addHotspot(kakaoPlaceId);
+            }
+        }else{
+            if(placeStatsService.countHeart(kakaoPlaceId) == 9){
+                hotSpotService.deleteHotspot(kakaoPlaceId);
+            }
+        }
+
         return ResponseEntity.ok().build();
     }
 
@@ -62,8 +77,9 @@ public class HotPlaceController {
         // JSON으로 넘어온 데이터 분리
         String content = (String) data.get("content");
         int rating = Integer.parseInt(data.get("rating").toString());
+        String placeName = data.get("placeName").toString();
 
-        placeStatsService.addReview(kakaoPlaceId, principal.getName(), content, rating);
+        placeStatsService.addReview(kakaoPlaceId, principal.getName(), content, rating, placeName);
         return ResponseEntity.ok().build();
     }
 
@@ -76,9 +92,10 @@ public class HotPlaceController {
 
         String content = (String) data.get("content");
         int rating = Integer.parseInt(data.get("rating").toString());
+        String placeName = data.get("placeName").toString();
         String userId = principal.getName();
 
-        boolean isUpdated = placeStatsService.updateReview(reviewId, userId, content, rating);
+        boolean isUpdated = placeStatsService.updateReview(reviewId, userId, content, rating, placeName);
 
         if (!isUpdated) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("본인이 작성한 리뷰만 수정할 수 있습니다.");

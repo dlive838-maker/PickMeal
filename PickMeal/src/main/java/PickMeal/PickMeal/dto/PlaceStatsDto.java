@@ -19,4 +19,6 @@ public class PlaceStatsDto {
     private int rating;
     private double avgRating;
     private String placeName;
+    private String address;
+    private String category;
 }

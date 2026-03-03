@@ -2,6 +2,7 @@ package PickMeal.PickMeal.controller;
 
 import PickMeal.PickMeal.domain.Food;
 import PickMeal.PickMeal.domain.Game;
+import PickMeal.PickMeal.domain.HotSpot;
 import PickMeal.PickMeal.domain.User;
 import PickMeal.PickMeal.service.FoodService;
 import PickMeal.PickMeal.service.GameService;
@@ -31,7 +32,7 @@ import java.util.List;
 @Controller
 @RequiredArgsConstructor
 public class MainController {
-    private final ReviewService reviewService;
+    private final HotSpotService hotSpotService;
     private final PlaceStatsService placeStatsService;
 
     @Autowired
@@ -53,14 +54,22 @@ public class MainController {
 
     @GetMapping("/next-page") //
     public String next(Model model) {
-        List<RestaurantDTO> popularRestList = reviewService.getPopularRest();
-        model.addAttribute("popularRestList", popularRestList);
-        System.out.println(popularRestList);
+        List<HotSpot> hotSpotList = hotSpotService.getHotSpotList();
+        for(HotSpot hs : hotSpotList){
+            PlaceStatsDto placeStatsDto = placeStatsService.getPlaceStatByKakaoIds(String.valueOf(hs.getResId()));
+            hs.setAddress(placeStatsDto.getAddress());
+            hs.setCategory(placeStatsDto.getCategory());
+            hs.setPlaceName(placeStatsDto.getPlaceName());
+            hs.setWishCount(placeStatsDto.getHeartCount());
+            hs.setViewCount(placeStatsDto.getViewCount());
+            hs.setReviewCount(placeStatsDto.getReviewCount());
+            hs.setAvgRating(placeStatsDto.getAvgRating());
+        }
 
+        List<Food> gameTopList = foodService.getWinnerFoodList();
 
-        List<PlaceStatsDto> popularPlaceList = placeStatsService.getPopularPlace();
-        model.addAttribute("popularPlaceList", popularPlaceList);
-        System.out.println("popularPlaceList: " + popularPlaceList);
+        model.addAttribute("gameTopList", gameTopList);
+        model.addAttribute("hotSpotList", hotSpotList);
         return "next-page";
     }
 

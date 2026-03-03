@@ -5,6 +5,8 @@ import PickMeal.PickMeal.mapper.FoodMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class FoodService {
 
@@ -20,5 +22,9 @@ public class FoodService {
 
     public Food drawCapsuleMenu(String category) {
         return foodMapper.getRandomFoodByCategory(category);
+    }
+
+    public List<Food> getWinnerFoodList() {
+        return foodMapper.getWinnerFoodList();
     }
 }

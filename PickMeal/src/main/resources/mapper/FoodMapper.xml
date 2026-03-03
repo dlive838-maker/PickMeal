@@ -69,4 +69,12 @@
         LIMIT 1
     </select>
 
+    <select id="getWinnerFoodList" resultType="PickMeal.PickMeal.domain.Food">
+            SELECT foodId, foodName, category, imagePath, winCount
+            FROM food
+            WHERE winCount > 0
+            ORDER BY winCount DESC
+            LIMIT 10
+    </select>
+
 </mapper>

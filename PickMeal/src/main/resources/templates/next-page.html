@@ -27,6 +27,10 @@
         .food-card { transition: all 0.3s ease; height: 100%; cursor: pointer; border-radius: 3rem; }
         .food-card:hover { transform: translateY(-10px); }
         .swiper-button-next, .swiper-button-prev { color: #FF8A5B !important; }
+        .ani-btn { cursor: pointer; border: none; background: none; padding: 0; transition: transform 0.2s; }
+        .ani-btn.animate { animation: heart-pop 0.4s ease-out; }
+        @keyframes heart-pop { 0% { transform: scale(1); } 50% { transform: scale(1.4); } 100% { transform: scale(1); } }
+        .heart-count-text { color: #444; font-size: 13px; font-weight: 700; }
     </style>
 </head>
 <body>
@@ -43,7 +47,7 @@
     <div class="swiper-container-wrapper">
         <div class="swiper mySwiper">
             <div class="swiper-wrapper" id="menuWrapper">
-                <div class="swiper-slide p-2" th:each="rest : ${popularRestList}">
+                <div class="swiper-slide p-2" th:each="hotSpot : ${hotSpotList}">
 
                     <div class="food-card bg-white overflow-hidden shadow-lg border-2 border-gray-50 p-6">
                         <!-- th:onclick="|location.href='@{/restaurant/detail/{restId}(restId=${rest.restId})}'|" -->
@@ -51,19 +55,34 @@
                         <div class="bg-[#FFF5F0] h-56 rounded-[2.5rem] mb-5 flex flex-col items-center justify-center select-none transition hover:bg-[#FF8A5B] hover:text-white group">
                             <div class="text-5xl mb-2 group-hover:scale-125 transition">❤️</div>
                             <div class="text-[#FF8A5B] text-2xl font-black group-hover:text-white"
-                                 th:text="${rest.wishCount} + ' Pick!'">5 Pick!</div>
+                                 th:text="${hotSpot.wishCount} + ' Pick!'">5 Pick!</div>
                         </div>
 
                         <div class="px-4 text-center">
-                            <h3 class="text-2xl font-black text-gray-800 italic uppercase truncate"
-                                th:text="${rest.restMenu}">대표 메뉴</h3>
+                            <h3 class="text-xl font-black text-gray-800 italic uppercase truncate"
+                                th:text="${hotSpot.placeName}">식당 이름</h3>
 
-                            <p class="text-gray-500 mt-2 font-bold" th:text="${rest.restName}">식당 이름</p>
+                            <p class="text-gray-500 mt-2 font-bold text-lg" th:text="${hotSpot.category}">카테고리</p>
 
                             <div class="flex justify-between items-center mt-6">
-                                <span class="text-[#FF8A5B] text-xl font-black"
-                                      th:text="${#numbers.formatInteger(rest.restPrice, 0, 'COMMA')} + ' 원'">15,000 원</span>
-                                <button class="bg-[#A8D5BA] text-white px-5 py-2 rounded-full font-black shadow-md hover:bg-[#8fc7a5] transition text-sm">보러가기</button>
+                                <div class="flex gap-3 text-[13px] font-bold text-gray-500 italic items-center">
+
+                                    <span class="flex items-center gap-1 text-orange-400">⭐ <span class="text-gray-700" th:id="'avg-rating-'+${hotSpot.resId}" th:text="${hotSpot.avgRating}">1.5</span></span>
+
+                                    <span class="flex items-center gap-1 text-orange-400">👁️ <span class="text-gray-700" th:id="'view-count-'+${hotSpot.resId}" th:text="${hotSpot.viewCount}">15</span></span>
+
+                                    <button th:data-id="${hotSpot.resId}"
+                                            th:data-name="${hotSpot.placeName}"
+                                            onclick="handleHeart(this, event)"
+                                            class="ani-btn flex items-center gap-1 text-orange-400 hover:scale-110 transition">
+                                        ❤️ <span class="text-gray-700 heart-count-text" th:id="'heart-count-'+${hotSpot.resId}" th:text="${hotSpot.wishCount}">10</span>
+                                    </button>
+
+                                </div>
+
+                                <button th:data-url="'https://place.map.kakao.com/' + ${hotSpot.resId}"
+                                        onclick="window.open(this.getAttribute('data-url'))"
+                                        class="bg-[#A8D5BA] text-white px-5 py-2 rounded-full font-black shadow-md hover:bg-[#8fc7a5] transition text-sm">INFO</button>
                             </div>
                         </div>
                     </div>
@@ -74,39 +93,44 @@
         <div class="swiper-button-prev"></div>
     </div>
 </div>
-<div class="flex-grow px-10 pb-20 pt-10">
+
+<div class="flex-grow px-10 pb-20">
     <div class="flex justify-between items-end mb-12">
         <div>
-            <h2 class="text-5xl font-black text-[#FFB74D] italic uppercase tracking-tighter mb-4">Real Hot Place</h2>
-            <p class="text-[#FFB74D] mt-3 font-bold italic">Users' Most Loved Spots!</p>
+            <h2 class="text-5xl font-black text-[#FFB74D] italic uppercase tracking-tighter mb-4">Game Top Pick</h2>
+            <p class="text-[#FFB74D] mt-3 font-bold italic">The ultimate winners from the Pick Meal game!</p>
         </div>
     </div>
 
     <div class="swiper-container-wrapper">
-        <div class="swiper mySwiper2">
-            <div class="swiper-wrapper" id="hotPlaceMenuWrapper">
+        <div class="swiper gameSwiper">
+            <div class="swiper-wrapper">
 
-                <div class="swiper-slide p-2" th:each="kakao : ${popularPlaceList}">
+                <div class="swiper-slide p-2" th:each="food, stat : ${gameTopList}">
 
-                    <div class="food-card bg-white overflow-hidden shadow-lg border-2 border-gray-50 p-6"
-                         th:data-url="'https://place.map.kakao.com/' + ${kakao.kakaoPlaceId}"
-                         onclick="window.open(this.getAttribute('data-url'))">
+                    <div class="food-card bg-white overflow-hidden shadow-lg border-2 border-gray-50 p-6">
 
-                        <div class="bg-[#FFF8E1] h-56 rounded-[2.5rem] mb-5 flex flex-col items-center justify-center select-none transition hover:bg-[#FFB74D] hover:text-white group">
-                            <div class="text-5xl mb-2 group-hover:scale-125 transition">🔥</div>
+                        <div class="bg-[#FFFDF5] h-56 rounded-[2.5rem] mb-5 flex flex-col items-center justify-center select-none transition hover:bg-[#FFB74D] hover:text-white group relative">
+                            <div class="absolute top-5 left-5 bg-white text-[#FFB74D] font-black w-10 h-10 rounded-full flex items-center justify-center shadow-md text-lg"
+                                 th:text="${stat.count}">1</div>
+
+                            <div class="text-6xl mb-2 group-hover:scale-125 transition">🏆</div>
                             <div class="text-[#FFB74D] text-2xl font-black group-hover:text-white"
-                                 th:text="${kakao.heartCount} + ' 하트!'">5 하트!</div>
+                                 th:text="${food.winCount} + ' Wins!'">100 Wins!</div>
                         </div>
 
                         <div class="px-4 text-center">
-                            <h3 class="text-2xl font-black text-gray-800 italic uppercase truncate"
-                                th:text="${kakao.placeName != null ? kakao.placeName : '이름 없는 맛집'}">카카오 맛집</h3>
+                            <h3 class="text-xl font-black text-gray-800 italic uppercase truncate"
+                                th:text="${food.category}">Korean food</h3>
 
-                            <p class="text-gray-500 mt-2 font-bold" th:text="'조회수: ' + ${kakao.viewCount}">조회수: 10</p>
+                            <p class="text-gray-600 mt-2 font-black text-2xl" th:text="${food.foodName}">갈비찜</p>
 
-                            <div class="flex justify-between items-center mt-6">
-                                <span class="text-gray-600 text-sm font-black" th:text="'리뷰 ' + ${kakao.reviewCount} + '개'">리뷰 3개</span>
-                                <button class="bg-[#FFB74D] text-white px-5 py-2 rounded-full font-black shadow-md hover:bg-[#ffa01c] transition text-sm">카카오맵 보기</button>
+                            <div class="flex justify-center items-center mt-6">
+                                <button th:data-keyword="${food.foodName}"
+                                        onclick="window.open('https://map.kakao.com/?q=' + this.getAttribute('data-keyword'))"
+                                        class="bg-[#FF8A5B] text-white px-8 py-3 rounded-full font-black shadow-md hover:bg-[#e0764c] transition text-sm">
+                                    이 메뉴 맛집 찾기
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -114,36 +138,14 @@
 
             </div>
         </div>
-        <div class="swiper-button-next2 absolute right-0 top-1/2 -translate-y-1/2 z-10 cursor-pointer text-[#FFB74D] font-bold text-2xl p-4">▶</div>
-        <div class="swiper-button-prev2 absolute left-0 top-1/2 -translate-y-1/2 z-10 cursor-pointer text-[#FFB74D] font-bold text-2xl p-4">◀</div>
+        <div class="swiper-button-next game-next"></div>
+        <div class="swiper-button-prev game-prev"></div>
     </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 <script>
-    // const menuItems = [
-    //     { name: "Pepperoni Pizza", price: "15,000", emoji: "🍕" },
-    //     { name: "Cheese Burger", price: "12,000", emoji: "🍔" },
-    //     { name: "Premium Sushi", price: "18,000", emoji: "🍣" },
-    //     { name: "Cream Pasta", price: "14,000", emoji: "🍝" },
-    //     { name: "Beef Steak", price: "35,000", emoji: "🥩" },
-    //     { name: "Fried Chicken", price: "20,000", emoji: "🍗" }
-    // ];
-    //
-    // document.getElementById('menuWrapper').innerHTML = menuItems.map(item => `
-    //     <div class="swiper-slide p-2">
-    //         <div class="food-card bg-white overflow-hidden shadow-lg border-2 border-gray-50 p-6">
-    //             <div class="bg-[#FFF5F0] h-56 rounded-[2.5rem] mb-5 flex items-center justify-center text-7xl select-none">${item.emoji}</div>
-    //             <div class="px-4 text-center">
-    //                 <h3 class="text-2xl font-black text-gray-800 italic uppercase">${item.name}</h3>
-    //                 <div class="flex justify-between items-center mt-6">
-    //                     <span class="text-[#FF8A5B] text-xl font-black">${item.price} KRW</span>
-    //                     <button class="bg-[#A8D5BA] text-white px-6 py-2 rounded-full font-black shadow-md hover:bg-[#8fc7a5] transition uppercase text-sm">Add</button>
-    //                 </div>
-    //             </div>
-    //         </div>
-    //     </div>
-    // `).join('');
+
 
     new Swiper(".mySwiper", {
         slidesPerView: 3,
@@ -153,15 +155,55 @@
         breakpoints: { 320: { slidesPerView: 1 }, 768: { slidesPerView: 2 }, 1024: { slidesPerView: 3 } }
     });
 
-    new Swiper(".mySwiper2", {
-        slidesPerView: 3,
-        spaceBetween: 25,
-        loop: true,
-        navigation: { nextEl: ".swiper-button-next2", prevEl: ".swiper-button-prev2" },
-        breakpoints: { 320: { slidesPerView: 1 }, 768: { slidesPerView: 2 }, 1024: { slidesPerView: 3 } }
-    });
+    let activePlaceId = null;
+
+function closeAll() {
+    document.getElementById('overlay').style.display = 'none';
+    document.getElementById('modal-review').style.display = 'none';
+}
+
+async function handleHeart(btn, event) {
+    event.stopPropagation();
+
+    const id = btn.getAttribute('data-id');
+    const placeName = btn.getAttribute('data-name');
+
+    btn.classList.add('animate');
+    setTimeout(() => btn.classList.remove('animate'), 400);
+
+    const params = new URLSearchParams({ placeName: placeName });
+    const res = await fetch(`/hotplace/heart/${id}?${params.toString()}`, { method: 'POST' });
+
+    if (res.ok) {
+        updateStats(id);
+    } else {
+        alert("찜하기에 실패했습니다. 로그인이 되어있는지 확인해 주세요!");
+    }
+}
+
+async function updateStats(id) {
+    const res = await fetch('/hotplace/stats', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify([id.toString()]) });
+    const data = await res.json();
+    if(data.length > 0) {
+        const s = data[0];
+        document.querySelectorAll(`[id^="avg-rating-${id}"]`).forEach(el => el.innerText = s.avgRating || 0);
+        document.querySelectorAll(`[id^="view-count-${id}"]`).forEach(el => el.innerText = s.viewCount);
+        document.querySelectorAll(`[id^="heart-count-${id}"]`).forEach(el => el.innerText = s.wishCount);
+    }
+}
+
+    new Swiper(".gameSwiper", {
+    slidesPerView: 3,
+    spaceBetween: 25,
+    loop: true,
+    navigation: { nextEl: ".game-next", prevEl: ".game-prev" }, // 방금 HTML에서 바꾼 화살표 이름 적용!
+    breakpoints: { 320: { slidesPerView: 1 }, 768: { slidesPerView: 2 }, 1024: { slidesPerView: 3 } }
+});
+
+
 </script>
 
 <footer th:replace="~{fragments/footer :: footerFragment}"></footer>
+
 </body>
 </html>
