@@ -4,82 +4,53 @@
 <mapper namespace="PickMeal.PickMeal.mapper.ReviewWishMapper">
 
     <select id="checkWish" resultType="int">
-        SELECT COUNT(*) FROM review_wish
-        WHERE user_id = #{userId} AND res_id = #{resId}
+        SELECT COUNT(*) FROM place_stats
+        WHERE user_id = #{userId} AND res_id = #{resId} AND is_wish = 1
     </select>
 
     <delete id="deleteWish">
-        DELETE FROM review_wish
-        WHERE user_id = #{userId} AND res_id = #{resId}
+        DELETE FROM place_stats
+        WHERE user_id = #{userId} AND res_id = #{resId} AND is_wish = 1
     </delete>
 
-    <insert id="saveInteraction">
-        /* 덮어쓰지 않고 새로운 리뷰를 계속 쌓습니다. */
-        INSERT INTO review_wish (res_id, user_id, rating, content, is_wish)
-        VALUES (#{resId}, #{userId}, #{rating}, #{content}, 0)
-    </insert>
-
     <insert id="insertWish">
-        /* restId를 resId로, is_wish 컬럼명을 DB와 일치시킵니다. */
-        INSERT INTO review_wish (res_id, user_id, is_wish)
-        VALUES (#{restId}, #{userId}, 1)
+        INSERT INTO place_stats (res_id, user_id, is_wish)
+        VALUES (#{resId}, #{userId}, 1)
         ON DUPLICATE KEY UPDATE is_wish = 1
     </insert>
 
+    <insert id="saveInteraction">
+        INSERT INTO place_stats (res_id, user_id, rating, content, is_wish)
+        VALUES (#{resId}, #{userId}, #{rating}, #{content}, 0)
+    </insert>
+
     <select id="getTotalWishCount" resultType="int">
-        SELECT COUNT(*)
-        FROM review_wish
+        SELECT SUM(IFNULL(is_wish, 0))
+        FROM place_stats
         WHERE res_id = #{resId}
-        /* ★ [수정] 찜 컬럼(is_wish)이 1인 것만 하트 숫자로 인정합니다! */
-        AND is_wish = 1
     </select>
 
     <select id="getReviewCount" resultType="int">
-        /* 해당 식당(res_id)의 데이터 중 리뷰 내용(content)이 작성된 것만 세어줍니다. */
         SELECT COUNT(*)
-        FROM review_wish
+        FROM place_stats
         WHERE res_id = #{resId}
-        AND content IS NOT NULL
-        AND content != ''
+        AND content IS NOT NULL AND content != ''
     </select>
 
     <select id="getReviewsByRestaurant" resultType="PickMeal.PickMeal.dto.ReviewWishDTO">
         SELECT
-        user_id,
+        user_id as userId,
         rating,
         content,
-        created_at
-        FROM review_wish
+        created_at as createdAt
+        FROM place_stats
         WHERE res_id = #{resId}
-        /* ★ 내용이 아예 없는(null) 데이터만 제외하고, 공백이 포함된 리뷰도 모두 가져오도록 조건을 완화했습니다. */
-        AND content IS NOT NULL
+        AND content IS NOT NULL AND content != ''
         ORDER BY created_at DESC
     </select>
-    <select id="getPopularRest" resultType="PickMeal.PickMeal.dto.RestaurantDTO">
-        SELECT
-            r.res_id AS restId,
-            r.res_name AS restName,
-            r.address AS restAddress,
-            r.lon AS restLng,
-            r.lat AS restLat,
-            r.representative_menu AS restMenu,
-            r.menu_price AS restPrice,
-            r.rest_views AS restViews
-        FROM restaurant r
-        JOIN (
-            SELECT res_id, COUNT(*) AS wish_count
-            FROM review_wish
-            WHERE is_wish = 1
-            GROUP BY res_id
-            ORDER BY wish_count DESC
-            LIMIT 10
-        ) rw ON r.res_id = rw.res_id
-        ORDER BY rw.wish_count DESC
-    </select>
-
 
     <delete id="deleteReview">
-        DELETE FROM reviews
+        DELETE FROM place_stats
         WHERE review_id = #{reviewId}
     </delete>
 

@@ -53,11 +53,6 @@ public class MainController {
 
     @GetMapping("/next-page") //
     public String next(Model model) {
-        List<RestaurantDTO> popularRestList = reviewService.getPopularRest();
-        model.addAttribute("popularRestList", popularRestList);
-        System.out.println(popularRestList);
-
-
         List<PlaceStatsDto> popularPlaceList = placeStatsService.getPopularPlace();
         model.addAttribute("popularPlaceList", popularPlaceList);
         System.out.println("popularPlaceList: " + popularPlaceList);

@@ -1,9 +1,11 @@
 package PickMeal.PickMeal.controller;
 
+import PickMeal.PickMeal.dto.PlaceStatsDto;
 import PickMeal.PickMeal.dto.ReviewWishDTO;
 import PickMeal.PickMeal.dto.RestaurantDTO;
 import PickMeal.PickMeal.mapper.RestaurantMapper;
 import PickMeal.PickMeal.mapper.ReviewWishMapper;
+import PickMeal.PickMeal.service.PlaceStatsService;
 import PickMeal.PickMeal.service.RestaurantService;
 import PickMeal.PickMeal.service.ReviewService;
 import org.springframework.security.core.Authentication;
@@ -20,63 +22,47 @@ public class RestaurantController {
     private final ReviewWishMapper reviewWishMapper;
     private final RestaurantService restaurantService;
     private final ReviewService reviewService;
+    private final PlaceStatsService placeStatsService; // [추가] 서비스 필드
 
+    // [수정] 생성자에서 placeStatsService를 반드시 초기화해야 합니다.
     public RestaurantController(RestaurantMapper restaurantMapper,
                                 ReviewWishMapper reviewWishMapper,
                                 RestaurantService restaurantService,
-                                ReviewService reviewService) {
+                                ReviewService reviewService,
+                                PlaceStatsService placeStatsService) {
         this.restaurantMapper = restaurantMapper;
         this.reviewWishMapper = reviewWishMapper;
         this.restaurantService = restaurantService;
         this.reviewService = reviewService;
+        this.placeStatsService = placeStatsService;
     }
 
-    /**
-     * [수정] 문자열 아이디('aaa')가 아닌, 유저의 '숫자 고유번호(PK)'를 가져오는 메서드입니다.
-     * 사용자님의 CustomUserDetails 구조에 따라 내부 로직(getUserNo 등)은 다를 수 있습니다.
-     */
-    private Long getLoginUserPk(Authentication authentication) {
+    // 로그인 유저의 문자열 ID(예: woals106)를 가져오는 메서드
+    private String getLoginUserId(Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()) return null;
-
-        // 시큐리티에서 유저 객체를 꺼내 유저의 숫자 번호를 가져옵니다.
-        // 만약 이 부분이 어렵다면 우선 임시로 DB에 있는 유저의 번호(예: 1L)를 리턴해서 테스트해보세요.
-        try {
-            // 예시: CustomUserDetails 객체에서 PK를 꺼내는 방식
-            // return ((CustomUserDetails) authentication.getPrincipal()).getUserNo();
-            return 1L; // ★ 임시 테스트용: 실제 DB에 있는 유저 번호 숫자를 넣어보세요.
-        } catch (Exception e) {
-            return null;
-        }
+        return authentication.getName();
     }
 
     // 1. 맛집 탐지기 페이지 접속
     @GetMapping("/meal-spotter")
     public String mealSpotter(Model model, Authentication authentication) {
-        List<RestaurantDTO> restaurants = restaurantService.findAll();
 
-        // [수정] 문자열 대신 숫자 PK를 가져옵니다.
-        Long userPk = getLoginUserPk(authentication);
-        System.out.println("현재 로그인 유저 PK: " + userPk);
+        List<PlaceStatsDto> popularPlaceList = placeStatsService.getPopularPlace();
 
-        for (RestaurantDTO res : restaurants) {
-            // 리뷰 개수 세팅
-            int reviewCount = reviewWishMapper.getReviewCount(res.getRestId());
-            res.setReviewCount(reviewCount);
+        String userId = getLoginUserId(authentication);
 
-            // 찜 개수 세팅
-            int wishCount = reviewWishMapper.getTotalWishCount(res.getRestId());
-            res.setWishCount(wishCount);
+        if (userId != null && popularPlaceList != null) {
+            for (PlaceStatsDto dto : popularPlaceList) {
+                Long resId = Long.parseLong(dto.getKakaoPlaceId());
 
-            // [수정] 찜 상태 확인 시 '숫자 PK'를 전달합니다.
-            if (userPk != null) {
-                int check = reviewWishMapper.checkWish(userPk, res.getRestId());
-                res.setWished(check > 0);
-            } else {
-                res.setWished(false);
+                // [중요] userId가 문자열이므로 Long.valueOf를 제거했습니다.
+                // 매퍼(checkWish)의 파라미터 타입이 String/Varchar 인지 확인하세요.
+                int check = reviewWishMapper.checkWish(userId, resId);
+                dto.setLiked(check > 0);
             }
         }
 
-        model.addAttribute("restaurantList", restaurants);
+        model.addAttribute("popularPlaceList", popularPlaceList);
         return "board/meal-spotter";
     }
 
@@ -84,70 +70,57 @@ public class RestaurantController {
     @PostMapping("/api/review/save")
     @ResponseBody
     public int saveReview(@RequestBody ReviewWishDTO dto, Authentication auth) {
-        Long userPk = getLoginUserPk(auth);
+        String userId = getLoginUserId(auth);
 
-        if (userPk != null) {
-            // [수정] DTO에 문자열 대신 숫자 PK를 담아줍니다.
-            // DTO의 userId 필드 타입도 Long으로 바뀌어 있어야 합니다!
-            dto.setUserId(userPk);
+        if (userId != null) {
+            dto.setUserId(userId);
         }
 
+        // 1. 리뷰 저장 실행
         reviewService.save(dto);
-        return reviewWishMapper.getReviewCount(dto.getResId());
+
+        // 2. [수정] dto.getResId()가 String일 경우를 대비해 타입을 체크합니다.
+        // 만약 getReviewCount가 Long을 받는다면 Long.parseLong을 써야 합니다.
+        try {
+            // String인 resId를 숫자로 변환하여 매퍼에 전달
+            Long resIdLong = Long.parseLong(dto.getResId());
+            return reviewWishMapper.getReviewCount(resIdLong);
+        } catch (Exception e) {
+            System.out.println("리뷰 개수 조회 중 에러 발생: " + e.getMessage());
+            return 0; // 에러 시 기본값 반환
+        }
     }
 
-    // RestaurantController.java 의 toggleWish 메서드 부분 수정
+    // 찜하기 토글 API
     @PostMapping("/api/wishlist/{resId}")
     @ResponseBody
     public String toggleWish(@PathVariable Long resId, Authentication authentication) {
-        // 1. [수정] 테스트를 위해 임시로 '1L'이라는 숫자 PK를 사용합니다.
-        // DB의 user 테이블에 있는 'aaa' 유저의 실제 번호가 1번이라면 1L을 넣습니다.
-        Long userPk = 1L;
+        String userId = getLoginUserId(authentication);
 
-        // 2. 로그인이 안 된 경우 처리
-        if (userPk == null) return "fail";
+        if (userId == null) return "fail";
 
-        // 3. [수정] 이제 'aaa'가 아닌 숫자 1L이 전달되므로 데이터 타입 에러가 사라집니다.
-        int alreadyWished = reviewWishMapper.checkWish(userPk, resId);
+        // [수정] 문자열 ID를 그대로 사용하여 찜 상태 확인
+        int alreadyWished = reviewWishMapper.checkWish(userId, resId);
 
         if (alreadyWished > 0) {
-            // 이미 찜 상태라면 삭제(취소) 처리
-            reviewWishMapper.deleteWish(userPk, resId);
+            reviewWishMapper.deleteWish(userId, resId);
         } else {
-            // 찜 상태가 아니라면 새로 저장
-            reviewWishMapper.insertWish(resId, userPk);
+            reviewWishMapper.insertWish(resId, userId);
         }
 
-        // 4. 최신 찜 개수를 반환합니다.
         return String.valueOf(reviewWishMapper.getTotalWishCount(resId));
     }
-    @GetMapping("/api/reviews/{resId}") // ★ 이 주소가 정확한지 확인!
-    @ResponseBody // ★ 이 어노테이션이 꼭 있어야 합니다.
+
+    @GetMapping("/api/reviews/{resId}")
+    @ResponseBody
     public List<ReviewWishDTO> getReviewList(@PathVariable Long resId) {
         return reviewWishMapper.getReviewsByRestaurant(resId);
-
-
     }
 
-    // RestaurantController.java
-
-    // 리뷰 삭제를 처리하는 창구 (DELETE 방식)
     @DeleteMapping("/api/review/delete/{reviewId}")
     @ResponseBody
     public String deleteReview(@PathVariable Long reviewId) {
-        // 1. 서비스나 매퍼를 통해 DB에서 해당 리뷰 번호를 삭제합니다.
         reviewWishMapper.deleteReview(reviewId);
         return "success";
     }
-
-    @GetMapping("/restaurant/detail/{restId}")
-    public String getRestaurantDetail(@PathVariable Long restId){
-
-        //RestaurantDTO restaurant = restaurantService.getRestaurantDetail(restId);
-
-
-
-        return "";
-    }
-
 }

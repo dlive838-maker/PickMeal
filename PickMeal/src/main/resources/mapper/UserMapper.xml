@@ -21,6 +21,17 @@
         <result property="socialLoginSite" column="socialLoginSite" />
         <result property="socialId" column="socialId" />
     </resultMap>
+    <insert id="insertUser" parameterType="PickMeal.PickMeal.domain.User">
+        INSERT INTO user (
+        id, password, nickname, name, email, birthDate, gender,
+        phoneNumber, likeMenu, disLikeMenu, role, status,
+        socialLoginSite, socialId
+        ) VALUES (
+        #{id}, #{password}, #{nickname}, #{name}, #{email}, #{birthDate}, #{gender},
+        #{phoneNumber}, #{likeMenu}, #{disLikeMenu}, #{role}, #{status},
+        #{socialLoginSite}, #{socialId}
+        )
+    </insert>
     <insert id="save" parameterType="PickMeal.PickMeal.domain.User">
         INSERT INTO user (
         id, password, nickname, name, email, birthDate, gender,

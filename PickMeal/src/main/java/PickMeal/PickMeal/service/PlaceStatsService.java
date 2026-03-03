@@ -51,14 +51,12 @@ public class PlaceStatsService {
         }, params);
     }
 
-    // 2. 특정 가게의 모든 댓글 목록 조회
-    // 2. 특정 가게의 모든 댓글 목록 조회
     public List<PlaceStatsDto> getReviews(String kakaoPlaceId) {
         Long resId = Long.parseLong(kakaoPlaceId);
         // [수정] SQL문에 rating 컬럼을 추가해야 합니다.
-        String sql = "SELECT p.review_id, p.user_id, u.user_nickname, p.content, p.rating " +
+        String sql = "SELECT p.review_id, p.user_id, u.nickname, p.content, p.rating " +
                 "FROM place_stats p " +
-                "LEFT JOIN users u ON p.user_id = u.user_id " + // 사용자 테이블 JOIN
+                "LEFT JOIN user u ON p.user_id = u.id " + // 사용자 테이블 JOIN
                 "WHERE p.res_id = ? AND p.content IS NOT NULL " +
                 "ORDER BY p.created_at DESC";
 
@@ -66,7 +64,7 @@ public class PlaceStatsService {
             PlaceStatsDto dto = new PlaceStatsDto();
             dto.setReviewId(rs.getLong("review_id"));
             dto.setUserId(rs.getString("user_id"));
-            String nickname = rs.getString("user_nickname");
+            String nickname = rs.getString("nickname");
             dto.setNickname(nickname != null ? nickname : rs.getString("user_id"));
             dto.setContent(rs.getString("content"));
             // [추가] DB에서 가져온 rating 값을 DTO에 담아줘야 프론트에서 읽을 수 있습니다.
@@ -104,10 +102,10 @@ public class PlaceStatsService {
     // 5. 신규 댓글 추가 (평점 포함)
     public void addReview(String kakaoPlaceId, String userId, String content, int rating) {
         Long resId = Long.parseLong(kakaoPlaceId);
-        String sql = "INSERT INTO place_stats (res_id, user_id, content, rating, created_at, updated_at) " +
-                "VALUES (?, ?, ?, ?, NOW(), NOW())";
-        jdbcTemplate.update(sql, resId, userId, content, rating);
-        updateReviewCount(resId);
+        String sql = "INSERT INTO place_stats (res_id, user_id, content, rating, category, created_at, updated_at ) " +
+                "VALUES (?, ?, ?, ?, ?, NOW(), NOW())";
+        jdbcTemplate.update(sql, resId, userId, content, rating, "GENERAL");
+
     }
 
     // 6. 댓글 수정
@@ -117,7 +115,7 @@ public class PlaceStatsService {
 
         String updateSql = "UPDATE place_stats SET content = ?, updated_at = NOW() WHERE review_id = ?";
         jdbcTemplate.update(updateSql, content, reviewId);
-        updateReviewCount(resId);
+
     }
 
     // 7. 댓글 삭제
@@ -127,17 +125,10 @@ public class PlaceStatsService {
 
         String deleteSql = "DELETE FROM place_stats WHERE review_id = ?";
         jdbcTemplate.update(deleteSql, reviewId);
-        updateReviewCount(resId);
+
     }
 
-    // 8. 댓글 수 동기화
-    private void updateReviewCount(Long resId) {
-        String countSql = "SELECT COUNT(*) FROM place_stats WHERE res_id = ? AND content IS NOT NULL";
-        Integer currentCount = jdbcTemplate.queryForObject(countSql, Integer.class, resId);
 
-        String syncSql = "UPDATE place_stats SET review_count = ? WHERE res_id = ?";
-        jdbcTemplate.update(syncSql, currentCount, resId);
-    }
 
     // 댓글 수정 (내용 + 별점 업데이트 및 본인 확인)
     public boolean updateReview(Long reviewId, String userId, String content, int rating) {
@@ -156,19 +147,19 @@ public class PlaceStatsService {
         // 3. 해당 가게의 평균 평점 및 댓글 수 동기화
         String findResIdSql = "SELECT res_id FROM place_stats WHERE review_id = ?";
         Long resId = jdbcTemplate.queryForObject(findResIdSql, Long.class, reviewId);
-        updateReviewCount(resId);
+
 
         return true;
     }
 
     public List<PlaceStatsDto> getPopularPlace() {
-
+        // 1. 쿼리는 그대로 유지하되, 별칭(Alias)을 명확히 확인합니다.
         String sql = "SELECT CAST(res_id AS CHAR) as kakaoPlaceId, " +
                 "MAX(place_name) as placeName, " +
                 "SUM(CASE WHEN is_wish = 1 THEN 1 ELSE 0 END) as heartCount, " +
                 "SUM(IFNULL(view_count, 0)) as viewCount, " +
                 "COUNT(content) as reviewCount, " +
-                "IFNULL(AVG(rating), 0) as avgRating " +
+                "IFNULL(AVG(rating), 0) as avgRating " + // 이 값을 자바에서 꺼내야 합니다.
                 "FROM place_stats " +
                 "GROUP BY res_id " +
                 "ORDER BY heartCount DESC, viewCount DESC " +
@@ -177,10 +168,18 @@ public class PlaceStatsService {
         return jdbcTemplate.query(sql, (rs, rowNum) -> {
             PlaceStatsDto dto = new PlaceStatsDto();
             dto.setKakaoPlaceId(rs.getString("kakaoPlaceId"));
-            dto.setPlaceName(rs.getString("placeName"));
+
+            // 2. [방어 코드] DB에 저장된 이름이 NULL일 경우를 대비합니다.
+            String pName = rs.getString("placeName");
+            dto.setPlaceName(pName != null ? pName : "이름 없는 맛집");
+
             dto.setHeartCount(rs.getInt("heartCount"));
             dto.setViewCount(rs.getInt("viewCount"));
             dto.setReviewCount(rs.getInt("reviewCount"));
+
+            // 3. [누락된 코드 추가] 평균 평점을 DTO에 담아줘야 에러가 나지 않습니다.
+            dto.setAvgRating(Math.round(rs.getDouble("avgRating") * 10) / 10.0);
+
             return dto;
         });
     }

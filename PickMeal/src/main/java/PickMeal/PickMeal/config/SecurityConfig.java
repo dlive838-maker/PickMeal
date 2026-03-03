@@ -32,24 +32,28 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.ignoringRequestMatchers(
                         "/mail/**", "/users/**", "/worldcup/win/**", "/hotplace/**", "/board/remove/**",
-                        "/board/write", "/file/upload", "/api/wishlist/**", "/api/restaurant/**", "/api/review/**"
+                        "/board/write", "/file/upload", "/api/wishlist/**", "/api/restaurant/**",
+                        "/api/review/**", "/api/reviews/**", "/api/**"
                 ))
                 .authorizeHttpRequests(authorize -> authorize
-                        // 1. 구체적인 인증 필요 경로
+                        // 1. [최우선] 정적 리소스 및 에러 페이지
+                        .requestMatchers("/css/**", "/js/**", "/images/**", "/*.json", "/error").permitAll()
+
+                        // 2. [밀스팟 해결] 맛집 탐지기 관련 모든 경로 상단 배치
+                        .requestMatchers("/meal-spotter", "/board/meal-spotter", "/hotplace/**", "/api/**").permitAll()
+
+                        // 3. 인증 필요 경로
                         .requestMatchers("/board/write/**", "/board/remove/**").hasAnyRole("USER", "ADMIN")
-                        .requestMatchers("/users/mypage", "/users/edit","/board/edit/**" ).authenticated()
+                        .requestMatchers("/users/mypage", "/users/edit", "/board/edit/**").authenticated()
 
-                        // 2. 게시판 목록 및 상세는 누구나 접근 가능 (순서 중요!)
-                        .requestMatchers("/board/list", "/board/detail/**", "/board/meal-spotter").permitAll()
-
-                        // 3. 나머지 공통 허용
+                        // 4. 기존 허용 경로들 (유지)
                         .requestMatchers("/", "/next-page", "/hotplace",
                                 "/users/signup", "/users/signup/social", "/users/login",
                                 "/users/check-id", "/users/check-nickname", "/users/find-id",
                                 "/users/forgot-pw", "/users/find-password/**", "/users/reset-password/**",
-                                "/mail/**", "/oauth2/**", "/css/**", "/js/**", "/images/**", "/*.json",
+                                "/mail/**", "/oauth2/**", "/board/list", "/board/detail/**",
                                 "/roulette", "/twentyQuestions/**", "/twenty-questions/**", "/capsule", "/game/**", "/worldcup/**",
-                                "/api/**", "/draw", "/meal-spotter", "/hotplace/**").permitAll()
+                                "/draw").permitAll()
 
                         .anyRequest().authenticated()
                 )
@@ -74,6 +78,7 @@ public class SecurityConfig {
                         .deleteCookies("JSESSIONID")
                         .permitAll()
                 );
+
         return http.build();
     }
 }

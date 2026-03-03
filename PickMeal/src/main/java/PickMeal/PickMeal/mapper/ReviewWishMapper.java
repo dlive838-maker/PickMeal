@@ -19,13 +19,13 @@ public interface ReviewWishMapper {
     List<RestaurantDTO> getPopularRest();
 
     // ★ 3. 아래 코드를 새로 추가하세요! (Service 에러 해결사)
-    void insertWish(@Param("restId") Long restId, @Param("userId") Long userId);
+    void insertWish(@Param("resId") Long restId, @Param("userId") String userId);
 
     int getTotalWishCount(Long resId);
 
-    int checkWish(@Param("userId") Long userId, @Param("resId") Long resId);
+    int checkWish(@Param("userId") String userId, @Param("resId") Long resId);
 
-    void deleteWish(@Param("userId") Long userId, @Param("resId") Long resId);
+    void deleteWish(@Param("userId") String userId, @Param("resId") Long resId);
 
     void insertReview(ReviewWishDTO dto);
 

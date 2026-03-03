@@ -4,10 +4,20 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="962a907c-5717-43aa-b917-26da9a3b7f8c" name="변경" comment="26.03.03 재민 병합 코드">
+    <list default="true" id="962a907c-5717-43aa-b917-26da9a3b7f8c" name="변경" comment="26.03.03 1134 재민 코드 병합">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/java/PickMeal/PickMeal/dto/PlaceStatsDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/java/PickMeal/PickMeal/dto/PlaceStatsDto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/java/PickMeal/PickMeal/config/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/java/PickMeal/PickMeal/config/SecurityConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/java/PickMeal/PickMeal/controller/MainController.java" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/java/PickMeal/PickMeal/controller/MainController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/java/PickMeal/PickMeal/controller/RestaurantController.java" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/java/PickMeal/PickMeal/controller/RestaurantController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/java/PickMeal/PickMeal/domain/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/java/PickMeal/PickMeal/domain/User.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/java/PickMeal/PickMeal/dto/ReviewWishDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/java/PickMeal/PickMeal/dto/ReviewWishDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/java/PickMeal/PickMeal/mapper/ReviewWishMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/java/PickMeal/PickMeal/mapper/ReviewWishMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/java/PickMeal/PickMeal/mapper/UserMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/java/PickMeal/PickMeal/mapper/UserMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/java/PickMeal/PickMeal/service/CustomOAuth2UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/java/PickMeal/PickMeal/service/CustomOAuth2UserService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/PickMeal/src/main/java/PickMeal/PickMeal/service/PlaceStatsService.java" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/java/PickMeal/PickMeal/service/PlaceStatsService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/java/PickMeal/PickMeal/service/RestaurantService.java" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/java/PickMeal/PickMeal/service/RestaurantService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/mapper/ReviewWishMapper.xml" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/mapper/ReviewWishMapper.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/mapper/UserMapper.xml" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/mapper/UserMapper.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/templates/board/meal-spotter.html" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/templates/board/meal-spotter.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/templates/hotplace.html" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/templates/hotplace.html" afterDir="false" />
     </list>
@@ -48,6 +58,19 @@
     </recent_temporary>
   </component>
   <component name="TaskManager">
+    <task id="LOCAL-00001" summary="26.03.03 1134 재민 코드 병합">
+      <option name="closed" value="true" />
+      <created>1772505257847</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1772505257847</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="26.03.03 1134 재민 코드 병합" />
+    <option name="LAST_COMMIT_MESSAGE" value="26.03.03 1134 재민 코드 병합" />
   </component>
 </project>

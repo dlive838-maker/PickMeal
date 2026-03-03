@@ -117,25 +117,19 @@
                         </svg>
                     </button>
                 </div>
-
-                <p class="text-[12px] ..." th:text="${res.restAddress}">식당 주소</p>
-
-                <p class="text-[12px] ..." th:text="|대표메뉴 : ${res.restMenu}|">대표메뉴</p>
-
-                <div class="flex items-center gap-3">
-                    <span class="...">👁️ [[${res.restViews}]]</span>
-
-                    <span class="..." th:onclick="showReviewList([[${res.restId}]], [[${res.restName}]])">
-            📝 <span th:id="'review-count-' + ${res.restId}"
-                    th:text="${res.reviewCount}">0</span>
-        </span>
-
-                    <button class="..." th:onclick="'openReviewModal(event, ' + ${res.restId} + ')'">EVALUATION</button>
-                </div>
             </div>
         </div>
 
-        <div id="placesList" class="place-list scroller"></div>
+        <div id="placesList" class="place-list scroller">
+            <div th:each="p : ${popularPlaceList}" class="place-item">
+                <h4 class="font-black text-gray-800 text-xl mb-1 italic" th:text="${p.placeName}">맛집 이름</h4>
+                <div class="flex gap-4 mb-2 text-[13px] font-bold text-orange-400 italic items-center">
+                    <span class="flex items-center gap-1.5">⭐ <span th:text="${p.avgRating}">0</span></span>
+                    <span class="flex items-center gap-1.5">👁️ <span th:text="${p.viewCount}">0</span></span>
+                    <span class="flex items-center gap-1.5">❤️ <span th:text="${p.heartCount}">0</span></span>
+                </div>
+            </div>
+        </div>
 
         <div id="pagination" class="pagination"></div>
     </aside>
@@ -351,7 +345,7 @@
             data.forEach(place => {
                 const pos = new kakao.maps.LatLng(place.y, place.x);
                 const stats = statsMap[place.id] || { viewCount:0, heartCount: 0, reviewCount: 0, liked: false, avgRating: 0 };
-                if (stats.heartCount >= 5) {
+                if (stats.heartCount >= 10) {
                     createCustomPin(pos, place, stats);
                 const item = document.createElement('div'); item.className = 'place-item';
                 item.innerHTML = `

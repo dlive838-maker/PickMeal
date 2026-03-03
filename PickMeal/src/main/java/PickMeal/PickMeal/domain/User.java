@@ -1,6 +1,10 @@
 package PickMeal.PickMeal.domain;
 
+import jdk.jshell.Snippet;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -11,6 +15,9 @@ import java.util.Collections;
 import java.util.Date;
 
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class User implements UserDetails { // 시큐리티 연동을 위해 UserDetails 구현
     private Long user_id; // PK
     private String id; // 로그인 아이디
@@ -29,6 +36,8 @@ public class User implements UserDetails { // 시큐리티 연동을 위해 User
     private String status; // 상태 (ACTIVE, WITHDRAWN)
     private String socialLoginSite; // 소셜 사이트 이름
     private String socialId; // 소셜 고유 식별값
+
+
 
 
     @Override

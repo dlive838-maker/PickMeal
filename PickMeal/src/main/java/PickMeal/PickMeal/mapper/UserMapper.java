@@ -58,4 +58,6 @@ public interface UserMapper {
     String getLikedMenuString(Long userId);    // 선호 음식 가져오기
 
     String getDislikedMenuString(Long userId); // 비선호 음식 가져오기
+
+    void insertUser(User user);
 }
