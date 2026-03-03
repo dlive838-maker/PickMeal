@@ -2,7 +2,9 @@ package PickMeal.PickMeal.controller;
 
 import PickMeal.PickMeal.domain.Board;
 import PickMeal.PickMeal.domain.User;
+import PickMeal.PickMeal.dto.PlaceStatsDto;
 import PickMeal.PickMeal.service.BoardService;
+import PickMeal.PickMeal.service.RestaurantService;
 import PickMeal.PickMeal.service.UserPasswordService;
 import PickMeal.PickMeal.service.UserService;
 import jakarta.servlet.http.HttpSession;
@@ -31,6 +33,7 @@ import java.util.Objects;
 public class UserController {
     private final BoardService boardService;
     private final UserService userService;
+    private final RestaurantService restaurantService;
     private final PasswordEncoder passwordEncoder;
 
     /**
@@ -192,10 +195,16 @@ public class UserController {
         // 5. 내가 작성한 게시글 리스트 가져오기 (User의 long 타입 고유 번호 PK 사용)
         List<Board> myBoards = boardService.findByUser_id(latestUserInfo.getUser_id());
 
+        // latestUserInfo.getId()가 "aaa" 또는 "kakao_..." 입니다.
+        List<PlaceStatsDto> likeList = restaurantService.getMyLikedResturants(fullUserId);
+        // 아래 로그 추가
+        System.out.println(">>> 가져온 찜 목록 개수: " + (likeList != null ? likeList.size() : 0));
+
         // 6. 뷰(HTML)로 전달할 데이터들을 모델에 담습니다.
         model.addAttribute("user", latestUserInfo);
         model.addAttribute("displayId", userService.getMaskedDisplayId(latestUserInfo));
         model.addAttribute("myBoards", myBoards);
+        model.addAttribute("likeList", likeList);
 
         return "users/mypage";
     }

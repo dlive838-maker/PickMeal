@@ -1,6 +1,7 @@
 package PickMeal.PickMeal.mapper;
 
 import PickMeal.PickMeal.domain.Restaurant;
+import PickMeal.PickMeal.dto.PlaceStatsDto;
 import PickMeal.PickMeal.dto.RestaurantDTO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
@@ -18,4 +19,7 @@ public interface RestaurantMapper {
     // [추가] 조회수를 1씩 올리는 기능을 기사님(Mapper)에게 알려줍니다.
     void updateViewCount(Long resId);
 
+    List<PlaceStatsDto> getMyLikedResturants(String userId);
+
+    void updatePlaceStatsView(String resId);
 }

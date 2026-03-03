@@ -131,5 +131,4 @@
     <select id="getDislikedMenuString" resultType="String">
         SELECT disLikeMenu FROM user WHERE user_id = #{userId}
     </select>
-
 </mapper>

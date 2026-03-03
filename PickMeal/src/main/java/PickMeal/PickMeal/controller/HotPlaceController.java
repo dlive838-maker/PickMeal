@@ -35,9 +35,8 @@ public class HotPlaceController {
     @PostMapping("/view/{kakaoPlaceId}")
     @ResponseBody
     public ResponseEntity<?> addView(@PathVariable("kakaoPlaceId") String kakaoPlaceId, Principal principal) {
-        // 로그인했으면 실제 ID, 안했으면 "guest"로 설정
         String userId = (principal != null) ? principal.getName() : "guest";
-
+        // 이 서비스 호출이 위에서 만든 updatePlaceStatsView까지 이어져야 합니다!
         placeStatsService.addViewLog(kakaoPlaceId, userId);
         return ResponseEntity.ok().build();
     }

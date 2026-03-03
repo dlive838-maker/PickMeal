@@ -34,4 +34,35 @@
         WHERE res_id = #{resId}
     </update>
 
+    <select id="getMyLikedResturants" parameterType="String" resultType="PickMeal.PickMeal.dto.PlaceStatsDto">
+        SELECT
+        res_id as kakaoPlaceId,
+        place_name as placeName,
+        ROUND(IFNULL((SELECT AVG(rating) FROM place_stats
+        WHERE res_id = t.res_id
+        AND content IS NOT NULL AND content != ''), 0.0), 1) as avgRating,
+
+        IFNULL((SELECT SUM(view_count) FROM place_stats WHERE res_id = t.res_id), 0) as viewCount,
+
+        category,
+        address,
+        is_wish as liked,
+
+        (SELECT COUNT(*) FROM place_stats
+        WHERE res_id = t.res_id
+        AND content IS NOT NULL AND content != '') as reviewCount,
+
+        (SELECT COUNT(*) FROM place_stats
+        WHERE res_id = t.res_id AND is_wish = 1) as heartCount
+        FROM place_stats t
+        WHERE user_id = #{userId}
+        AND is_wish = 1
+        ORDER BY updated_at DESC
+    </select>
+    <update id="updatePlaceStatsView">
+        UPDATE place_stats
+        SET view_count = view_count + 1
+        WHERE res_id = #{resId}
+    </update>
+
 </mapper>

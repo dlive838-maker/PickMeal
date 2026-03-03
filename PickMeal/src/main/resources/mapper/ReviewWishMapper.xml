@@ -53,5 +53,4 @@
         DELETE FROM place_stats
         WHERE review_id = #{reviewId}
     </delete>
-
 </mapper>
