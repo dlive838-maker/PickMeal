@@ -124,19 +124,54 @@ public class MainController {
             @RequestParam(value = "types") List<String> types,
             @RequestParam(value = "round") int round,
             @AuthenticationPrincipal User user,
+            Authentication authentication,
             Model model) {
 
-        // 1. 서비스 일꾼에게 전체 음식 재료를 가져오라고 시킵니다.
-        List<Food> foods = userService.getMixedFoods(types, round);
-        Long userId = (user != null) ? user.getUser_id() : null;
+        // 1. [핵심] 133개의 전체 음식을 넉넉하게 가져옵니다.
+        // round(8)를 넣지 말고, 전체 개수보다 큰 숫자(예: 200)를 넣어서 다 가져오게 합니다.
+        List<Food> allAvailableFoods = userService.getMixedFoods(types, 200);
 
-        // 🌟 [핵심 수정] 메서드 이름을 GameService에서 만든 것과 똑같이 맞춰줍니다.
-        // getFilteredFoodList -> getPriorityFoodList
-        List<Food> filteredFoods = gameService.getPriorityFoodList(userId, foods, round);
+        // 2. 로그인 유저 ID 찾기 (ID 조합 규칙 통일!)
+        Long userId = null;
+        if (user != null && user.getUser_id() != null) {
+            userId = user.getUser_id();
+        }else if (authentication != null && authentication.isAuthenticated()) {
+            String finalId = "";
 
-        // 2. 주방장이 선호 음식을 포함해 정성껏 준비한 'filteredFoods'를 게임판으로 전달합니다.
+            // 1. 만약 OAuth2 로그인이라면 'attributes' 안에서 진짜 'id'만 꺼냅니다.
+            if (authentication instanceof org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken token) {
+                var attributes = token.getPrincipal().getAttributes();
+                String registrationId = token.getAuthorizedClientRegistrationId(); // "naver"
+
+                // 네이버는 'response'라는 주머니 안에 'id'가 들어있습니다.
+                if ("naver".equals(registrationId)) {
+                    java.util.Map<String, Object> response = (java.util.Map<String, Object>) attributes.get("response");
+                    finalId = registrationId + "_" + response.get("id"); // "naver_pF7R..."
+                } else {
+                    finalId = registrationId + "_" + token.getName();
+                }
+            } else {
+                finalId = authentication.getName();
+            }
+
+            log.info("--- [수정된 디버깅] 진짜 추출된 ID: {}", finalId);
+
+            User dbUser = userService.findById(finalId);
+            if (dbUser != null) {
+                userId = dbUser.getUser_id();
+            }
+        }
+
+        log.info("--- [최종 확인] 찾아낸 유저 숫자 ID: {}", userId);
+
+        // 3. 이제 '숫자 ID'가 잘 전달되면 '날것' 필터링이 작동합니다!
+        List<Food> filteredFoods = gameService.getPriorityFoodList(userId, allAvailableFoods, round);
+
+        // 4. 화면으로 전달
         model.addAttribute("foods", filteredFoods);
         model.addAttribute("totalRound", round);
+
+        log.info("--- [최종 결과] 133개 중 필터링 완료. 화면에 {}개의 음식을 보냅니다.", filteredFoods.size());
 
         return "game/worldcup";
     }
