@@ -4,17 +4,15 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-<<<<<<< HEAD
-    <list default="true" id="962a907c-5717-43aa-b917-26da9a3b7f8c" name="변경" comment="26.03.03 1134 재민 코드 병합" />
-=======
-    <list default="true" id="962a907c-5717-43aa-b917-26da9a3b7f8c" name="변경" comment="26.03.03 1642 재민 코드 병합">
+    <list default="true" id="d5434541-224c-465f-accd-78c92f7f54c4" name="변경" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/26__2__24___5_39__________.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/26__2__24__오후_5_39,_체크아웃_전에_커밋되지_않은_변경_내용_[변경]/shelved.patch" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/PickMeal/src/main/java/PickMeal/PickMeal/controller/HotPlaceController.java" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/java/PickMeal/PickMeal/controller/HotPlaceController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/java/PickMeal/PickMeal/controller/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/java/PickMeal/PickMeal/controller/UserController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/templates/board/board-detail.html" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/templates/board/board-detail.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/templates/board/meal-spotter.html" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/templates/board/meal-spotter.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/templates/hotplace.html" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/templates/hotplace.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/templates/game/capsule.html" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/templates/game/capsule.html" afterDir="false" />
     </list>
->>>>>>> origin/jaemin
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -26,31 +24,27 @@
   <component name="GitHubPullRequestSearchHistory"><![CDATA[{
   "lastFilter": {
     "state": "OPEN",
-    "assignee": "juno1007"
+    "assignee": "woals10006-commits"
   }
 }]]></component>
   <component name="GithubPullRequestsUISettings"><![CDATA[{
   "selectedUrlAndAccountId": {
     "url": "https://github.com/dlive838-maker/PickMeal.git",
-    "accountId": "453e9330-37b0-4881-b769-ab3dfe353017"
+    "accountId": "04b0600f-f63c-406a-b753-1f5c3038be60"
   }
 }]]></component>
   <component name="ProjectColorInfo"><![CDATA[{
-  "customColor": "",
-  "associatedIndex": 4
+  "associatedIndex": 0
 }]]></component>
-  <component name="ProjectId" id="3AQZ2Vvy2SZSQfxv571hKU1uqFE" />
+  <component name="ProjectId" id="3ASOB2o7nwEeC2E81BIWRLNDQGz" />
   <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
     "Spring Boot.PickMealApplication.executor": "Run",
-    "git-widget-placeholder": "main",
-    "kotlin-language-version-configured": "true"
+    "git-widget-placeholder": "jaemin"
   }
 }]]></component>
   <component name="RunManager">
@@ -82,39 +76,6 @@
     </attachedChunks>
   </component>
   <component name="TaskManager">
-    <task id="LOCAL-00001" summary="26.03.03 1134 재민 코드 병합">
-      <option name="closed" value="true" />
-      <created>1772505257847</created>
-      <option name="number" value="00001" />
-      <option name="presentableId" value="LOCAL-00001" />
-      <option name="project" value="LOCAL" />
-      <updated>1772505257847</updated>
-    </task>
-<<<<<<< HEAD
-    <task active="true" id="Default" summary="디폴트 작업">
-      <changelist id="962a907c-5717-43aa-b917-26da9a3b7f8c" name="변경" comment="26.03.03 1134 재민 코드 병합" />
-      <created>1772526549208</created>
-      <option name="number" value="Default" />
-      <option name="presentableId" value="Default" />
-      <updated>1772526549208</updated>
-    </task>
-    <option name="localTasksCounter" value="2" />
-=======
-    <task id="LOCAL-00002" summary="26.03.03 1642 재민 코드 병합">
-      <option name="closed" value="true" />
-      <created>1772523751677</created>
-      <option name="number" value="00002" />
-      <option name="presentableId" value="LOCAL-00002" />
-      <option name="project" value="LOCAL" />
-      <updated>1772523751677</updated>
-    </task>
-    <option name="localTasksCounter" value="3" />
->>>>>>> origin/jaemin
     <servers />
-  </component>
-  <component name="VcsManagerConfiguration">
-    <MESSAGE value="26.03.03 1134 재민 코드 병합" />
-    <MESSAGE value="26.03.03 1642 재민 코드 병합" />
-    <option name="LAST_COMMIT_MESSAGE" value="26.03.03 1642 재민 코드 병합" />
   </component>
 </project>

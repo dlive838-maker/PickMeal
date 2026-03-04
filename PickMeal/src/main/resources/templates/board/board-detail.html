@@ -9,11 +9,34 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@700;800&family=Jua&family=Nanum+Gothic:wght@700;800&family=Gamja+Flower&family=Black+Han+Sans&display=swap" rel="stylesheet">
   <style>
-    body { font-family: 'Fredoka', sans-serif; background-color: #FFF5F0; margin: 0; overflow-y: auto; height: 100vh; display: flex; flex-direction: column; }
+    body {
+    font-family: 'Fredoka', sans-serif;
+    background-color: #FFF5F0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* height: 100vh 대신 min-height 사용 */
+    overflow-x: hidden;
+}
     .nav-link { font-family: 'Fredoka', sans-serif; font-weight: 700; font-style: italic; }
-    main { padding: 40px 20px; display: flex; flex-direction: column; align-items: center; }
+    main {
+    flex: 1; /* 푸터를 하단으로 밀어내기 위해 공간 차지 */
+    padding: 100px 20px 60px !important; /* 상단 100px로 헤더 공간 확보 */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
     .main-title-area { text-align: left; width: 100%; max-width: 900px; margin-bottom: 20px; }
-    .main-title-area h1 { color: #FF7F50; font-size: 3em; margin: 0; }
+    .custom-main-title {
+      font-family: 'Fredoka', sans-serif !important;
+      font-size: 3rem;           /* 크기 (5xl급) */
+      font-weight: 900;           /* 두께 (black) */
+      color: #FF8A5B;            /* 색상 (오렌지) */
+      font-style: italic;        /* 기울기 */
+      text-transform: uppercase; /* 대문자 변환 */
+      letter-spacing: -0.05em;    /* 자간 좁게 */
+      margin: 0;
+  }
     .main-title-area p { color: #FF7F50; font-size: 1.2em; margin-top: 10px; }
     .board-container { background-color: #fff; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); padding: 40px; width: 100%; max-width: 900px; box-sizing: border-box; }
     .board-header { margin-bottom: 20px; border-bottom: 2px solid #FF7F50; padding-bottom: 20px; }
@@ -53,7 +76,7 @@
 <div class="overflow-y-auto flex-grow">
   <main class="flex items-center justify-center content-slide-up py-10">
     <div class="main-title-area">
-      <h1>COMMUNITY BOARD</h1>
+      <h1 class="custom-main-title mb-2">Community Board</h1>
       <p>Share your tasty experiences!</p>
     </div>
 

@@ -191,6 +191,9 @@
     var areaData = {}, foodData = {};
     let currentSelection = { sido: null, sigugun: null, dong: null, foodName: null };
     let activePlaceId = null;
+    let filteredPlaces = []; // 하트 10개 이상인 장소들만 담을 배열
+let currentPage = 1;
+const pageSize = 15;
     const currentLoginUser = /*[[${#authentication.name}]]*/ 'guest';
     const keywordInput = document.getElementById('keywordInput');
     const btnSearch = document.getElementById('btnSearch');
@@ -331,48 +334,103 @@
     }
 
     // [수정] 페이지네이션 매개변수 추가 및 리스트 갱신 로직
-    async function renderPlaces(data, status, pagination) {
-        currentOverlays.forEach(o => o.setMap(null)); currentOverlays = [];
-        const listEl = document.getElementById('placesList');
-        const paginationEl = document.getElementById('pagination');
-        listEl.innerHTML = '';
-        if (paginationEl) paginationEl.innerHTML = '';
+    // [수정] 데이터를 필터링하고 초기화하는 역할
+async function renderPlaces(data, status, pagination) {
+    if (status === kakao.maps.services.Status.OK) {
+        const statsRes = await fetch('/hotplace/stats', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data.map(p => p.id))
+        });
+        const statsList = await statsRes.json();
+        const statsMap = {};
+        statsList.forEach(s => statsMap[s.kakaoPlaceId] = s);
 
-        if (status === kakao.maps.services.Status.OK) {
-            const statsRes = await fetch('/hotplace/stats', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data.map(p => p.id)) });
-            const statsList = await statsRes.json();
-            const statsMap = {}; statsList.forEach(s => statsMap[s.kakaoPlaceId] = s);
+        // 1. 하트 10개 이상인 데이터만 필터링해서 filteredPlaces에 저장
+        filteredPlaces = data.filter(place => {
+            const stats = statsMap[place.id];
+            return stats && stats.heartCount >= 10;
+        }).map(place => ({
+            ...place,
+            stats: statsMap[place.id],
+            pos: new kakao.maps.LatLng(place.y, place.x)
+        }));
 
-            data.forEach(place => {
-                const pos = new kakao.maps.LatLng(place.y, place.x);
-                const stats = statsMap[place.id] || { viewCount:0, heartCount: 0, reviewCount: 0, liked: false, avgRating: 0 };
-                if (stats.heartCount >= 10) {
-                    createCustomPin(pos, place, stats);
-                const item = document.createElement('div'); item.className = 'place-item';
-                item.innerHTML = `
-                    <h4 class="font-black text-gray-800 text-xl mb-1 italic">${place.place_name}</h4>
-                    <div class="flex gap-4 mb-2 text-[13px] font-bold text-orange-400 italic items-center">
-                        <span class="flex items-center gap-1.5">⭐ <span id="avg-rating-${place.id}" class="text-gray-700">${stats.avgRating || 0}</span></span>
-                        <span class="flex items-center gap-1.5">👁️ <span id="view-count-${place.id}" class="text-gray-700">${stats.viewCount}</span></span>
-                        <button onclick="handleHeart('${place.id}', event)" class="ani-btn ${stats.liked ? 'liked' : ''}">❤ <span id="heart-count-${place.id}" class="heart-count-text">${stats.heartCount}</span></button>
-                        <div class="flex items-center gap-1">
-                            <span class="flex items-center gap-1.5">📝 <span id="review-count-${place.id}" class="text-gray-700">${stats.reviewCount}</span></span>
-                            <button onclick="openReviewModal('${place.id}', event)" class="px-2 py-0.5 bg-orange-100 text-[#FF8A5B] rounded-md text-[10px] hover:bg-[#FF8A5B] hover:text-white transition-all">WRITE</button>
-                        </div>
-                    </div>
-                    <p class="text-[12px] text-[#FF8A5B] font-black uppercase mb-1 italic">${place.category_name.split('>').pop()}</p>
-                    <p class="text-[13px] text-gray-400 font-bold italic">${place.address_name}</p>
-                    <button onclick="handleView('${place.id}', '${place.place_url}')" class="info-btn">INFO</button>
-                `;
-                item.onclick = (e) => { if(!e.target.closest('button')) map.panTo(pos); };
-                listEl.appendChild(item);
-                }
-            });
-
-            // [추가] 페이지 번호 렌더링 호출
-            if (pagination) renderPagination(pagination);
-        }
+        // 2. 1페이지부터 보여주기
+        displayPage(1);
     }
+}
+
+// [추가] 실제 화면에 15개씩 끊어서 그려주는 함수
+function displayPage(page) {
+    currentPage = page;
+    const listEl = document.getElementById('placesList');
+    const paginationEl = document.getElementById('pagination');
+
+    // 기존 마커 및 리스트 삭제
+    currentOverlays.forEach(o => o.setMap(null));
+    currentOverlays = [];
+    listEl.innerHTML = '';
+    paginationEl.innerHTML = '';
+
+    // 현재 페이지에 해당하는 데이터 슬라이싱 (15개)
+    const start = (page - 1) * pageSize;
+    const end = start + pageSize;
+    const pagedData = filteredPlaces.slice(start, end);
+
+    if (pagedData.length === 0) {
+        listEl.innerHTML = '<div class="p-10 text-center text-gray-400 font-bold italic">하트 10개 이상의 맛집이 없습니다.</div>';
+        return;
+    }
+
+    pagedData.forEach(place => {
+        const stats = place.stats;
+        // 핀 생성
+        createCustomPin(place.pos, place, stats);
+
+        // 리스트 아이템 생성
+        const item = document.createElement('div');
+        item.className = 'place-item';
+        item.innerHTML = `
+            <h4 class="font-black text-gray-800 text-xl mb-1 italic">${place.place_name}</h4>
+            <div class="flex gap-4 mb-2 text-[13px] font-bold text-orange-400 italic items-center">
+                <span class="flex items-center gap-1.5">⭐ <span id="avg-rating-${place.id}" class="text-gray-700">${stats.avgRating || 0}</span></span>
+                <span class="flex items-center gap-1.5">👁️ <span id="view-count-${place.id}" class="text-gray-700">${stats.viewCount}</span></span>
+                <button onclick="handleHeart('${place.id}', event)" class="ani-btn ${stats.liked ? 'liked' : ''}">❤ <span id="heart-count-${place.id}" class="heart-count-text">${stats.heartCount}</span></button>
+                <div class="flex items-center gap-1">
+                    <span class="flex items-center gap-1.5">📝 <span id="review-count-${place.id}" class="text-gray-700">${stats.reviewCount}</span></span>
+                    <button onclick="openReviewModal('${place.id}', event)" class="px-2 py-0.5 bg-orange-100 text-[#FF8A5B] rounded-md text-[10px] hover:bg-[#FF8A5B] hover:text-white transition-all">WRITE</button>
+                </div>
+            </div>
+            <p class="text-[12px] text-[#FF8A5B] font-black uppercase mb-1 italic">${place.category_name.split('>').pop()}</p>
+            <p class="text-[13px] text-gray-400 font-bold italic">${place.address_name}</p>
+            <button onclick="handleView('${place.id}', '${place.place_url}')" class="info-btn">INFO</button>
+        `;
+        item.onclick = (e) => { if(!e.target.closest('button')) map.panTo(place.pos); };
+        listEl.appendChild(item);
+    });
+
+    // 커스텀 페이지네이션 UI 생성
+    renderCustomPagination();
+}
+
+// [추가] 필터링된 결과 전용 페이지네이션 UI
+function renderCustomPagination() {
+    const paginationEl = document.getElementById('pagination');
+    const totalPages = Math.ceil(filteredPlaces.length / pageSize);
+
+    for (let i = 1; i <= totalPages; i++) {
+        const pageLink = document.createElement('a');
+        pageLink.href = "javascript:void(0);";
+        pageLink.innerHTML = i;
+        pageLink.className = (i === currentPage) ? 'on mx-1' : 'mx-1';
+        pageLink.onclick = () => {
+            displayPage(i);
+            document.getElementById('placesList').scrollTop = 0;
+        };
+        paginationEl.appendChild(pageLink);
+    }
+}
 
     // [추가] 페이지 번호 생성 함수
     function renderPagination(pagination) {

@@ -89,9 +89,18 @@ public class HotPlaceController {
     public ResponseEntity<?> updateReview(@PathVariable Long reviewId, @RequestBody java.util.Map<String, Object> data, Principal principal) {
         if (principal == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
-        String content = (String) data.get("content");
-        int rating = Integer.parseInt(data.get("rating").toString());
-        String placeName = data.get("placeName").toString();
+        // 1. null일 경우 빈 문자열이나 기본값 처리
+        String content = data.get("content") != null ? data.get("content").toString() : "";
+
+        // 2. rating 처리 (가장 위험한 부분)
+        int rating = 0;
+        if (data.get("rating") != null) {
+            rating = Integer.parseInt(data.get("rating").toString());
+        }
+
+        // 3. placeName 처리 (String.valueOf는 null이 들어오면 "null"이라는 문자열을 반환해서 안전함)
+        String placeName = String.valueOf(data.get("placeName"));
+
         String userId = principal.getName();
 
         boolean isUpdated = placeStatsService.updateReview(reviewId, userId, content, rating, placeName);

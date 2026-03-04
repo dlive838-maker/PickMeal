@@ -7,30 +7,64 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@700;800&display=swap" rel="stylesheet">
     <style>
+        /* [교정] 헤더 및 폰트 스타일 통일 */
+        header, header *, .nav-link, .italic-text {
+            font-family: 'Fredoka', sans-serif !important;
+            font-weight: 800 !important;
+            font-style: italic !important;
+        }
         header, footer { z-index: 1200 !important; position: relative; }
-        body { font-family: 'Fredoka', sans-serif; background-color: #FAF3F0; margin: 0; display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
-        .gacha-main-content { flex-grow: 1; display: flex; justify-content: center; align-items: center; position: relative; }
-        .gacha-wrapper { position: relative; display: flex; flex-direction: column; align-items: center; transition: opacity 0.4s; transform: scale(0.9); }
+        body { font-family: 'Fredoka', sans-serif; background-color: #FAF3F0; margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+
+        /* [교정] 메인 컨테이너 규격 통일 (시작 높이 100px) */
+        .gacha-main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding-top: 20px !important;
+            position: relative;
+            overflow-y: auto;
+        }
+
+        .gacha-wrapper { position: relative; display: flex; flex-direction: column; align-items: center; transition: opacity 0.4s; transform: scale(0.85); margin-top: -20px; }
+        footer {
+    flex-shrink: 0; /* 푸터가 찌그러지지 않게 방지 */
+    width: 100%;
+}
         .glass-sphere { position: relative; width: 360px; height: 340px; background: radial-gradient(circle at 30% 25%, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.2) 65%); border: 2px solid rgba(0, 0, 0, 0.08); border-radius: 50%; z-index: 2; overflow: hidden; box-shadow: inset 0 0 30px rgba(255, 255, 255, 0.8); display: flex; justify-content: center; align-items: flex-end; }
         .capsule { position: absolute; width: 52px; height: 52px; border-radius: 50%; overflow: hidden; display: flex; flex-direction: column; }
         .capsule-top { height: 50%; background: rgba(255, 255, 255, 0.6); border-bottom: 1px solid rgba(0,0,0,0.1); }
         .capsule-bottom { height: 50%; }
         .machine-body { position: relative; width: 300px; height: 260px; background: #FF4D4D; border-radius: 50px 50px 60px 60px; margin-top: -85px; z-index: 1; display: flex; flex-direction: column; align-items: center; box-shadow: inset -12px -12px 0px rgba(0,0,0,0.08); }
 
-        /* [캡슐 애니메이션 설정] */
+        /* [교정] 결과창 카드 규격 통일 (max-width 410px) */
+        .winner-card-mid {
+            width: 100% !important;
+            max-width: 410px !important;
+            padding: 2.5rem !important;
+            border-radius: 3.5rem !important;
+            background: white;
+            margin: 0 auto;
+            border: 4px solid #FF8A5B !important;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+        }
+        .winner-img-mid {
+            height: 220px !important;
+            border-radius: 2.5rem !important;
+            overflow: hidden;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            margin-bottom: 1.5rem;
+        }
+
         #result-screen { position: fixed; display: none; flex-direction: column; align-items: center; z-index: 1000; top: 0; left: 0; width: 100%; height: 100%; justify-content: center; pointer-events: none; }
         .capsule-container { position: relative; width: 300px; height: 230px; display: flex; justify-content: center; align-items: center; }
         .cap-half { position: absolute; width: 230px; height: 115px; border: 6px solid #333; transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s 0.7s; z-index: 10; left: 50%; margin-left: -115px; }
         .top-cap { top: 0px; border-radius: 115px 115px 0 0; border-bottom: none; }
         .bottom-cap { top: 115px; border-radius: 0 0 115px 115px; border-top: none; }
-
-        /* 캡슐이 열리는 애니메이션 */
         .is-open .top-cap { transform: translateY(-150px) rotate(-15deg); opacity: 0; }
         .is-open .bottom-cap { transform: translateY(150px) rotate(15deg); opacity: 0; }
-
-        /* [최종 카드 스타일] */
-        .winner-card-mid { max-width: 410px; padding: 2rem; border-radius: 3.5rem; background: white; margin: 0 auto; transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); }
-        .winner-img-mid { height: 280px; border-radius: 2.5rem; overflow: hidden; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
 
         @keyframes mixing { 0%, 100% { transform: translate(0, 0) rotate(0deg); } 25% { transform: translate(120px, -130px) rotate(90deg); } 50% { transform: translate(-120px, -160px) rotate(180deg); } 75% { transform: translate(100px, -60px) rotate(270deg); } }
         @keyframes settle-down { to { transform: translate(var(--rand-x), var(--rand-y)) rotate(var(--rand-rot)); } }
@@ -76,7 +110,6 @@
     let idx = 0; let playing = false;
     const sphere = document.getElementById('sphere');
 
-    // 초기 캡슐 생성
     function initCapsules() {
         sphere.innerHTML = '';
         for(let i=0; i<18; i++) {
@@ -132,7 +165,6 @@
                     outPos.appendChild(outCap);
 
                     setTimeout(() => {
-                        // 연출 시작
                         document.getElementById('result-top-cap').style.backgroundColor = 'rgba(255, 255, 255, 0.6)';
                         document.getElementById('result-bottom-cap').style.backgroundColor = winColor;
                         showCapsuleAnimation(data);
@@ -146,20 +178,14 @@
         }
     }
 
-    // [수정] 캡슐이 벌어지는 애니메이션과 결과창 통합
     function showCapsuleAnimation(data) {
         document.getElementById('machine-all').style.opacity = '0';
-
         setTimeout(() => {
             document.getElementById('machine-all').style.display = 'none';
             const rs = document.getElementById('result-screen');
             rs.style.display = 'flex';
-
             setTimeout(() => {
-                // 1. 캡슐 껍데기가 위아래로 벌어짐
                 rs.classList.add('is-open');
-
-                // 2. [타이밍 핵심] 벌어지는 즉시(0.6초 뒤) 바로 카드와 폭죽 등장!
                 setTimeout(() => {
                     showFinalCHAMPION(data);
                 }, 600);
@@ -167,42 +193,32 @@
         }, 400);
     }
 
-    // [수정] 최종 월드컵 스타일 결과창 및 풍성한 폭죽 연출
     function showFinalCHAMPION(winner) {
-    // 1. 헤더에서 CSRF 토큰과 헤더 이름 가져오기
-    const csrfToken = document.querySelector('meta[name="_csrf"]')?.content;
-    const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.content;
+        const csrfToken = document.querySelector('meta[name="_csrf"]')?.content;
+        const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.content;
 
-    if (winner.foodId) {
-        fetch('/worldcup/win/' + winner.foodId + '?gameType=capsule', {
-            method: 'POST',
-            headers: {
-                // [중요] 시큐리티 인증을 위해 CSRF 토큰을 반드시 실어줍니다.
-                [csrfHeader]: csrfToken
-            }
-        })
-        .then(res => res.text())
-        .then(data => console.log("저장 결과:", data))
-        .catch(e => console.error("에러 발생:", e));
-    }
+        if (winner.foodId && csrfHeader && csrfToken) {
+            fetch('/worldcup/win/' + winner.foodId + '?gameType=capsule', {
+                method: 'POST',
+                headers: { [csrfHeader]: csrfToken }
+            })
+            .then(res => res.text())
+            .then(data => console.log("저장 결과:", data))
+            .catch(e => console.error("에러 발생:", e));
+        }
+
         const rs = document.getElementById('result-screen');
         rs.style.display = 'none';
-
         const main = document.getElementById('game-main');
-        main.classList.add('flex-col', 'items-center', 'pt-[60px]', 'pb-10');
-
-        // 폭죽 효과 강화 (좌우 동시 발사)
-        const defaults = { startVelocity: 45, spread: 360, ticks: 100, zIndex: 9999, particleCount: 150 };
-        confetti({ ...defaults, origin: { x: 0.2, y: 0.6 } });
-        confetti({ ...defaults, origin: { x: 0.8, y: 0.6 } });
+        main.className = "gacha-main-content";
 
         main.innerHTML = `
-            <div class="flex flex-col items-center justify-center w-full animate-bounce mb-2">
-                <h2 class="text-[#FF8A5B] font-black text-5xl uppercase italic tracking-tighter">WINNER</h2>
+           <div class="pt-10 w-full"></div> <div class="flex flex-col items-center justify-center w-full animate-bounce mb-2">
+            <h2 class="text-[#FF8A5B] font-black text-5xl uppercase italic tracking-tighter">WINNER</h2>
             </div>
-            <div class="bg-white winner-card-mid shadow-2xl border-4 border-[#FF8A5B] w-[90%] sm:w-full text-center">
-                <div class="winner-img-mid mb-6 shadow-md">
-                    <img src="${winner.imagePath}" class="w-full h-full object-cover" onerror="this.src='/images/meal.png'">
+            <div class="bg-white winner-card-mid shadow-2xl text-center">
+                <div class="winner-img-mid mb-6 bg-gray-50">
+                    <img src="${winner.imagePath}" class="w-full h-full object-contain p-4" onerror="this.src='/images/meal.png'">
                 </div>
                 <h1 class="text-4xl font-black text-gray-800 italic mb-6 uppercase tracking-tighter">${winner.foodName}</h1>
                 <div class="grid grid-cols-2 gap-3 mb-4">
@@ -217,6 +233,7 @@
                 </button>
             </div>
         `;
+        confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, zIndex: 9999 });
     }
 
     window.copyToClipboard = function(foodName) {
