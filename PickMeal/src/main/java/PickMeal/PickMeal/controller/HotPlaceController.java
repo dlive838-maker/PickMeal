@@ -77,8 +77,11 @@ public class HotPlaceController {
         String content = (String) data.get("content");
         int rating = Integer.parseInt(data.get("rating").toString());
         String placeName = (String) data.get("placeName");
+        String category = (String) data.get("category");
+        String address = (String) data.get("address");
 
-        placeStatsService.addReview(kakaoPlaceId, principal.getName(), content, rating, placeName);
+
+        placeStatsService.addReview(kakaoPlaceId, principal.getName(), content, rating, placeName, category, address);
         return ResponseEntity.ok().build();
     }
 

@@ -36,7 +36,60 @@
 <body>
 <header th:replace="~{fragments/header :: headerFragment}"></header>
 
-<div class="flex-grow px-10 pb-20 pt-32">
+<div class="flex-grow px-10 pb-10 pt-32">
+    <div class="flex justify-between items-end mb-12">
+        <div>
+            <h2 class="text-5xl font-black text-[#FFB74D] italic uppercase tracking-tighter mb-4">This Month's Top</h2>
+            <p class="text-[#FFB74D] mt-3 font-bold italic">The ultimate winners from the Pick Meal game this month!</p>
+        </div>
+    </div>
+
+    <div class="swiper-container-wrapper">
+        <div class="swiper gameSwiper">
+            <div class="swiper-wrapper">
+
+                <div class="swiper-slide p-2" th:each="food, stat : ${gameTopList}">
+
+                    <div class="food-card bg-white overflow-hidden shadow-lg border-2 border-gray-50 p-6">
+
+                        <div class="h-56 rounded-[2.5rem] mb-5 flex flex-col items-center justify-center select-none transition group relative bg-cover bg-center"
+                             th:style="|background-image: url('${food.imagePath}')|">
+
+                            <div class="absolute top-5 left-5 bg-white text-[#FFB74D] font-black w-10 h-10 rounded-full flex items-center justify-center shadow-md text-lg"
+                                 th:text="${stat.count}">1</div>
+
+                        </div>
+
+                        <div class="px-4 text-center">
+                            <h3 class="text-xl font-black text-gray-800 italic uppercase truncate"
+                                th:text="${food.category}">Korean food</h3>
+
+                            <p class="text-gray-600 mt-2 font-black text-2xl mb-4" th:text="${food.foodName}">갈비찜</p>
+
+                            <div class="flex justify-center items-center gap-2 transition group-hover:scale-110 drop-shadow-md">
+                                <span class="text-4xl drop-shadow-lg">🏆</span>
+                                <span class="text-black text-2xl font-black" th:text="${food.winCount} + ' Wins!'">100 Wins!</span>
+                            </div>
+
+                            <div class="flex justify-center items-center mt-6">
+                                <button th:data-keyword="${food.foodName}"
+                                        onclick="window.open('https://map.kakao.com/?q=' + this.getAttribute('data-keyword'))"
+                                        class="bg-[#FF8A5B] text-white px-8 py-3 rounded-full font-black shadow-md hover:bg-[#e0764c] transition text-sm">
+                                    이 메뉴 맛집 찾기
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <div class="swiper-button-next game-next"></div>
+        <div class="swiper-button-prev game-prev"></div>
+    </div>
+</div>
+
+<div class="flex-grow px-10 pb-20 pt-10">
     <div class="flex justify-between items-end mb-12">
         <div>
             <h2 class="text-5xl font-black text-[#FF8A5B] italic uppercase tracking-tighter mb-4">Hot List</h2>
@@ -95,59 +148,6 @@
     </div>
 </div>
 
-<div class="flex-grow px-10 pb-20">
-    <div class="flex justify-between items-end mb-12">
-        <div>
-            <h2 class="text-5xl font-black text-[#FFB74D] italic uppercase tracking-tighter mb-4">This Month's Top</h2>
-            <p class="text-[#FFB74D] mt-3 font-bold italic">The ultimate winners from the Pick Meal game this month!</p>
-        </div>
-    </div>
-
-    <div class="swiper-container-wrapper">
-        <div class="swiper gameSwiper">
-            <div class="swiper-wrapper">
-
-                <div class="swiper-slide p-2" th:each="food, stat : ${gameTopList}">
-
-                    <div class="food-card bg-white overflow-hidden shadow-lg border-2 border-gray-50 p-6">
-
-                        <div class="h-56 rounded-[2.5rem] mb-5 flex flex-col items-center justify-center select-none transition group relative bg-cover bg-center"
-                             th:style="|background-image: url('${food.imagePath}')|">
-
-                            <div class="absolute top-5 left-5 bg-white text-[#FFB74D] font-black w-10 h-10 rounded-full flex items-center justify-center shadow-md text-lg"
-                                 th:text="${stat.count}">1</div>
-
-                        </div>
-
-                        <div class="px-4 text-center">
-                            <h3 class="text-xl font-black text-gray-800 italic uppercase truncate"
-                                th:text="${food.category}">Korean food</h3>
-
-                            <p class="text-gray-600 mt-2 font-black text-2xl mb-4" th:text="${food.foodName}">갈비찜</p>
-
-                            <div class="flex justify-center items-center gap-2 transition group-hover:scale-110 drop-shadow-md">
-                                <span class="text-4xl drop-shadow-lg">🏆</span>
-                                <span class="text-black text-2xl font-black" th:text="${food.winCount} + ' Wins!'">100 Wins!</span>
-                            </div>
-
-                            <div class="flex justify-center items-center mt-6">
-                                <button th:data-keyword="${food.foodName}"
-                                        onclick="window.open('https://map.kakao.com/?q=' + this.getAttribute('data-keyword'))"
-                                        class="bg-[#FF8A5B] text-white px-8 py-3 rounded-full font-black shadow-md hover:bg-[#e0764c] transition text-sm">
-                                    이 메뉴 맛집 찾기
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-        <div class="swiper-button-next game-next"></div>
-        <div class="swiper-button-prev game-prev"></div>
-    </div>
-</div>
-
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 <script>
 
@@ -201,7 +201,7 @@ async function updateStats(id) {
     slidesPerView: 3,
     spaceBetween: 25,
     loop: true,
-    navigation: { nextEl: ".game-next", prevEl: ".game-prev" }, // 방금 HTML에서 바꾼 화살표 이름 적용!
+    navigation: { nextEl: ".game-next", prevEl: ".game-prev" },
     breakpoints: { 320: { slidesPerView: 1 }, 768: { slidesPerView: 2 }, 1024: { slidesPerView: 3 } }
 });
 

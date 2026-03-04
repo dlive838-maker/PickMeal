@@ -109,11 +109,11 @@ public class PlaceStatsService {
     }
 
     // 5. 신규 댓글 추가 (평점 포함)
-    public void addReview(String kakaoPlaceId, String userId, String content, int rating, String placeName) {
+    public void addReview(String kakaoPlaceId, String userId, String content, int rating, String placeName, String categoryName, String addressName) {
         Long resId = Long.parseLong(kakaoPlaceId);
         String sql = "INSERT INTO place_stats (res_id, user_id, content, rating, category, address, place_name, created_at, updated_at ) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())";
-        jdbcTemplate.update(sql, resId, userId, content, rating, "GENERAL", "서울시 관악구", "한국정보교육원");
+        jdbcTemplate.update(sql, resId, userId, content, rating, categoryName, addressName, placeName);
     }
 
     // 6. 댓글 수정
@@ -207,7 +207,7 @@ public class PlaceStatsService {
                 "SUM(IFNULL(view_count, 0)) as viewCount, " +
                 "SUM(CASE WHEN is_wish = 1 THEN 1 ELSE 0 END) as heartCount, " +
                 "COUNT(content) as reviewCount, " +
-                "IFNULL(AVG(rating), 0) as avgRating " +
+                "IFNULL(AVG(CASE WHEN content IS NOT NULL THEN rating END), 0) as avgRating " +
                 "FROM place_stats " +
                 "WHERE res_id = ? " +
                 "GROUP BY res_id";
