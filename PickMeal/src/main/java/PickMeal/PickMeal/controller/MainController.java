@@ -147,23 +147,28 @@ public class MainController {
         }else if (authentication != null && authentication.isAuthenticated()) {
             String finalId = "";
 
-            // 1. 만약 OAuth2 로그인이라면 'attributes' 안에서 진짜 'id'만 꺼냅니다.
             if (authentication instanceof org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken token) {
                 var attributes = token.getPrincipal().getAttributes();
-                String registrationId = token.getAuthorizedClientRegistrationId(); // "naver"
+                String registrationId = token.getAuthorizedClientRegistrationId(); // "google", "naver" 등
+                String oauthName = token.getName(); // 구글의 경우 보통 "google_116..." 형태
 
-                // 네이버는 'response'라는 주머니 안에 'id'가 들어있습니다.
                 if ("naver".equals(registrationId)) {
                     java.util.Map<String, Object> response = (java.util.Map<String, Object>) attributes.get("response");
-                    finalId = registrationId + "_" + response.get("id"); // "naver_pF7R..."
+                    finalId = registrationId + "_" + response.get("id");
                 } else {
-                    finalId = registrationId + "_" + token.getName();
+                    // [핵심 수정] oauthName이 이미 registrationId로 시작하는지 확인합니다.
+                    // google_116... 이 이미 google_ 로 시작한다면 또 붙이지 않습니다.
+                    if (oauthName.startsWith(registrationId + "_")) {
+                        finalId = oauthName;
+                    } else {
+                        finalId = registrationId + "_" + oauthName;
+                    }
                 }
             } else {
                 finalId = authentication.getName();
             }
 
-            log.info("--- [수정된 디버깅] 진짜 추출된 ID: {}", finalId);
+            log.info("--- [수정후] 최종 DB 조회 시도 ID: {}", finalId);
 
             User dbUser = userService.findById(finalId);
             if (dbUser != null) {

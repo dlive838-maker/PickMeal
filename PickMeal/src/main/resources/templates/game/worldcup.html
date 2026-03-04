@@ -30,8 +30,8 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            padding-top: 80px;
+            justify-content: flex-start;
+            padding-top: 150px;
             box-sizing: border-box;
             position: relative;
         }
@@ -95,8 +95,12 @@
 <header th:replace="~{fragments/header :: headerFragment}"></header>
 
 <main class="px-10" id="game-main">
+
+    <div style="height: 50px;"></div>
+
     <div class="text-center mb-10">
         <h1 id="roundTitle" class="text-6xl font-black text-[#FF8A5B] italic uppercase tracking-tighter mb-2" th:text="${totalRound} + '강'">라운드</h1>
+        <p id="matchInfo" class="text-2xl font-black text-gray-500 italic uppercase mb-2">Match 1 / 32</p>
         <p class="text-[#FF8A5B] font-bold italic uppercase text-xl">Which one will win?</p>
     </div>
 
@@ -126,11 +130,16 @@
     let winners = [];
     let currentIndex = 0;
     let currentRoundTotal = [[${totalRound}]];
+    let currentMatchIndex = 1;
 
     function updateUI() {
         if (!foods[currentIndex] || !foods[currentIndex + 1]) return;
 
         document.getElementById('roundTitle').innerText = currentRoundTotal === 2 ? "FINAL" : currentRoundTotal + "강";
+
+        const totalMatchesInRound = currentRoundTotal / 2;
+        document.getElementById('matchInfo').innerText = `Match ${currentMatchIndex} / ${totalMatchesInRound}`;
+
         document.getElementById('imgA').src = foods[currentIndex].imagePath;
         document.getElementById('nameA').innerText = foods[currentIndex].foodName;
         document.getElementById('imgB').src = foods[currentIndex + 1].imagePath;
@@ -171,6 +180,9 @@
             winners.push(foods[currentIndex + offset]);
             currentIndex += 2;
 
+            // 다음 대결로 넘어가니까 숫자 +1
+            currentMatchIndex++;
+
             if (currentIndex >= foods.length) {
                 if (winners.length === 1) {
                     showWinnerEffect(winners[0]);
@@ -180,6 +192,9 @@
                 winners = [];
                 currentIndex = 0;
                 currentRoundTotal = foods.length;
+
+                // 다음 라운드(예: 8강)가 시작되니 다시 1번부터!
+                currentMatchIndex = 1;
             }
             updateUI();
         }, 1300);
