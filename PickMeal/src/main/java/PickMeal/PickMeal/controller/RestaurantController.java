@@ -2,7 +2,6 @@ package PickMeal.PickMeal.controller;
 
 import PickMeal.PickMeal.dto.PlaceStatsDto;
 import PickMeal.PickMeal.dto.ReviewWishDTO;
-import PickMeal.PickMeal.dto.RestaurantDTO;
 import PickMeal.PickMeal.mapper.RestaurantMapper;
 import PickMeal.PickMeal.mapper.ReviewWishMapper;
 import PickMeal.PickMeal.service.PlaceStatsService;

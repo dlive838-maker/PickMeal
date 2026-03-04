@@ -6,8 +6,6 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param; // ★ Param 임포트가 꼭 있어야 합니다.
 import java.util.List;
 
-import java.util.List;
-
 @Mapper
 public interface ReviewWishMapper {
     // 1. 기존에 있던 찜/리뷰 저장 쿼리
@@ -26,8 +24,6 @@ public interface ReviewWishMapper {
     int checkWish(@Param("userId") String userId, @Param("resId") Long resId);
 
     void deleteWish(@Param("userId") String userId, @Param("resId") Long resId);
-
-    void insertReview(ReviewWishDTO dto);
 
     int getReviewCount(@Param("resId") Long resId);
 

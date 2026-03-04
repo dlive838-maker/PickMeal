@@ -68,9 +68,6 @@ public class BoardService {
         }
     }
 
-    public List<Long> getBoardIdByUser_id(long userId) {return boardMapper.getBoardIdByUser_id(userId);
-    }
-
     public Board getBoardByBoardId(long boardId) {return boardMapper.getBoardByBoardId(boardId);
     }
 

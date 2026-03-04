@@ -86,8 +86,6 @@ public class HotPlaceController {
         return ResponseEntity.ok().build();
     }
 
-    // HotPlaceController.java 에 아래 메서드들을 추가하세요.
-
     @PostMapping("/reviews/update/{reviewId}")
     @ResponseBody
     public ResponseEntity<?> updateReview(@PathVariable Long reviewId, @RequestBody java.util.Map<String, Object> data, Principal principal) {

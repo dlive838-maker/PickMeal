@@ -9,7 +9,6 @@ import java.util.List;
 
 @Mapper
 public interface FoodMapper {
-    void getFoodInfo();
 
     List<String> getFilteredFoods(GameRequestDto request);
     // XML의 id="getRandomFoodByCategory"와 이름을 맞춥니다.
