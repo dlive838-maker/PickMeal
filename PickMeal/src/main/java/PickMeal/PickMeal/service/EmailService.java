@@ -12,63 +12,52 @@ public class EmailService {
 
     private final JavaMailSender mailSender;
 
-    // application.properties에 설정한 이메일 계정을 불러옵니다.
     @Value("${spring.mail.username}")
     private String fromEmail;
 
-    /**
-     * 인증번호 생성 (6자리 랜덤 숫자)
-     */
+    // 공통 인사말 가이드
+    private final String COMMON_GREETING = "안녕하세요! Pick Meal입니다.\n\n";
+
     public String createCode() {
-        // (int)(Math.random() * 899999) + 100000; 로직은 100000 ~ 999999 사이를 생성합니다.
         return String.valueOf((int)(Math.random() * 899999) + 100000);
     }
 
     /**
-     * 메일 발송 로직
-     * @param toEmail 수신자 이메일
-     * @param code 인증번호
+     * 2. [인증용] 회원가입(JOIN) 또는 수정(EDIT) 시 인증번호 발송
      */
-    public void sendMail(String toEmail, String code) {
+    public void sendMail(String toEmail, String code, String type) {
         SimpleMailMessage message = new SimpleMailMessage();
-
         message.setTo(toEmail);
-        message.setSubject("[Pick Meal] 회원가입 인증번호입니다. ✉️");
-
-        // 메일 본문 구성
-        StringBuilder sb = new StringBuilder();
-        sb.append("안녕하세요! Pick Meal입니다.\n\n");
-        sb.append("요청하신 회원가입 인증번호는 다음과 같습니다.\n");
-        sb.append("인증번호: [ ").append(code).append(" ]\n\n");
-        sb.append("인증 유효 시간은 5분입니다. 시간 내에 입력해 주세요.");
-
-        message.setText(sb.toString());
-
-        // 보안을 위해 설정 파일에서 가져온 이메일을 사용합니다.
-        // "이름 <이메일>" 형식을 쓰면 받는 사람 메일함에 이름이 예쁘게 표시됩니다.
         message.setFrom("PickMeal <" + fromEmail + ">");
 
+        StringBuilder sb = new StringBuilder(COMMON_GREETING); // 인사말 추가
+
+        if ("EDIT".equals(type)) {
+            message.setSubject("[Pick Meal] 프로필 수정 인증번호입니다. ✉️");
+            sb.append("요청하신 프로필 수정 인증번호는 [").append(code).append("] 입니다.");
+        } else {
+            message.setSubject("[Pick Meal] 회원가입 인증번호입니다. ✉️");
+            sb.append("요청하신 회원가입 인증번호는 [").append(code).append("] 입니다.");
+        }
+
+        message.setText(sb.toString());
         mailSender.send(message);
     }
 
     /**
-     * 통합 메일 발송 로직
-     * @param toEmail 수신자 이메일
-     * @param code 인증번호
-     * @param type 메일 용도 (JOIN: 회원가입, EDIT: 프로필 수정)
+     * 3. [변경] 비밀번호 재설정용 메서드
+     * 본문 앞에 공통 인사말을 자동으로 붙여줍니다.
      */
-    public void sendMail(String toEmail, String code, String type) { // 파라미터 추가
+    public void sendPasswordResetMail(String toEmail, String subject, String content) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(toEmail);
-        message.setFrom("PickMeal <" + fromEmail + ">");
+        message.setSubject(subject);
 
-        if ("EDIT".equals(type)) { // 프로필 수정용 문구
-            message.setSubject("[Pick Meal] 프로필 수정 인증번호입니다. ✉️");
-            message.setText("안녕하세요! Pick Meal입니다.\n\n요청하신 프로필 수정 인증번호는 [" + code + "] 입니다.");
-        } else { // 기본 회원가입용 문구
-            message.setSubject("[Pick Meal] 회원가입 인증번호입니다. ✉️");
-            message.setText("안녕하세요! Pick Meal입니다.\n\n회원가입 인증번호는 [" + code + "] 입니다.");
-        }
+        // 서비스에서 넘어온 내용(content) 앞에 인사말을 합칩니다.
+        String finalContent = COMMON_GREETING + content;
+        message.setText(finalContent);
+
+        message.setFrom("PickMeal <" + fromEmail + ">");
 
         mailSender.send(message);
     }
