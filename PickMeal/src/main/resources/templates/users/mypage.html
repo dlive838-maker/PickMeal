@@ -4,6 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pick Meal - My Page</title>
+  <meta name="_csrf" th:content="${_csrf.token}"/>
+  <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+  <link rel="icon" href="/images/pickmeal_favicon.png" type="image/png">
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@700;800&display=swap" rel="stylesheet">
   <style>
@@ -84,13 +87,15 @@
       <p class="text-2xl font-black text-gray-300 italic uppercase">No posts written yet! ✍️</p>
     </div>
 
-    <div th:each="board : ${myBoards}" class="info-card p-8 flex justify-between items-center hover:scale-[1.02] transition-all duration-300 group">
+    <div th:each="board : ${myBoards}"
+         th:id="'post-card-' + ${board.boardId}"
+         th:onclick="'location.href=\'/board/detail/' + ${board.boardId} + '\''"
+         class="info-card p-8 flex justify-between items-center hover:scale-[1.02] transition-all duration-300 group cursor-pointer hover:border-[#FF8A5B]">
       <div class="flex-grow">
         <p class="label-text" th:text="${#dates.format(board.createDate, 'yyyy.MM.dd')}">Date</p>
         <div class="flex items-center gap-2">
-          <a th:href="@{/board/detail/{id}(id=${board.boardId})}"
-             class="text-2xl font-black text-[#444] group-hover:text-[#FF8A5B] transition-colors"
-             th:text="${board.title}">Title</a>
+          <span class="text-2xl font-black text-[#444] group-hover:text-[#FF8A5B] transition-colors"
+                th:text="${board.title}">Title</span>
           <span th:if="${board.commentCount > 0}"
                 class="text-lg font-black text-[#FF8A5B]"
                 th:text="'[' + ${board.commentCount} + ']'">[5]</span>
@@ -100,11 +105,23 @@
         <div class="text-center"><p class="text-[10px] font-black text-[#FFB08E] uppercase mb-1">Views</p><span class="text-[#FFB08E] font-black italic text-lg" th:text="${board.viewCount}">0</span></div>
         <div class="text-center"><p class="text-[10px] font-black text-[#FF8A5B] uppercase mb-1">Likes</p><span class="text-[#FF8A5B] font-black italic text-lg" th:text="${board.likeCount}">0</span></div>
 
-        <a th:href="@{/board/edit/{id}(id=${board.boardId})}" class="bg-gray-50 p-3 rounded-full hover:bg-orange-50 transition-colors ml-4">
-          <svg class="w-6 h-6 text-[#FF8A5B]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
-          </svg>
-        </a>
+        <div class="flex items-center gap-2 ml-4">
+          <a th:href="@{/board/edit/{id}(id=${board.boardId})}"
+             onclick="event.stopPropagation();"
+             class="bg-gray-50 p-3 rounded-full hover:bg-orange-50 transition-colors" title="수정">
+            <svg class="w-6 h-6 text-[#FF8A5B]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+            </svg>
+          </a>
+          <button type="button"
+                  th:data-id="${board.boardId}"
+                  onclick="deletePostAjax(event, this.getAttribute('data-id'))"
+                  class="bg-gray-50 p-3 rounded-full hover:bg-red-50 transition-colors" title="삭제">
+            <svg class="w-6 h-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+            </svg>
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -114,7 +131,12 @@
       <p class="text-2xl font-black text-gray-300 italic uppercase">No favorites yet! ❤️</p>
     </div>
 
-    <div th:each="place : ${likeList}" class="info-card p-8 flex justify-between items-center hover:scale-[1.02] transition-all duration-300 group">
+    <div th:each="place : ${likeList}"
+         th:id="'card-' + ${place.kakaoPlaceId}"
+         th:data-id="${place.kakaoPlaceId}"
+         onclick="goDetail(this.getAttribute('data-id'))"
+         class="info-card p-8 flex justify-between items-center hover:scale-[1.02] transition-all duration-300 group cursor-pointer hover:border-[#FF8A5B]">
+
       <div class="flex-grow">
         <p class="label-text" th:text="${place.category ?: 'Restaurant'}">Category</p>
         <h5 class="text-2xl font-black text-[#444] group-hover:text-[#FF8A5B] transition-colors" th:text="${place.placeName ?: '이름 정보 없음'}">Restaurant Name</h5>
@@ -141,10 +163,11 @@
 
         <button type="button"
                 th:data-id="${place.kakaoPlaceId}"
-                onclick="goDetail(this.getAttribute('data-id'))"
-                class="bg-gray-50 p-3 rounded-full hover:bg-orange-50 transition-colors ml-4">
-          <svg class="w-6 h-6 text-[#FF8A5B]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                onclick="toggleFavorite(event, this.getAttribute('data-id'))"
+                class="ml-4 p-3 rounded-full bg-red-50 text-red-500 hover:bg-red-500 hover:text-white transition-all duration-200 shadow-sm"
+                title="찜 해제">
+          <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
           </svg>
         </button>
       </div>
@@ -170,18 +193,71 @@
   }
 
   function goDetail(kakaoPlaceId) {
-    // 서버에 '저 이 식당 봐요!'라고 신호 보냄
-    fetch('/hotplace/view/' + kakaoPlaceId, {
-        method: 'POST'
-    })
+    fetch('/hotplace/view/' + kakaoPlaceId, { method: 'POST' })
     .then(() => {
-        // 신호 가고 나면 카카오맵 열기
         window.open('https://place.map.kakao.com/' + kakaoPlaceId, '_blank');
     })
     .catch(err => {
         window.open('https://place.map.kakao.com/' + kakaoPlaceId, '_blank');
     });
-}
+  }
+
+  function toggleFavorite(event, kakaoPlaceId) {
+    event.stopPropagation();
+    if (!confirm("이 식당을 찜 목록에서 삭제하시겠습니까?")) return;
+    fetch('/hotplace/heart/' + kakaoPlaceId, { method: 'POST' })
+    .then(res => {
+        if (res.ok) {
+            const card = document.getElementById('card-' + kakaoPlaceId);
+            if (card) {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(10px)';
+                setTimeout(() => {
+                    card.remove();
+                    const remaining = document.querySelectorAll('#favorites-content .info-card');
+                    if (remaining.length === 0) location.reload();
+                }, 300);
+            }
+        }
+    })
+    .catch(err => console.error("Error:", err));
+  }
+
+  // 게시글 비동기 삭제 함수 (Ajax 방식)
+  function deletePostAjax(event, boardId) {
+    event.stopPropagation(); // 카드 클릭 시 상세 페이지 이동 방지
+
+    if (!confirm("정말 이 게시글을 삭제하시겠습니까?")) return;
+
+    const token = document.querySelector('meta[name="_csrf"]')?.content;
+    const header = document.querySelector('meta[name="_csrf_header"]')?.content;
+
+    fetch('/board/remove/' + boardId, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': token,
+            'X-Requested-With': 'XMLHttpRequest' // 서버에서 Ajax임을 구분하게 함
+        }
+    })
+    .then(res => {
+        // 서버에서 redirect 응답이 오더라도 res.ok를 통해 성공 여부 확인 가능
+        if (res.ok) {
+            const card = document.getElementById('post-card-' + boardId);
+            if (card) {
+                card.style.opacity = '0';
+                card.style.transform = 'translateX(20px)';
+                setTimeout(() => {
+                    card.remove();
+                    const remaining = document.querySelectorAll('#posts-content .info-card');
+                    if (remaining.length === 0) location.reload();
+                }, 300);
+            }
+        } else {
+            alert("삭제에 실패했습니다.");
+        }
+    })
+    .catch(err => console.error("Error:", err));
+  }
 </script>
 
 </body>
