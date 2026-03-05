@@ -54,8 +54,24 @@ public class UserPasswordService {
 
         // 5. [메일 발송] 사용자에게 재설정 페이지 링크 전송
         String resetLink = "http://localhost:8080/users/reset-password?token=" + tokenValue;
-        mailService.sendMail(user.getEmail(), "[Pick Meal] 비밀번호 재설정 안내",
-                "아래 링크를 클릭하여 비밀번호를 재설정해 주세요. (30분간 유효)\n" + resetLink);
+
+        // 메일 본문 구성 (인증 유효 시간 안내 포함)
+        StringBuilder sb = new StringBuilder();
+        sb.append("안녕하세요! Pick Meal입니다.\n\n");
+        sb.append("비밀번호 재설정을 위한 링크를 안내해 드립니다.\n");
+        sb.append("아래 링크를 클릭하여 비밀번호를 새로 설정해 주세요.\n\n");
+        sb.append("[ 비밀번호 재설정 링크 ]\n").append(resetLink).append("\n\n");
+
+        sb.append("⚠️ 해당 링크의 유효 시간은 발송 후 [ 30분 ] 입니다.\n");
+        sb.append("30분이 지나면 링크가 만료되어 다시 요청하셔야 합니다.\n\n");
+        sb.append("본인이 요청하지 않았다면 이 메일을 무시하셔도 됩니다.");
+
+        // [중요] 메서드 이름을 EmailService에서 만든 이름과 똑같이 맞춥니다.
+        mailService.sendPasswordResetMail(
+                user.getEmail(),
+                "[Pick Meal] 비밀번호 재설정 안내입니다. ✉️",
+                sb.toString()
+        );
 
         return "success";
     }

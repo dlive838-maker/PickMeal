@@ -111,8 +111,13 @@
         WHERE name = #{name} AND email = #{email} AND status = 'ACTIVE'
     </select>
 
-    <select id="findUserByIdAndEmail" resultType="PickMeal.PickMeal.domain.User">
-        SELECT * FROM user
+    <select id="findUserByIdAndEmail" resultMap="UserResultMap">
+        SELECT
+        user_id,
+        id,
+        email,
+        status
+        FROM user
         WHERE id = #{id}
         AND email = #{email}
         AND status = 'ACTIVE'
