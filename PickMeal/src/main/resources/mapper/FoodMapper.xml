@@ -22,27 +22,34 @@
         FROM food f
         JOIN twenty_attribute t ON f.foodId = t.foodId
         <where>
-            <choose>
-                <when test="categoryKorean == 1"> AND f.category = 'Korean food' </when>
-                <when test="categoryWestern == 1"> AND f.category = 'Western food' </when>
-                <when test="categoryChinese == 1"> AND f.category = 'Chinese food' </when>
-                <when test="categoryJapanese == 1"> AND f.category = 'Japanese food' </when>
-                <when test="categoryAsian == 1"> AND f.category = 'Asian food' </when>
-                <otherwise>
-                    <if test="categoryKorean == 0"> AND f.category != 'Korean food' </if>
-                    <if test="categoryWestern == 0"> AND f.category != 'Western food' </if>
-                    <if test="categoryChinese == 0"> AND f.category != 'Chinese food' </if>
-                    <if test="categoryJapanese == 0"> AND f.category != 'Japanese food' </if>
-                    <if test="categoryAsian == 0"> AND f.category != 'Asian food' </if>
-                </otherwise>
-            </choose>
-
+            <if test="categoryKorean == 1"> AND f.category = 'Korean food' </if>
+            <if test="categoryKorean == 0"> AND f.category != 'Korean food' </if>
+            <if test="categoryWestern == 1"> AND f.category = 'Western food' </if>
+            <if test="categoryWestern == 0"> AND f.category != 'Western food' </if>
+            <if test="categoryChinese == 1"> AND f.category = 'Chinese food' </if>
+            <if test="categoryChinese == 0"> AND f.category != 'Chinese food' </if>
+            <if test="categoryJapanese == 1"> AND f.category = 'Japanese food' </if>
+            <if test="categoryJapanese == 0"> AND f.category != 'Japanese food' </if>
+            <if test="categoryAsian == 1"> AND f.category = 'Asian food' </if>
+            <if test="categoryAsian == 0"> AND f.category != 'Asian food' </if>
             <if test="isSoup != null"> AND t.is_soup = #{isSoup} </if>
             <if test="isSpicy != null"> AND t.is_spicy = #{isSpicy} </if>
             <if test="isFried != null"> AND t.is_fried = #{isFried} </if>
             <if test="isRoasted != null"> AND t.is_roasted = #{isRoasted} </if>
             <if test="hasPork != null"> AND t.has_pork = #{hasPork} </if>
             <if test="hasBeef != null"> AND t.has_beef = #{hasBeef} </if>
+            <if test="hasNoodle != null"> AND t.has_noodle = #{hasNoodle} </if>
+            <if test="hasRice != null"> AND t.has_rice = #{hasRice} </if>
+            <if test="hasFlour != null"> AND t.has_flour = #{hasFlour} </if>
+            <if test="hasSeafood != null"> AND t.has_seafood = #{hasSeafood} </if>
+            <if test="hasChicken != null"> AND t.has_chicken = #{hasChicken} </if>
+            <if test="isVeggie != null"> AND t.is_veggie = #{isVeggie} </if>
+            <if test="isCold != null"> AND t.is_cold = #{isCold} </if>
+            <if test="isGreasy != null"> AND t.is_greasy = #{isGreasy} </if>
+            <if test="isSweet != null"> AND t.is_sweet = #{isSweet} </if>
+            <if test="isSolo != null"> AND t.is_solo = #{isSolo} </if>
+            <if test="isSharing != null"> AND t.is_sharing = #{isSharing} </if>
+            <if test="isHeavy != null"> AND t.is_heavy = #{isHeavy} </if>
         </where>
     </select>
 

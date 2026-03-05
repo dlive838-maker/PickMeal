@@ -23,7 +23,7 @@ public class TwentyQuestionsController {
         GameResponseDto response = new GameResponseDto();
         List<String> remainingFoods = twentyQuestionsService.getFilteredFoods(request);
 
-        if (remainingFoods.size() <= 10 && remainingFoods.size() > 0) {
+        if (remainingFoods.size() <= 2 && remainingFoods.size() > 0) {
             response.setStatus("FINAL_CHOICE");
             response.setRemain_foodList(remainingFoods);
             response.setNextQuestion_text(twentyQuestionsService.getFinalQuestion());
@@ -34,11 +34,6 @@ public class TwentyQuestionsController {
         else {
             response.setStatus("QUESTION");
             Questions nextQuestion = twentyQuestionsService.getNextValidQuestion(request);
-
-            if (nextQuestion == null) {
-                response.setStatus("NO_FOOD");
-                return ResponseEntity.ok(response);
-            }
 
             response.setNextQuestion_id(nextQuestion.getQuestion_id());
             response.setNextQuestion_text(nextQuestion.getQuestion_text());

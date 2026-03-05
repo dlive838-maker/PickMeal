@@ -52,7 +52,7 @@
                 <div class="swiper-slide p-2" th:each="food, stat : ${gameTopList}">
 
                     <div class="food-card bg-white overflow-hidden shadow-lg border-2 border-gray-50 p-6">
-
+                        <a th:data-keyword="${food.foodName}" onclick="window.open('https://map.kakao.com/?q=' + this.getAttribute('data-keyword'))">
                         <div class="h-56 rounded-[2.5rem] mb-5 flex flex-col items-center justify-center select-none transition group relative bg-cover bg-center"
                              th:style="|background-image: url('${food.imagePath}')|">
 
@@ -73,13 +73,12 @@
                             </div>
 
                             <div class="flex justify-center items-center mt-6">
-                                <button th:data-keyword="${food.foodName}"
-                                        onclick="window.open('https://map.kakao.com/?q=' + this.getAttribute('data-keyword'))"
-                                        class="bg-[#FF8A5B] text-white px-8 py-3 rounded-full font-black shadow-md hover:bg-[#e0764c] transition text-sm">
+                                <button class="bg-[#FF8A5B] text-white px-8 py-3 rounded-full font-black shadow-md hover:bg-[#e0764c] transition text-sm">
                                     이 메뉴 맛집 찾기
                                 </button>
                             </div>
                         </div>
+                        </a>
                     </div>
                 </div>
 
@@ -98,14 +97,14 @@
         </div>
     </div>
 
-
-
     <div class="swiper-container-wrapper">
         <div class="swiper mySwiper">
             <div class="swiper-wrapper" id="menuWrapper">
                 <div class="swiper-slide p-2" th:each="hotSpot : ${hotSpotList}">
 
                     <div class="food-card bg-white overflow-hidden shadow-lg border-2 border-gray-50 p-6">
+                        <a th:data-url="'https://place.map.kakao.com/' + ${hotSpot.resId}"
+                            onclick="window.open(this.getAttribute('data-url'))">
                         <div class="h-56 rounded-[2.5rem] mb-5 flex flex-col items-center justify-center select-none transition group relative bg-cover bg-center"
                              th:style="|background-image: url('/images/food_placeholder.png')|">
                         </div>
@@ -137,11 +136,10 @@
 
                                 </div>
 
-                                <button th:data-url="'https://place.map.kakao.com/' + ${hotSpot.resId}"
-                                        onclick="window.open(this.getAttribute('data-url'))"
-                                        class="bg-[#A8D5BA] text-white px-5 py-2 rounded-full font-black shadow-md hover:bg-[#8fc7a5] transition text-sm">INFO</button>
+                                <button class="bg-[#A8D5BA] text-white px-5 py-2 rounded-full font-black shadow-md hover:bg-[#8fc7a5] transition text-sm">INFO</button>
                             </div>
                         </div>
+                        </a>
                     </div>
                 </div>
             </div>

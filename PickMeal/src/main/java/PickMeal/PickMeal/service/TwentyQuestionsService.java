@@ -7,6 +7,8 @@ import PickMeal.PickMeal.mapper.QuestionsMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -21,48 +23,47 @@ public class TwentyQuestionsService {
 
     public String getFinalQuestion() {
         String question = questionsMapper.getFinalQuestion();
-        // [수정] DB에서 가져온 값이 null이면 기본 문구를 돌려줍니다.
         return (question != null) ? question : "는 어떠신가요? 🤔";
     }
 
     public Questions getNextValidQuestion(GameRequestDto request) {
-        // 1. 카테고리 질문 단계
-        // 하나라도 '네(1)'라고 답한 카테고리가 있는지 확인합니다.
-        boolean hasCategory = isCategorySelected(request);
 
-        if (!hasCategory) {
-            // 아직 아무 카테고리도 선택하지 않았다면, 순차적으로 물어봅니다.
-            if (request.getCategoryKorean() == null) return questionsMapper.getQuestionsByAttributeName("category_korean");
-            if (request.getCategoryWestern() == null) return questionsMapper.getQuestionsByAttributeName("category_western");
-            if (request.getCategoryChinese() == null) return questionsMapper.getQuestionsByAttributeName("category_chinese");
-            if (request.getCategoryJapanese() == null) return questionsMapper.getQuestionsByAttributeName("category_japanese");
-            if (request.getCategoryAsian() == null) return questionsMapper.getQuestionsByAttributeName("category_asian");
+        List<String> unaskedAttributes = new ArrayList<>();
+
+        if (request.getCategoryKorean() == null) unaskedAttributes.add("category_korean");
+        if (request.getCategoryWestern() == null) unaskedAttributes.add("category_western");
+        if (request.getCategoryChinese() == null) unaskedAttributes.add("category_chinese");
+        if (request.getCategoryJapanese() == null) unaskedAttributes.add("category_japanese");
+        if (request.getCategoryAsian() == null) unaskedAttributes.add("category_asian");
+        if (request.getIsSoup() == null) unaskedAttributes.add("is_soup");
+        if (request.getIsSpicy() == null) unaskedAttributes.add("is_spicy");
+        if (request.getIsFried() == null) unaskedAttributes.add("is_fried");
+        if (request.getIsRoasted() == null) unaskedAttributes.add("is_roasted");
+        if (request.getHasPork() == null) unaskedAttributes.add("has_pork");
+        if (request.getHasBeef() == null) unaskedAttributes.add("has_beef");
+        if (request.getHasNoodle() == null) unaskedAttributes.add("has_noodle");
+        if (request.getHasRice() == null) unaskedAttributes.add("has_rice");
+        if (request.getHasFlour() == null) unaskedAttributes.add("has_flour");
+        if (request.getHasSeafood() == null) unaskedAttributes.add("has_seafood");
+        if (request.getHasChicken() == null) unaskedAttributes.add("has_chicken");
+        if (request.getIsVeggie() == null) unaskedAttributes.add("is_veggie");
+        if (request.getIsCold() == null) unaskedAttributes.add("is_cold");
+        if (request.getIsGreasy() == null) unaskedAttributes.add("is_greasy");
+        if (request.getIsSweet() == null) unaskedAttributes.add("is_sweet");
+        if (request.getIsSolo() == null) unaskedAttributes.add("is_solo");
+        if (request.getIsSharing() == null) unaskedAttributes.add("is_sharing");
+        if (request.getIsHeavy() == null) unaskedAttributes.add("is_heavy");
+
+        if (unaskedAttributes.isEmpty()) {
+            return questionsMapper.getQuestionsByAttributeName("final_recommendation");
         }
 
-        // 2. 카테고리가 정해졌거나(1), 모든 카테고리에 '아니요(0)'를 했다면 세부 질문으로 진입
-        return getNextAttributeQuestion(request);
+        Collections.shuffle(unaskedAttributes);
+
+        String nextAttribute = unaskedAttributes.get(0);
+        return questionsMapper.getQuestionsByAttributeName(nextAttribute);
     }
 
-    // 카테고리 선택 여부를 확인하는 도우미 메서드
-    private boolean isCategorySelected(GameRequestDto request) {
-        return (request.getCategoryKorean() != null && request.getCategoryKorean() == 1) ||
-                (request.getCategoryWestern() != null && request.getCategoryWestern() == 1) ||
-                (request.getCategoryChinese() != null && request.getCategoryChinese() == 1) ||
-                (request.getCategoryJapanese() != null && request.getCategoryJapanese() == 1) ||
-                (request.getCategoryAsian() != null && request.getCategoryAsian() == 1);
-    }
-
-    private Questions getNextAttributeQuestion(GameRequestDto request) {
-        // 여기서부터는 질문 순서대로 쭉쭉 진행됩니다.
-        if (request.getIsSoup() == null) return questionsMapper.getQuestionsByAttributeName("is_soup");
-        if (request.getIsSpicy() == null) return questionsMapper.getQuestionsByAttributeName("is_spicy");
-        if (request.getIsFried() == null) return questionsMapper.getQuestionsByAttributeName("is_fried");
-        if (request.getIsRoasted() == null) return questionsMapper.getQuestionsByAttributeName("is_roasted");
-        if (request.getHasPork() == null) return questionsMapper.getQuestionsByAttributeName("has_pork");
-        if (request.getHasBeef() == null) return questionsMapper.getQuestionsByAttributeName("has_beef");
-
-        return questionsMapper.getQuestionsByAttributeName("final_recommendation");
-    }
 
     public String findImagePathByName(String foodName) {
         return foodMapper.findImagePathByName(foodName);
