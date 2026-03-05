@@ -175,7 +175,9 @@ public class BoardController {
     }
 
     @PostMapping("/remove/{boardId}")
-    public String removeBoard(@PathVariable Long boardId, Authentication authentication) {
+    public Object removeBoard(@PathVariable Long boardId,
+                              @RequestHeader(value = "X-Requested-With", required = false) String requestedWith,
+                              Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()) {
             return "redirect:/users/login";
         }
@@ -192,6 +194,10 @@ public class BoardController {
 
         boardService.removeBoard(boardId, userId, role);
 
-        return "redirect:/board/list";
+        if ("XMLHttpRequest".equals(requestedWith)) {
+            return ResponseEntity.ok("Deleted Successfully");
+        } else {
+            return "redirect:/board/list"; // 게시판에서 삭제 시 목록으로 이동
+        }
     }
 }

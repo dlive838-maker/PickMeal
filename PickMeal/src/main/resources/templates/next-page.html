@@ -134,6 +134,7 @@
                                             class="ani-btn flex items-center gap-1 text-orange-400 hover:scale-110 transition">
                                         ❤️ <span class="text-gray-700 heart-count-text" th:id="'heart-count-'+${hotSpot.resId}" th:text="${hotSpot.wishCount}">10</span>
                                     </button>
+                                    <span class="flex items-center gap-1 text-blue-400">📝 <span class="text-gray-700" th:text="${hotSpot.reviewCount ?: 0}">0</span></span>
 
                                 </div>
 

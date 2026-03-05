@@ -2,6 +2,8 @@
 <html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
 </head>
 <body>
 <header th:fragment="headerFragment" class="fixed top-0 left-0 w-full z-50 px-10 py-6 grid grid-cols-3 items-center bg-white/80 backdrop-blur-md border-b border-gray-100">
