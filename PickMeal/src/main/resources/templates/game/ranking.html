@@ -17,6 +17,7 @@
             display: flex;
             flex-direction: column;
             min-height: 100vh;
+            /* 전체 창 스크롤은 자연스럽게 생기도록 유지 */
             overflow-x: hidden;
         }
 
@@ -49,7 +50,7 @@
             background: white;
             box-shadow: 0 20px 50px rgba(255, 138, 91, 0.1);
             width: 100%;
-            max-width: 900px;
+            max-width: 1300px;
         }
 
         .content-slide-up {
@@ -66,19 +67,19 @@
 <header th:replace="~{fragments/header :: headerFragment}"></header>
 
 <main class="content-slide-up px-6 md:px-12">
-    <div class="ranking-card p-8 md:p-12">
-        <h1 class="text-5xl font-black text-[#FF8A5B] italic text-center mb-10 uppercase tracking-tighter">
+    <div class="ranking-card p-6 md:p-8">
+        <h1 class="text-4xl font-black text-[#FF8A5B] italic text-center mb-6 uppercase tracking-tighter">
             🏆 TOP 10 RANKING 🏆
         </h1>
 
-        <div class="overflow-x-auto">
+        <div class="w-full max-w-5xl mx-auto overflow-hidden">
             <table class="w-full text-left">
                 <thead class="border-b-2 border-[#FFF5F0]">
-                <tr class="text-[#FF8A5B] font-black italic uppercase text-lg">
-                    <th class="py-4 px-2">Rank</th>
+                <tr class="text-[#FF8A5B] font-black italic uppercase text-base">
+                    <th class="py-4 pl-10 md:pl-16 pr-2">Rank</th>
                     <th class="py-4 px-2 text-center">Photo</th>
                     <th class="py-4 px-2">Menu</th>
-                    <th class="py-4 px-2 text-right">Wins</th>
+                    <th class="py-4 pl-2 pr-10 md:pr-16 text-right">Wins</th>
                 </tr>
                 </thead>
                 <tbody id="ranking-tbody" class="divide-y divide-gray-50">
@@ -86,7 +87,7 @@
                     th:classappend="${iterStat.count == 1} ? 'bg-orange-50' : ''"
                     class="hover:bg-orange-100 transition-colors group">
 
-                    <td class="py-6 px-2 font-black italic text-3xl text-gray-300 transition-all duration-300"
+                    <td class="py-6 pl-10 md:pl-16 pr-2 font-black italic text-3xl text-gray-300 transition-all duration-300"
                         th:classappend="${iterStat.count == 1} ? 'text-[#FF8A5B] scale-110' : 'group-hover:text-[#FF8A5B]'">
                         <span th:if="${iterStat.count == 1}">🥇</span>
                         <span th:if="${iterStat.count == 2}">🥈</span>
@@ -106,16 +107,13 @@
                         [[${food.foodName}]]
                     </td>
 
-                    <td class="py-4 px-2 text-right font-black text-[#FF8A5B] italic text-2xl group-hover:scale-110 transition-transform">
+                    <td class="py-4 pl-2 pr-10 md:pr-16 text-right font-black text-[#FF8A5B] italic text-2xl group-hover:scale-110 transition-transform">
                         [[${food.winCount}]] <span class="text-sm">회</span>
                     </td>
                 </tr>
                 </tbody>
             </table>
         </div>
-
-        <div id="pagination" class="flex justify-center items-center gap-2 mt-8"></div>
-
         <div class="mt-12 flex flex-col md:flex-row justify-center items-center gap-4 max-w-2xl mx-auto">
             <button onclick="location.href='/next-page'"
                     class="w-full md:w-auto px-10 py-4 bg-[#FF8A5B] text-white rounded-full font-black text-xl shadow-lg hover:scale-105 transition-all italic uppercase">
@@ -146,9 +144,10 @@
         });
     };
 
-    // [핵심] 프론트엔드 페이징 스크립트 추가
+    // 프론트엔드 페이징 스크립트
     document.addEventListener("DOMContentLoaded", function() {
-        const rowsPerPage = 5; // 한 번에 보여줄 행 개수
+        // [수정됨] 한 번에 보여줄 행 개수를 5에서 10으로 변경했습니다.
+        const rowsPerPage = 10;
         const tbody = document.getElementById('ranking-tbody');
         const rows = tbody.querySelectorAll('tr');
         const totalPages = Math.ceil(rows.length / rowsPerPage);

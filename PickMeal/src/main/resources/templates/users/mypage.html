@@ -28,6 +28,10 @@ header .text-3xl,
             font-style: italic !important;
         }
     .info-card { border-radius: 3rem; background: white; box-shadow: 0 20px 50px rgba(0,0,0,0.05); border: 2px solid #FDF5E6; }
+    .info-card h5, .info-card p, .info-card span {
+    white-space: normal !important; /* 생략(...) 없이 줄바꿈 허용 */
+    word-break: break-all !important; /* 가로폭에 맞춰 강제 줄바꿈 */
+}
     .label-text { color: #FFB08E; font-size: 0.85rem; font-weight: 800; margin-bottom: 0.2rem; }
     .value-text { font-size: 1.15rem; font-weight: 800; color: #444; margin-bottom: 1.5rem; }
 
@@ -36,6 +40,28 @@ header .text-3xl,
 
     .content-slide-up { animation: slideUp 0.8s cubic-bezier(0.65, 0, 0.35, 1) forwards; }
     @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+    .post-title {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%; /* 부모 너비에 맞게 조절 */
+}
+
+/* [추가] 화면이 좁아질 때 아이콘 영역을 숨겨서 제목 공간 확보 */
+@media (max-width: 800px) {
+    /* 조회수, 좋아요 숫자가 들어있는 영역 숨기기 */
+    .post-stats {
+        display: none !important;
+    }
+}
+
+/* [기존 보완] 게시글 카드 내 간격 조정 */
+.post-card-content {
+    min-width: 0; /* flex 자식 요소의 말줄임표 작동을 위한 설정 */
+    flex: 1;
+}
   </style>
 </head>
 
@@ -109,16 +135,16 @@ header .text-3xl,
          th:onclick="'location.href=\'/board/detail/' + ${board.boardId} + '\''"
          class="info-card p-8 flex justify-between items-center hover:scale-[1.02] transition-all duration-300 group cursor-pointer hover:border-[#FF8A5B]">
       <div class="flex-grow">
-        <p class="label-text" th:text="${#dates.format(board.createDate, 'yyyy.MM.dd')}">Date</p>
-        <div class="flex items-center gap-2">
-          <span class="text-2xl font-black text-[#444] group-hover:text-[#FF8A5B] transition-colors"
-                th:text="${board.title}">Title</span>
-          <span th:if="${board.commentCount > 0}"
-                class="text-lg font-black text-[#FF8A5B]"
-                th:text="'[' + ${board.commentCount} + ']'">[5]</span>
+        <div class="flex-grow min-w-[120px] mr-4"> <p class="label-text" th:text="${#dates.format(board.createDate, 'yyyy.MM.dd')}">Date</p>
+          <div class="flex items-center gap-2 overflow-hidden">
+    <span class="text-2xl font-black text-[#444] group-hover:text-[#FF8A5B] transition-colors block"
+          th:text="${board.title}">Title</span>
+            <span th:if="${board.commentCount > 0}"
+                  class="text-lg font-black text-[#FF8A5B] flex-shrink-0"
+                  th:text="'[' + ${board.commentCount} + ']'">[5]</span> </div>
         </div>
       </div>
-      <div class="flex gap-8 items-center">
+      <div class="flex gap-8 items-center flex-shrink-0 post-stats">
         <div class="text-center"><p class="text-[10px] font-black text-[#FFB08E] uppercase mb-1">Views</p><span class="text-[#FFB08E] font-black italic text-lg" th:text="${board.viewCount}">0</span></div>
         <div class="text-center"><p class="text-[10px] font-black text-[#FF8A5B] uppercase mb-1">Likes</p><span class="text-[#FF8A5B] font-black italic text-lg" th:text="${board.likeCount}">0</span></div>
 
@@ -154,13 +180,14 @@ header .text-3xl,
          onclick="goDetail(this.getAttribute('data-id'))"
          class="info-card p-8 flex justify-between items-center hover:scale-[1.02] transition-all duration-300 group cursor-pointer hover:border-[#FF8A5B]">
 
-      <div class="flex-grow">
-        <p class="label-text" th:text="${place.category ?: 'Restaurant'}">Category</p>
-        <h5 class="text-2xl font-black text-[#444] group-hover:text-[#FF8A5B] transition-colors" th:text="${place.placeName ?: '이름 정보 없음'}">Restaurant Name</h5>
-        <p class="text-gray-400 font-bold text-sm mt-1" th:text="${place.address ?: '주소 정보가 없습니다.'}">Address</p>
+      <div class="flex-grow min-w-[150px] mr-4"> <p class="label-text" th:text="${place.category ?: 'Restaurant'}">Category</p>
+
+        <h5 class="text-2xl font-black text-[#444] group-hover:text-[#FF8A5B] transition-colors"
+            th:text="${place.placeName ?: '이름 정보 없음'}">Restaurant Name</h5> <p class="text-gray-400 font-bold text-sm mt-1"
+                                                                               th:text="${place.address ?: '주소 정보가 없습니다.'}">Address</p>
       </div>
 
-      <div class="flex gap-8 items-center pr-4">
+      <div class="flex gap-8 items-center pr-4 flex-shrink-0 post-stats">
         <div class="text-center">
           <p class="text-[10px] font-black text-yellow-400 uppercase mb-1">Rating</p>
           <span class="text-yellow-400 font-black italic text-lg" th:text="'⭐ ' + ${place.avgRating}">⭐ 0.0</span>
@@ -181,7 +208,7 @@ header .text-3xl,
         <button type="button"
                 th:data-id="${place.kakaoPlaceId}"
                 onclick="toggleFavorite(event, this.getAttribute('data-id'))"
-                class="ml-4 p-3 rounded-full bg-red-50 text-red-500 hover:bg-red-500 hover:text-white transition-all duration-200 shadow-sm"
+                class="ml-4 p-3 rounded-full bg-red-50 text-red-500 hover:bg-red-500 hover:text-white transition-all duration-200 shadow-sm flex-shrink-0 post-stats"
                 title="찜 해제">
           <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
             <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
