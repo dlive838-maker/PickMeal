@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @RequiredArgsConstructor
-public class SuspensionScheduler {
+public class UserStatusScheduler {
 
     private final UserMapper userMapper;
 
