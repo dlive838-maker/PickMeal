@@ -4,16 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1e8719c0-9992-4814-868d-92e2b0a41396" name="변경" comment="26.03.05 1738 재민 코드 병합">
+    <list default="true" id="1e8719c0-9992-4814-868d-92e2b0a41396" name="변경" comment="26.03.06 1244 재민 코드 병합">
+      <change afterPath="$PROJECT_DIR$/.idea/shelf/26__2__27___2_50__________.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/shelf/26__2__27___2_50__________1.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/shelf/26__2__27__오후_2_50,_체크아웃_전에_커밋되지_않은_변경_내용_[변경]/shelved.patch" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/shelf/26__2__27__오후_2_50,_체크아웃_전에_커밋되지_않은_변경_내용_[변경]1/shelved.patch" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/templates/board/board-write.html" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/templates/board/board-write.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/templates/board/board.html" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/templates/board/board.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/templates/game/capsule.html" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/templates/game/capsule.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/templates/game/ranking.html" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/templates/game/ranking.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/templates/game/twentyQuestions.html" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/templates/game/twentyQuestions.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/templates/game/worldcup.html" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/templates/game/worldcup.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/templates/users/mypage.html" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/templates/users/mypage.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/PickMeal/src/main/resources/templates/users/signup.html" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/src/main/resources/templates/users/signup.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -90,6 +86,19 @@
       <option name="presentableId" value="Default" />
       <updated>1772763751055</updated>
     </task>
+    <task id="LOCAL-00001" summary="26.03.06 1244 재민 코드 병합">
+      <option name="closed" value="true" />
+      <created>1772768662542</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1772768662542</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="26.03.06 1244 재민 코드 병합" />
+    <option name="LAST_COMMIT_MESSAGE" value="26.03.06 1244 재민 코드 병합" />
   </component>
 </project>

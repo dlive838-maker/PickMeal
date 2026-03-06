@@ -1,0 +1,19 @@
+Index: PickMeal/src/main/java/PickMeal/PickMeal/service/ReviewWishService.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package PickMeal.PickMeal.service;\r\n\r\nimport PickMeal.PickMeal.dto.RestaurantDTO;\r\nimport PickMeal.PickMeal.mapper.ReviewWishMapper;\r\nimport lombok.RequiredArgsConstructor;\r\nimport org.springframework.stereotype.Service;\r\n\r\nimport java.util.List;\r\n\r\n@Service\r\n@RequiredArgsConstructor\r\npublic class ReviewWishService {\r\n    private final ReviewWishMapper reviewWishMapper;\r\n\r\n\r\n    public List<RestaurantDTO> getPopularRest() {\r\n        return reviewWishMapper.getPopularRest();\r\n    }\r\n}\r\n
+===================================================================
+diff --git a/PickMeal/src/main/java/PickMeal/PickMeal/service/ReviewWishService.java b/PickMeal/src/main/java/PickMeal/PickMeal/service/ReviewWishService.java
+--- a/PickMeal/src/main/java/PickMeal/PickMeal/service/ReviewWishService.java	(revision e8d3e37188105835f74754f02d7389b4104e6797)
++++ b/PickMeal/src/main/java/PickMeal/PickMeal/service/ReviewWishService.java	(date 1772159968803)
+@@ -13,7 +13,7 @@
+     private final ReviewWishMapper reviewWishMapper;
+ 
+ 
+-    public List<RestaurantDTO> getPopularRest() {
+-        return reviewWishMapper.getPopularRest();
+-    }
++//    public List<RestaurantDTO> getPopularRest() {
++//        return reviewWishMapper.getPopularRest();
++//    }
+ }
