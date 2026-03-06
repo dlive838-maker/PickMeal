@@ -10,15 +10,16 @@
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@700;800&display=swap" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Jua&display=swap');
-        /* [레이아웃] 룰렛창 기반 고정 구조 */
+
+        /* [기존 유지] 레이아웃 구조 */
         body {
             font-family: 'Fredoka', 'Jua', sans-serif !important;
             background-color: #FFF5F0;
             margin: 0;
             display: flex;
             flex-direction: column;
-            min-height: 100vh; /* 창 높이가 줄어들면 자동으로 세로 스크롤 생성 */
-            overflow-x: hidden; /* 가로 스크롤만 깔끔하게 숨김 */
+            min-height: 100vh;
+            overflow-x: hidden;
         }
 
         h1, h2, h3, h4, h5, h6, p, span, div, button, a, label, input, select {
@@ -45,28 +46,18 @@
             position: relative;
         }
 
-        .food-card {
-            background: white;
-            border-radius: 3rem;
-            transition: all 0.5s ease;
-            cursor: pointer;
-            border: 4px solid transparent;
-        }
-
-        /* 호버 시 흔들림 제외, 살짝 위로만 이동 */
+        /* [기존 유지] 호버 효과 */
         .food-card:hover {
             border-color: #FF8A5B;
             transform: translateY(-10px);
             box-shadow: 0 20px 40px rgba(255, 138, 91, 0.2);
         }
 
-        /* [핵심 수정] 선택된 카드가 가운데로 오는 애니메이션 (기울기 제거 및 속도 동기화) */
+        /* [기존 유지] 애니메이션 효과 */
         .selected-left {
-            /* 회전(rotate)을 0deg로 고정하여 기울이지 않음 */
             transform: translateX(250px) scale(1.05) rotate(0deg) !important;
             opacity: 0;
             pointer-events: none;
-            /* 속도를 1.2초로 아주 천천히 설정 */
             transition: all 1.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
         }
 
@@ -77,7 +68,6 @@
             transition: all 1.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
         }
 
-        /* [핵심 수정] 상대편 카드 사라지는 속도도 1.2초로 완벽 동기화 */
         .fade-out {
             opacity: 0 !important;
             transform: scale(0.8) !important;
@@ -85,17 +75,75 @@
             transition: all 1.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
         }
 
-        .vs-badge { text-shadow: 3px 3px 0px rgba(255, 138, 91, 0.15); font-style: italic; }
+        /* [수정] 메인 컨테이너 - 전체 화면 정렬 및 줄바꿈 */
+        main .flex.items-center.justify-center {
+            flex-wrap: wrap !important;
+            gap: 2rem !important;
+            max-width: 1200px !important;
+            margin: 0 auto !important;
+            width: 100%;
+            display: flex !important;
+        }
 
-        /* 우승창 중간 사이즈 최적화 */
+        /* [수정] 카드 사이즈 고정 - 전체 화면에서 대칭을 맞춤 */
+        .food-card {
+            background: white;
+            border-radius: 3rem;
+            transition: all 0.5s ease;
+            cursor: pointer;
+            border: 4px solid transparent;
+            /* flex-basis를 동일하게 주어 양쪽 크기를 맞춤 */
+            flex: 0 1 400px !important;
+            width: 400px !important;
+            min-width: 300px !important;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* [추가] 사진 영역 정사각형 비율 고정 */
+        .food-card .bg-\[\#FFF5F0\] {
+            width: 100% !important;
+            height: auto !important;
+            aspect-ratio: 1 / 1 !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            overflow: hidden !important;
+            border-radius: 2.5rem !important;
+            margin-bottom: 1.5rem;
+        }
+
+        .food-card img {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover !important;
+        }
+
+        /* [기존 유지 및 수정] VS 배지 */
+        .vs-badge {
+            text-shadow: 3px 3px 0px rgba(255, 138, 91, 0.15);
+            font-style: italic;
+            flex-shrink: 0;
+        }
+
+        @media (max-width: 850px) {
+            #vs-text { display: none !important; }
+            .food-card { flex: 1 1 100% !important; max-width: 450px !important; }
+        }
+
+        /* [기존 유지] 우승창 설정 */
         .winner-card-mid {
             max-width: 410px !important;
             padding: 2rem !important;
             border-radius: 3.5rem !important;
+            background: white;
+            margin: 0 auto;
         }
         .winner-img-mid {
             height: 280px !important;
             border-radius: 2.5rem !important;
+            overflow: hidden;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
         }
     </style>
 </head>
@@ -113,19 +161,19 @@
         <p class="text-[#FF8A5B] font-bold italic uppercase text-xl">좋아하는 음식을 선택하세요!</p>
     </div>
 
-    <div class="flex items-center justify-center gap-10 md:gap-20 w-full max-w-6xl">
-        <div class="food-card p-6 shadow-xl w-full max-w-sm text-center" id="cardA" onclick="selectFood(0)">
-            <div class="bg-[#FFF5F0] rounded-[2.5rem] overflow-hidden mb-6 h-72 shadow-inner">
-                <img id="imgA" th:src="${foods[0].imagePath}" class="w-full h-full object-cover">
+    <div class="flex items-center justify-center gap-10 w-full">
+        <div class="food-card p-6 shadow-xl text-center" id="cardA" onclick="selectFood(0)">
+            <div class="bg-[#FFF5F0] rounded-[2.5rem] overflow-hidden mb-6 shadow-inner">
+                <img id="imgA" th:src="${foods[0].imagePath}" class="object-cover">
             </div>
             <h3 id="nameA" class="text-2xl font-black text-gray-800 italic uppercase" th:text="${foods[0].foodName}">음식A</h3>
         </div>
 
         <div class="vs-badge text-7xl font-black text-[#FF8A5B]" id="vs-text">VS</div>
 
-        <div class="food-card p-6 shadow-xl w-full max-w-sm text-center" id="cardB" onclick="selectFood(1)">
-            <div class="bg-[#FFF5F0] rounded-[2rem] overflow-hidden mb-6 h-72 shadow-inner">
-                <img id="imgB" th:src="${foods[1].imagePath}" class="w-full h-full object-cover">
+        <div class="food-card p-6 shadow-xl text-center" id="cardB" onclick="selectFood(1)">
+            <div class="bg-[#FFF5F0] rounded-[2rem] overflow-hidden mb-6 shadow-inner">
+                <img id="imgB" th:src="${foods[1].imagePath}" class="object-cover">
             </div>
             <h3 id="nameB" class="text-2xl font-black text-gray-800 italic uppercase" th:text="${foods[1].foodName}">음식B</h3>
         </div>
@@ -213,7 +261,8 @@
         fetch('/worldcup/win/' + winner.foodId, { method: 'POST' }).catch(e => {});
 
         const main = document.getElementById('game-main');
-        main.style.paddingTop = "90px";
+        main.style.paddingTop = "0"; // 기존의 150px 패딩 제거
+        main.className = "flex flex-col items-center justify-center w-full min-h-[100vh] px-10";
 
         main.innerHTML = `
             <div class="flex flex-col items-center justify-center w-full animate-bounce mb-2">
