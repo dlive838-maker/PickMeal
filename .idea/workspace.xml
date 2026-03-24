@@ -4,12 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1e8719c0-9992-4814-868d-92e2b0a41396" name="변경" comment="26.03.06 1244 재민 코드 병합">
-      <change afterPath="$PROJECT_DIR$/.idea/shelf/26__2__27___2_50__________.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/shelf/26__2__27___2_50__________1.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/shelf/26__2__27__오후_2_50,_체크아웃_전에_커밋되지_않은_변경_내용_[변경]/shelved.patch" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/shelf/26__2__27__오후_2_50,_체크아웃_전에_커밋되지_않은_변경_내용_[변경]1/shelved.patch" afterDir="false" />
+    <list default="true" id="1e8719c0-9992-4814-868d-92e2b0a41396" name="변경" comment="26.03.06 1652 승경 게임 기본 이미지 변경">
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/26__2__27___2_50__________1.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/26__2__27__오후_2_50,_체크아웃_전에_커밋되지_않은_변경_내용_[변경]1/shelved.patch" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PickMeal/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/PickMeal/.gitignore" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -17,6 +16,11 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="Git.Settings">
+    <option name="PREVIOUS_COMMIT_AUTHORS">
+      <list>
+        <option value="dongri &lt;thdrud5772@gmail.com&gt;" />
+      </list>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="GitHubPullRequestSearchHistory">{
@@ -40,16 +44,16 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "Spring Boot.PickMealApplication.executor": "Run",
-    "git-widget-placeholder": "jaemin",
-    "kotlin-language-version-configured": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;Spring Boot.PickMealApplication.executor&quot;: &quot;Run&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;jaemin&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RunManager">
     <configuration name="PickMealApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" temporary="true" nameIsGenerated="true">
       <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UnknownPolicyInFreeMode" />
@@ -94,11 +98,20 @@
       <option name="project" value="LOCAL" />
       <updated>1772768662542</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="26.03.06 1652 승경 게임 기본 이미지 변경">
+      <option name="closed" value="true" />
+      <created>1772787118514</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1772787118514</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="26.03.06 1244 재민 코드 병합" />
-    <option name="LAST_COMMIT_MESSAGE" value="26.03.06 1244 재민 코드 병합" />
+    <MESSAGE value="26.03.06 1652 승경 게임 기본 이미지 변경" />
+    <option name="LAST_COMMIT_MESSAGE" value="26.03.06 1652 승경 게임 기본 이미지 변경" />
   </component>
 </project>
