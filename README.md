@@ -74,7 +74,7 @@
 <div markdown="1">
   
 > _소셜 로그인 프로세스 및 직관적인 메인 페이지 시연 영상입니다._  
-> `<img src="https://youtu.be/hvra-ooJCik?si=y-RZdBkwaMN_Lq0j" width="800">`
+> `<img src="[여기에_메인화면_시연영상_또는_이미지_링크를_넣어주세요](https://youtu.be/hvra-ooJCik?si=y-RZdBkwaMN_Lq0j)" width="800">`
 
 </div>
 </details>
@@ -84,7 +84,7 @@
 <div markdown="1">
   
 > _게임 플레이를 통해 결과를 도출하는 과정입니다._  
-> `<img src="https://youtu.be/sqcy-zeS3RM?si=DlM6wtB61DEam-JW" width="800">`
+> `<img src="[여기에_게임기능_시연영상_또는_이미지_링크를_넣어주세요](https://youtu.be/sqcy-zeS3RM?si=DlM6wtB61DEam-JW)" width="800">`
 
 </div>
 </details>
@@ -94,7 +94,7 @@
 <div markdown="1">
 
 > _추천 메뉴를 바탕으로 주변 식당 위치를 카카오맵에서 확인하는 기능입니다._  
-> `<img src="https://youtu.be/drSzSyq9T1Q?si=iuGx4W0hIdZ3XcDb" width="800">`
+> `<img src="[여기에_지도탐색_시연영상_또는_이미지_링크를_넣어주세](https://youtu.be/drSzSyq9T1Q?si=iuGx4W0hIdZ3XcDb)요" width="800">`
 
 </div>
 </details>
@@ -104,7 +104,7 @@
 <div markdown="1">
 
 > _자유로운 글 작성, S3 이미지 업로드 및 리뷰 작성 화면입니다._  
-> `<img src="https://youtu.be/Q4Oldm4fKNk?si=CDOBbXF3jGnVqF5V" width="800">`
+> `<img src="[여기에_커뮤니티_시연영상_또는_이미지_링크를_넣어주세요](https://youtu.be/Q4Oldm4fKNk?si=CDOBbXF3jGnVqF5V)" width="800">`
 
 </div>
 </details>
@@ -113,8 +113,8 @@
 <summary><b>5. 관리자 기능</b></summary>
 <div markdown="1">
 
-> _관리자 로그인 후 글 삭제 및 회원 정지하는 기능입니다.._  
-> `<img src="https://youtu.be/t91Yp27cJhA?si=CCAG0hG2X-KVXgTF" width="800">`
+> _관리자 로그인 후 글 삭제 및 회원 정지하는 기능입니다._  
+> `<img src="[여기에_커뮤니티_시연영상_또는_이미지_링크를_넣어주세요](https://youtu.be/t91Yp27cJhA?si=CCAG0hG2X-KVXgTF)" width="800">`
 
 </div>
 </details>
