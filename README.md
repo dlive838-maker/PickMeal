@@ -85,6 +85,7 @@
 | :---: |
 | [![시연 영상 5](https://img.youtube.com/vi/t91Yp27cJhA/mqdefault.jpg)](https://youtu.be/t91Yp27cJhA) |
 | 관리자 권한을 통한 <br>부적절한 게시글 삭제 및 회원 정지 |
+
 ---
 
 ### 🛠 트러블 슈팅 (Trouble Shooting)
