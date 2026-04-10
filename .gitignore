@@ -32,3 +32,19 @@ build/
 ### VS Code ###
 .vscode/
 ../class/
+
+### Sensitive / Secret files ###
+application-secret.properties
+application-local.properties
+*-secret.properties
+*.env
+.env
+.env.*
+
+### Build artifacts ###
+*.jar
+*.war
+
+### OS ###
+.DS_Store
+Thumbs.db
