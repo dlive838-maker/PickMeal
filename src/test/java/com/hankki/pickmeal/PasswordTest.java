@@ -1,4 +1,4 @@
-package PickMeal.pickmeal; // 프로젝트 패키지 경로에 맞게 수정하세요.
+package com.hankki.pickmeal; // 프로젝트 패키지 경로에 맞게 수정하세요.
 
 import org.junit.jupiter.api.Test;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;

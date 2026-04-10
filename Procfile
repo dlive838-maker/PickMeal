@@ -1,0 +1,1 @@
+web: java -jar build/libs/pickmeal-0.0.1-SNAPSHOT.jar
