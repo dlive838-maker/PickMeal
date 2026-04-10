@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Pick Meal - Access Denied</title>
+    <link rel="icon" href="/images/pickmeal_favicon.png" type="image/png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Fredoka', sans-serif; background-color: #fffaf8; }
+        .italic-text { font-style: italic !important; }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center h-screen text-center bg-slate-50">
+<div class="max-w-md p-8 bg-white rounded-2xl shadow-sm border border-slate-200">
+    <img src="/images/pickmeal_errorpage.png" alt="Error" class="w-64 md:w-56 mx-auto mb-6 opacity-80">
+    <h1 class="text-3xl font-bold text-slate-800 mb-3">접근 권한 제한</h1>
+    <p class="text-slate-500 mb-8 leading-relaxed">
+        해당 리소스에 접근할 수 있는 권한이 없습니다.<br>
+        지속적인 오류 발생 시 관리자에게 문의해 주시기 바랍니다.
+    </p>
+    <div class="flex gap-3 justify-center">
+        <a href="/users/login" class="px-6 py-2.5 bg-slate-800 text-white rounded-lg font-medium hover:bg-slate-700 transition">로그인 페이지</a>
+        <button onclick="history.back()" class="px-6 py-2.5 border border-slate-300 text-slate-600 rounded-lg font-medium hover:bg-slate-50">이전으로</button>
+    </div>
+</div>
+</body>
+</html>
