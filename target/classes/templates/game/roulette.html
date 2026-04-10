@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pick Meal - Roulette</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+  <style>
+    body { font-family: 'Fredoka', sans-serif; background-color: #FFF5F0; margin: 0; display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
+    .nav-link { font-family: 'Fredoka', sans-serif; font-weight: 700; font-style: italic; }
+
+    main { flex-grow: 1; display: flex; align-items: center; justify-content: center; padding: 100px 20px 40px; }
+
+    .content-slide-up {
+        animation: slideUp 0.8s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+    }
+    @keyframes slideUp {
+        from { transform: translateY(100px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+
+    /* 룰렛 스타일 */
+    #roulette-container { position: relative; width: 400px; height: 400px; }
+    #canvas { width: 100%; height: 100%; transform: rotate(-90deg); transition: transform 4s cubic-bezier(0.15, 0, 0.15, 1); }
+
+    .arrow {
+        position: absolute; top: -20px; left: 50%; transform: translateX(-50%);
+        width: 0; height: 0;
+        border-left: 15px solid transparent; border-right: 15px solid transparent; border-top: 30px solid #FF8A5B;
+        z-index: 10;
+    }
+
+    .input-field { border-radius: 1rem; border: 2px solid #FDF5E6; transition: all 0.3s; }
+    .input-field:focus { border-color: #FF8A5B; outline: none; }
+
+    /* 결과창 디자인 통일용 추가 CSS */
+    .winner-card-mid {
+        max-width: 410px !important;
+        padding: 2rem !important;
+        border-radius: 3.5rem !important;
+        background: white;
+        margin: 0 auto;
+    }
+    .winner-img-mid {
+        height: 280px !important;
+        border-radius: 2.5rem !important;
+        overflow: hidden;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body>
+<header th:replace="~{fragments/header :: headerFragment}"></header>
+
+<main id="main-content" class="content-slide-up">
+  <div class="flex flex-col md:flex-row items-center justify-center gap-20">
+    <div class="flex flex-col items-center">
+      <div id="roulette-container">
+        <div class="arrow"></div>
+        <canvas id="canvas" width="400" height="400"></canvas>
+      </div>
+      <button onclick="spin()" id="spin-btn" class="mt-10 bg-[#FF8A5B] text-white px-12 py-4 rounded-full font-black text-2xl shadow-lg hover:scale-105 transition italic uppercase">Spin!</button>
+    </div>
+
+    <div class="bg-white p-10 rounded-[3rem] shadow-xl w-full max-w-md border-4 border-[#FF8A5B]">
+      <h2 class="text-3xl font-black text-[#FF8A5B] italic mb-6 uppercase">Menu List</h2>
+      <div id="item-list" class="space-y-3 mb-6 max-h-[300px] overflow-y-auto pr-2 scroller">
+      </div>
+      <div class="flex gap-2">
+        <input type="text" id="new-item" placeholder="Add menu..." class="input-field flex-grow px-4 py-3 font-bold" onkeypress="if(event.keyCode==13) addItem()">
+        <button onclick="addItem()" class="bg-[#4CAF50] text-white px-6 py-3 rounded-2xl font-black shadow-md hover:bg-[#43a047] transition">+</button>
+      </div>
+      <p class="text-gray-400 mt-4 text-sm font-bold italic text-center">Min 2, Max 12 items recommended!</p>
+    </div>
+  </div>
+</main>
+
+<footer th:replace="~{fragments/footer :: footerFragment}"></footer>
+
+<script th:inline="javascript">
+  const canvas = document.getElementById("canvas");
+  const ctx = canvas.getContext("2d");
+  let items = ["Pizza", "Sushi", "Burger", "Pasta"];
+  const colors = ["#FF8A5B", "#4CAF50", "#FFD93D", "#6BCB77", "#4D96FF", "#FF6B6B", "#9575CD", "#4DB6AC"];
+
+  let isSpinning = false;
+  let currentRotation = 0;
+
+  function drawRoulette() {
+      const numSegments = items.length;
+      const angleStep = (2 * Math.PI) / numSegments;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      items.forEach((item, i) => {
+          const angle = i * angleStep;
+          ctx.beginPath();
+          ctx.fillStyle = colors[i % colors.length];
+          ctx.moveTo(200, 200);
+          ctx.arc(200, 200, 200, angle, angle + angleStep);
+          ctx.fill();
+
+          ctx.save();
+          ctx.translate(200, 200);
+          ctx.rotate(angle + angleStep / 2);
+          ctx.textAlign = "right";
+          ctx.fillStyle = "white";
+          ctx.font = "bold 18px Fredoka";
+          ctx.fillText(item, 180, 10);
+          ctx.restore();
+      });
+  }
+
+  function updateList() {
+      const listContainer = document.getElementById("item-list");
+      listContainer.innerHTML = items.map((item, i) => `
+          <div class="flex justify-between items-center bg-gray-50 p-3 rounded-xl border-2 border-transparent hover:border-[#FF8A5B] transition">
+              <span class="font-bold text-gray-700">${item}</span>
+              <button onclick="removeItem(${i})" class="text-red-400 hover:text-red-600 font-black">✕</button>
+          </div>
+      `).join("");
+      drawRoulette();
+  }
+
+  function addItem() {
+      const input = document.getElementById("new-item");
+      if (input.value.trim() && items.length < 12) {
+          items.push(input.value.trim());
+          input.value = "";
+          updateList();
+      }
+  }
+
+  function removeItem(index) {
+      if (items.length > 2) {
+          items.splice(index, 1);
+          updateList();
+      } else {
+          alert("최소 2개의 항목이 필요해요!");
+      }
+  }
+
+  function spin() {
+      if (isSpinning) return;
+      isSpinning = true;
+
+      const spinBtn = document.getElementById("spin-btn");
+      spinBtn.disabled = true;
+      spinBtn.classList.add('opacity-50');
+
+      const randomSpin = Math.floor(Math.random() * 360) + 1440;
+      currentRotation += randomSpin;
+
+      canvas.style.transform = `rotate(${currentRotation - 90}deg)`;
+
+      setTimeout(() => {
+          isSpinning = false;
+          spinBtn.disabled = false;
+          spinBtn.classList.remove('opacity-50');
+
+          const actualRotation = currentRotation % 360;
+          const segmentAngle = 360 / items.length;
+          const winIdx = Math.floor((360 - actualRotation) / segmentAngle) % items.length;
+
+          showResult(items[winIdx]);
+      }, 4000);
+  }
+
+  // [수정 완료] 월드컵 스타일 + 쏠림 방지 + 글자 크기 확대(text-5xl)
+ async function showResult(foodName) {
+    let realImagePath = "/images/meal.png";
+    try {
+        const response = await fetch(`/api/food/image?name=${encodeURIComponent(foodName)}`);
+        if(response.ok) {
+            let path = await response.text();
+            if (path && path.trim() !== "" && path !== "/images/meal.png") {
+                realImagePath = path.trim().replace(/ /g, '%20');
+            }
+        }
+    } catch(error) {
+        console.error("이미지 로딩 실패:", error);
+    }
+
+    const mainContent = document.getElementById('main-content');
+
+    // 레이아웃 초기화 및 수직 중앙 정렬
+    mainContent.className = "flex flex-col items-center justify-center w-full min-h-[70vh] px-10";
+
+    mainContent.innerHTML = `
+        <div class="flex flex-col items-center justify-center w-full animate-bounce mb-2">
+            <h2 class="text-[#FF8A5B] font-black text-5xl uppercase italic tracking-tighter">WINNER</h2>
+        </div>
+        <div class="bg-white winner-card-mid shadow-2xl border-4 border-[#FF8A5B] w-full text-center">
+            <div class="winner-img-mid mb-6 shadow-md bg-gray-50">
+                <img src="${realImagePath}"
+                     class="w-full h-full object-contain p-4"
+                     onerror="this.src='/images/meal.png'">
+            </div>
+            <h1 class="text-4xl font-black text-gray-800 italic mb-6 uppercase tracking-tighter">${foodName}</h1>
+            <div class="grid grid-cols-2 gap-3 mb-4">
+                <button onclick="location.href='/game'" class="py-3 bg-gray-100 rounded-2xl font-bold italic uppercase text-sm hover:bg-gray-200 transition">HOME 🏠</button>
+                <button onclick="location.reload()" class="py-3 bg-gray-100 rounded-2xl font-bold italic uppercase text-sm hover:bg-gray-200 transition">RESTART 🔄</button>
+                <button onclick="location.href='/worldcup/ranking'" class="py-3 bg-gray-100 rounded-2xl font-bold italic uppercase text-sm hover:bg-gray-200 transition">RANK 🏆</button>
+                <button onclick="copyToClipboard('${foodName}')" class="py-3 bg-gray-100 rounded-2xl font-bold italic uppercase text-sm hover:bg-gray-200 transition">SHARE 🔗</button>
+            </div>
+            <button onclick="window.open('https://map.kakao.com/link/search/' + encodeURIComponent('${foodName}'))"
+                    class="w-full py-4 bg-[#FAE100] rounded-full font-black text-lg shadow-md hover:bg-[#ebd300] transition italic">
+                주변 맛집 찾기 📍
+            </button>
+        </div>
+    `;
+
+    confetti({
+        particleCount: 150,
+        spread: 70,
+        origin: { y: 0.6 },
+        zIndex: 9999
+    });
+}
+
+window.copyToClipboard = function(foodName) {
+    navigator.clipboard.writeText(`🏆 나의 원픽 메뉴: [${foodName}]`).then(() => alert("복사 완료!"));
+};
+
+updateList();
+</script>
+</body>
+</html>

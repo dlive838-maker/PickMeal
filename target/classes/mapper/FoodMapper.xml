@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pickmeal.mapper.FoodMapper">
+    <select id = "getFoodInfo" resultType="com.pickmeal.domain.Food">
+        SELECT foodId, foodName, category, description, imagePath
+        FROM food
+    </select>
+    <select id = "getFilteredFoods" parameterType="com.pickmeal.dto.GameRequestDto" resultType="String">
+        SELECT
+        f.foodName
+        FROM food f
+        JOIN twenty_attribute t ON f.foodId = t.foodId
+        WHERE 1=1
+
+        <if test="category_korean == 1"> AND f.category = 'Korean food' </if>
+        <if test="category_korean == 0"> AND f.category != 'Korean food' </if>
+
+        <if test="category_western == 1"> AND f.category = 'Western food' </if>
+        <if test="category_western == 0"> AND f.category != 'Western food' </if>
+
+        <if test="category_chinese == 1"> AND f.category = 'Chinese food' </if>
+        <if test="category_chinese == 0"> AND f.category != 'Chinese food' </if>
+
+        <if test="category_japanese == 1"> AND f.category = 'Japanese food' </if>
+        <if test="category_japanese == 0"> AND f.category != 'Japanese food' </if>
+
+        <if test="category_asian == 1"> AND f.category = 'Asian food' </if>
+        <if test="category_asian == 0"> AND f.category != 'Asian food' </if>
+
+        <if test="is_soup != null"> AND t.is_soup = #{is_soup} </if>
+        <if test="is_spicy != null"> AND t.is_spicy = #{is_spicy} </if>
+        <if test="is_fried != null"> AND t.is_fried = #{is_fried} </if>
+        <if test="is_roasted != null"> AND t.is_roasted = #{is_roasted} </if>
+        <if test="has_pork != null"> AND t.has_pork = #{has_pork} </if>
+        <if test="has_beef != null"> AND t.has_beef = #{has_beef} </if>
+    </select>
+    <select id="getRandomFoodByCategory" resultType="com.pickmeal.domain.Food">
+        SELECT * FROM food
+        <where>
+            <if test="category != '전체'">
+                AND category = #{category}
+            </if>
+        </where>
+        ORDER BY RAND()
+        LIMIT 1
+    </select>
+
+    <select id="findImagePathByName" resultType="string">
+        SELECT imagePath
+        FROM food
+        WHERE foodName = #{foodName}
+    </select>
+
+    <select id="findByName" resultType="com.pickmeal.domain.Food">
+        SELECT foodId, foodName, category, description, imagePath
+        FROM food
+        WHERE foodName = #{name}
+    </select>
+
+
+</mapper>

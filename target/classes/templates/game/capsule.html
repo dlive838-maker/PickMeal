@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Pick Meal - Capsule</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@700;800&display=swap" rel="stylesheet">
+    <style>
+        header, footer { z-index: 1200 !important; position: relative; }
+        body { font-family: 'Fredoka', sans-serif; background-color: #FAF3F0; margin: 0; display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
+        .gacha-main-content { flex-grow: 1; display: flex; justify-content: center; align-items: center; position: relative; }
+        .gacha-wrapper { position: relative; display: flex; flex-direction: column; align-items: center; transition: opacity 0.4s; transform: scale(0.9); }
+        .glass-sphere { position: relative; width: 360px; height: 340px; background: radial-gradient(circle at 30% 25%, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.2) 65%); border: 2px solid rgba(0, 0, 0, 0.08); border-radius: 50%; z-index: 2; overflow: hidden; box-shadow: inset 0 0 30px rgba(255, 255, 255, 0.8); display: flex; justify-content: center; align-items: flex-end; }
+        .capsule { position: absolute; width: 52px; height: 52px; border-radius: 50%; overflow: hidden; display: flex; flex-direction: column; }
+        .capsule-top { height: 50%; background: rgba(255, 255, 255, 0.6); border-bottom: 1px solid rgba(0,0,0,0.1); }
+        .capsule-bottom { height: 50%; }
+        .machine-body { position: relative; width: 300px; height: 260px; background: #FF4D4D; border-radius: 50px 50px 60px 60px; margin-top: -85px; z-index: 1; display: flex; flex-direction: column; align-items: center; box-shadow: inset -12px -12px 0px rgba(0,0,0,0.08); }
+
+        /* [캡슐 애니메이션 설정] */
+        #result-screen { position: fixed; display: none; flex-direction: column; align-items: center; z-index: 1000; top: 0; left: 0; width: 100%; height: 100%; justify-content: center; pointer-events: none; }
+        .capsule-container { position: relative; width: 300px; height: 230px; display: flex; justify-content: center; align-items: center; }
+        .cap-half { position: absolute; width: 230px; height: 115px; border: 6px solid #333; transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s 0.7s; z-index: 10; left: 50%; margin-left: -115px; }
+        .top-cap { top: 0px; border-radius: 115px 115px 0 0; border-bottom: none; }
+        .bottom-cap { top: 115px; border-radius: 0 0 115px 115px; border-top: none; }
+
+        /* 캡슐이 열리는 애니메이션 */
+        .is-open .top-cap { transform: translateY(-150px) rotate(-15deg); opacity: 0; }
+        .is-open .bottom-cap { transform: translateY(150px) rotate(15deg); opacity: 0; }
+
+        /* [최종 카드 스타일] */
+        .winner-card-mid { max-width: 410px; padding: 2rem; border-radius: 3.5rem; background: white; margin: 0 auto; transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        .winner-img-mid { height: 280px; border-radius: 2.5rem; overflow: hidden; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+
+        @keyframes mixing { 0%, 100% { transform: translate(0, 0) rotate(0deg); } 25% { transform: translate(120px, -130px) rotate(90deg); } 50% { transform: translate(-120px, -160px) rotate(180deg); } 75% { transform: translate(100px, -60px) rotate(270deg); } }
+        @keyframes settle-down { to { transform: translate(var(--rand-x), var(--rand-y)) rotate(var(--rand-rot)); } }
+        @keyframes roll-out { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 1; transform: translateY(130px) translateX(70px) rotate(360deg); } }
+        .spin-action { transform: rotate(110deg); }
+    </style>
+</head>
+<body>
+<header th:replace="~{fragments/header :: headerFragment}"></header>
+
+<main class="gacha-main-content" id="game-main">
+    <div class="gacha-wrapper" id="machine-all">
+        <div class="glass-sphere" id="sphere"></div>
+        <div class="machine-body">
+            <div class="cat-box mt-[90px] bg-white border-[3px] border-[#FF4D4D] rounded-[30px] px-4 py-1 flex items-center z-10">
+                <span class="arrow-btn cursor-pointer text-xl text-[#FF4D4D] px-2" onclick="moveCat(-1)">◀</span>
+                <span id="cat-label" class="font-black text-[#FF4D4D] text-xl">전체</span>
+                <span class="arrow-btn cursor-pointer text-xl text-[#FF4D4D] px-2" onclick="moveCat(1)">▶</span>
+            </div>
+            <div class="lever-btn-wrapper mt-4 cursor-pointer transition-transform duration-700" id="lever-wrapper" onclick="draw()">
+                <div class="w-20 h-20 bg-white rounded-full flex justify-center items-center shadow-inner">
+                    <div class="bg-[#FFD700] px-4 py-2 rounded-2xl text-sm font-bold shadow-[0_4px_0_#C9A000]">Click!</div>
+                </div>
+            </div>
+            <div class="exit-gate mt-2 w-24 h-12 bg-[#D32F2F] rounded-t-xl relative">
+                <div id="out-cap-pos" class="absolute top-0 left-6"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="result-screen">
+        <div class="capsule-container">
+            <div class="cap-half top-cap" id="result-top-cap"></div>
+            <div class="cap-half bottom-cap" id="result-bottom-cap"></div>
+        </div>
+    </div>
+</main>
+<footer th:replace="~{fragments/footer :: footerFragment}"></footer>
+
+<script th:inline="javascript">
+    const categoryMap = [{ label: "전체", value: "" },{ label: "한식", value: "Korean food" },{ label: "중식", value: "Chinese food" },{ label: "일식", value: "Japanese food" },{ label: "양식", value: "Western food" },{ label: "아시안식", value: "Asian food" }];
+    const colors = ["#FFADAD", "#FFD6A5", "#FDFFB6", "#CAFFBF", "#9BF6FF", "#A0C4FF"];
+    let idx = 0; let playing = false;
+    const sphere = document.getElementById('sphere');
+
+    // 초기 캡슐 생성
+    function initCapsules() {
+        sphere.innerHTML = '';
+        for(let i=0; i<18; i++) {
+            const cap = createCapsuleElement(colors[i % colors.length]);
+            const angle = (Math.PI / 10) * (Math.random() * 8 - 4);
+            const dist = 90 + Math.random() * 30;
+            cap.style.left = (180 + Math.sin(angle) * dist - 26) + 'px';
+            cap.style.top = (170 + Math.cos(angle) * dist + 15) + 'px';
+            cap.style.transform = `rotate(${Math.random() * 360}deg)`;
+            sphere.appendChild(cap);
+        }
+    }
+
+    function createCapsuleElement(color) {
+        const cap = document.createElement('div'); cap.className = 'capsule';
+        const top = document.createElement('div'); top.className = 'capsule-top';
+        const bot = document.createElement('div'); bot.className = 'capsule-bottom';
+        bot.style.background = color; cap.append(top, bot); return cap;
+    }
+
+    function moveCat(d) {
+        if(playing) return;
+        idx = (idx + d + categoryMap.length) % categoryMap.length;
+        document.getElementById('cat-label').innerText = categoryMap[idx].label;
+    }
+
+    async function draw() {
+        if(playing) return; playing = true;
+        const lever = document.getElementById('lever-wrapper');
+        const capsules = document.querySelectorAll('.capsule');
+        lever.classList.add('spin-action');
+        capsules.forEach(c => c.style.animation = `mixing 0.8s infinite ease-in-out`);
+
+        try {
+            const selectedValue = categoryMap[idx].value;
+            const res = await fetch(`/api/food/draw?category=${encodeURIComponent(selectedValue)}`);
+            const data = await res.json();
+            const winColor = colors[Math.floor(Math.random() * colors.length)];
+
+            setTimeout(() => {
+                lever.classList.remove('spin-action');
+                capsules.forEach(c => {
+                    c.style.setProperty('--rand-x', (Math.random()*20-10)+'px');
+                    c.style.setProperty('--rand-y', (Math.random()*10-5)+'px');
+                    c.style.setProperty('--rand-rot', (Math.random()*360)+'deg');
+                    c.style.animation = `settle-down 2s forwards`;
+                });
+
+                setTimeout(() => {
+                    const outPos = document.getElementById('out-cap-pos');
+                    const outCap = createCapsuleElement(winColor);
+                    outCap.style.animation = 'roll-out 1.5s forwards';
+                    outPos.appendChild(outCap);
+
+                    setTimeout(() => {
+                        // 연출 시작
+                        document.getElementById('result-top-cap').style.backgroundColor = 'rgba(255, 255, 255, 0.6)';
+                        document.getElementById('result-bottom-cap').style.backgroundColor = winColor;
+                        showCapsuleAnimation(data);
+                    }, 1600);
+                }, 2000);
+            }, 2500);
+        } catch (err) {
+            playing = false;
+            lever.classList.remove('spin-action');
+            capsules.forEach(c => c.style.animation = 'none');
+        }
+    }
+
+    // [수정] 캡슐이 벌어지는 애니메이션과 결과창 통합
+    function showCapsuleAnimation(data) {
+        document.getElementById('machine-all').style.opacity = '0';
+
+        setTimeout(() => {
+            document.getElementById('machine-all').style.display = 'none';
+            const rs = document.getElementById('result-screen');
+            rs.style.display = 'flex';
+
+            setTimeout(() => {
+                // 1. 캡슐 껍데기가 위아래로 벌어짐
+                rs.classList.add('is-open');
+
+                // 2. [타이밍 핵심] 벌어지는 즉시(0.6초 뒤) 바로 카드와 폭죽 등장!
+                setTimeout(() => {
+                    showFinalCHAMPION(data);
+                }, 600);
+            }, 100);
+        }, 400);
+    }
+
+    // [수정] 최종 월드컵 스타일 결과창 및 풍성한 폭죽 연출
+    function showFinalCHAMPION(winner) {
+        // 우승 카운트 업데이트 API 호출
+        if (winner.foodId) {
+            fetch('/worldcup/win/' + winner.foodId + '?gameType=capsule', { method: 'POST' })
+    .catch(e => {});
+        }
+
+        const rs = document.getElementById('result-screen');
+        rs.style.display = 'none';
+
+        const main = document.getElementById('game-main');
+        main.classList.add('flex-col', 'items-center', 'pt-[60px]', 'pb-10');
+
+        // 폭죽 효과 강화 (좌우 동시 발사)
+        const defaults = { startVelocity: 45, spread: 360, ticks: 100, zIndex: 9999, particleCount: 150 };
+        confetti({ ...defaults, origin: { x: 0.2, y: 0.6 } });
+        confetti({ ...defaults, origin: { x: 0.8, y: 0.6 } });
+
+        main.innerHTML = `
+            <div class="flex flex-col items-center justify-center w-full animate-bounce mb-2">
+                <h2 class="text-[#FF8A5B] font-black text-5xl uppercase italic tracking-tighter">WINNER</h2>
+            </div>
+            <div class="bg-white winner-card-mid shadow-2xl border-4 border-[#FF8A5B] w-[90%] sm:w-full text-center">
+                <div class="winner-img-mid mb-6 shadow-md">
+                    <img src="${winner.imagePath}" class="w-full h-full object-cover" onerror="this.src='/images/meal.png'">
+                </div>
+                <h1 class="text-4xl font-black text-gray-800 italic mb-6 uppercase tracking-tighter">${winner.foodName}</h1>
+                <div class="grid grid-cols-2 gap-3 mb-4">
+                    <button onclick="location.href='/game'" class="py-3 bg-gray-100 rounded-2xl font-bold italic uppercase text-xs hover:bg-gray-200 transition">HOME 🏠</button>
+                    <button onclick="location.reload()" class="py-3 bg-gray-100 rounded-2xl font-bold italic uppercase text-xs hover:bg-gray-200 transition">RESTART 🔄</button>
+                    <button onclick="location.href='/worldcup/ranking'" class="py-3 bg-gray-100 rounded-2xl font-bold italic uppercase text-xs hover:bg-gray-200 transition">RANK 🏆</button>
+                    <button onclick="copyToClipboard('${winner.foodName}')" class="py-3 bg-gray-100 rounded-2xl font-bold italic uppercase text-xs hover:bg-gray-200 transition">SHARE 🔗</button>
+                </div>
+                <button onclick="window.open('https://map.kakao.com/link/search/' + encodeURIComponent('${winner.foodName}'))"
+                        class="w-full py-4 bg-[#FAE100] rounded-full font-black text-lg shadow-md hover:bg-[#ebd300] transition italic">
+                    주변 맛집 찾기 📍
+                </button>
+            </div>
+        `;
+    }
+
+    window.copyToClipboard = function(foodName) {
+        navigator.clipboard.writeText(`🏆 나의 원픽 메뉴: [${foodName}]`).then(() => alert("복사 완료!"));
+    };
+
+    initCapsules();
+</script>
+</body>
+</html>

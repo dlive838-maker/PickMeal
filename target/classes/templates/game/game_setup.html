@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pick Meal - 월드컵 설정</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@700;800&display=swap" rel="stylesheet">
+    <style>
+        /* [룰렛창 100% 복제] 전체 레이아웃 고정 */
+        body {
+            font-family: 'Fredoka', sans-serif;
+            background-color: #FFF5F0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh; /* 화면 높이 고정 */
+            overflow: hidden; /* 스크롤 차단 */
+        }
+
+        /* 헤더 메뉴 스타일 (기존 룰렛 스타일 유지) */
+        .nav-link {
+            font-family: 'Fredoka', sans-serif !important;
+            font-weight: 700 !important;
+            font-style: italic !important;
+            display: inline-block !important;
+        }
+
+        /* [룰렛창 애니메이션] */
+        .content-slide-up {
+            animation: slideUp 0.8s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+        }
+        @keyframes slideUp {
+            from { transform: translateY(100px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* 메인 콘텐츠: 룰렛창처럼 flex-grow로 푸터를 밀어냄 */
+        main {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding-top: 80px; /* 헤더 겹침 방지 여백 */
+            box-sizing: border-box;
+        }
+
+        /* 카드 디자인 */
+        .setup-card {
+            border-radius: 3rem;
+            background: white;
+            box-shadow: 0 20px 50px rgba(255, 138, 91, 0.1);
+            border: 2px solid #fff;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        /* 체크박스 커스텀 스타일 */
+        .category-checkbox:checked + span {
+            background-color: #FF8A5B;
+            color: white;
+            transform: scale(1.05);
+            border-color: #FF8A5B;
+        }
+    </style>
+</head>
+<body>
+
+<header th:replace="~{fragments/header :: headerFragment}"></header>
+
+<main class="content-slide-up px-10">
+    <div class="setup-card p-10 md:p-12 text-center">
+        <h1 class="text-4xl font-black text-[#FF8A5B] italic mb-2 uppercase tracking-tighter">
+            🏆 월드컵 설정
+        </h1>
+        <p class="text-gray-400 font-bold mb-8 italic uppercase text-sm">Configure your tournament!</p>
+
+        <div class="mb-8">
+            <h2 class="text-[#FF8A5B] font-extrabold text-lg mb-4 italic uppercase tracking-tight">
+                Step 1. 음식 종류 선택
+            </h2>
+            <div class="flex flex-wrap justify-center gap-2">
+                <th:block th:each="type : ${ {'Korean food', 'Chinese food', 'Japanese food', 'Western food', 'Asian food'} }">
+                    <label class="cursor-pointer">
+                        <input type="checkbox" name="foodType" th:value="${type}" class="hidden category-checkbox">
+                        <span class="px-5 py-2 bg-gray-50 border-2 border-transparent rounded-full font-bold text-gray-500 transition-all hover:bg-orange-50 inline-block italic text-sm">
+                            [[${type == 'Korean food' ? '한식' :(type == 'Chinese food' ? '중식' :(type == 'Japanese food' ? '일식' :(type == 'Western food' ? '양식' :(type == 'Asian food' ? '아시안식' : type))))}]]
+                        </span>
+                    </label>
+                </th:block>
+
+                <label class="cursor-pointer">
+                    <input type="checkbox" id="allCheck" onclick="toggleAll(this)" class="hidden category-checkbox">
+                    <span class="px-5 py-2 bg-gray-200 border-2 border-transparent rounded-full font-black text-gray-700 transition-all inline-block italic text-sm">
+                        ALL (전체)
+                    </span>
+                </label>
+            </div>
+        </div>
+
+        <div class="mb-10">
+            <h2 class="text-[#FF8A5B] font-extrabold text-lg mb-4 italic uppercase tracking-tight">
+                Step 2. 라운드(몇 강) 선택
+            </h2>
+            <div class="relative max-w-xs mx-auto">
+                <select id="roundSelect"
+                        class="w-full px-6 py-3 bg-gray-50 border-2 border-[#FF8A5B] rounded-2xl font-bold text-[#FF8A5B] focus:outline-none cursor-pointer text-center appearance-none italic">
+                    <option value="8">8강 (Short)</option>
+                    <option value="16" selected>16강 (Popular 🔥)</option>
+                    <option value="32">32강 (Battle)</option>
+                    <option value="64">64강 (Master)</option>
+                </select>
+            </div>
+        </div>
+
+        <button onclick="checkAndStart()"
+                class="w-full max-w-sm bg-[#FF8A5B] text-white py-4 rounded-full font-black text-xl shadow-lg hover:scale-105 transition-all duration-300 italic uppercase active:scale-95">
+            Let's Start! 🚀
+        </button>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/footer :: footerFragment}"></footer>
+
+<script th:inline="javascript">
+    const foodCounts = { 'Korean food': 24, 'Chinese food': 23, 'Japanese food': 29, 'Western food': 34, 'Asian food': 23 };
+
+    function toggleAll(source) {
+        const checkboxes = document.getElementsByName('foodType');
+        checkboxes.forEach(cb => cb.checked = source.checked);
+        updateAvailableRounds();
+    }
+
+    function updateAllCheck() {
+        const allCheck = document.getElementById('allCheck');
+        const checkboxes = Array.from(document.getElementsByName('foodType'));
+        const isAllChecked = checkboxes.every(cb => cb.checked);
+        allCheck.checked = isAllChecked;
+        updateAvailableRounds();
+    }
+
+    function updateAvailableRounds() {
+        const selectedTypes = Array.from(document.querySelectorAll('input[name="foodType"]:checked'))
+                                   .map(cb => cb.value);
+        let totalCount = 0;
+        selectedTypes.forEach(type => { if(foodCounts[type]) totalCount += foodCounts[type]; });
+
+        const roundSelect = document.getElementById('roundSelect');
+        const options = roundSelect.options;
+
+        for (let i = 0; i < options.length; i++) {
+            const roundValue = parseInt(options[i].value);
+            if (roundValue <= totalCount) {
+                options[i].disabled = false;
+                options[i].classList.remove('text-gray-300');
+            } else {
+                options[i].disabled = true;
+                options[i].classList.add('text-gray-300');
+            }
+        }
+        if (roundSelect.options[roundSelect.selectedIndex].disabled) {
+            for (let i = options.length - 1; i >= 0; i--) {
+                if (!options[i].disabled) {
+                    roundSelect.value = options[i].value;
+                    break;
+                }
+            }
+        }
+    }
+
+    document.getElementsByName('foodType').forEach(cb => {
+        cb.addEventListener('change', updateAllCheck);
+    });
+
+    function checkAndStart() {
+        const selected = Array.from(document.querySelectorAll('input[name="foodType"]:checked'))
+                              .map(cb => cb.value);
+        if (selected.length === 0) { alert("최소 하나 이상의 종류를 선택해주세요!"); return; }
+        const round = document.getElementById('roundSelect').value;
+        location.href = `/game/play?types=${selected.join(',')}&round=${round}`;
+    }
+
+    window.onload = updateAvailableRounds;
+</script>
+</body>
+</html>

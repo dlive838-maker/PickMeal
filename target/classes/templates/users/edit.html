@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pick Meal - Edit Profile</title>
+
+  <meta name="_csrf" th:content="${_csrf?.token}"/>
+  <meta name="_csrf_header" th:content="${_csrf?.headerName}"/>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@700;800&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Fredoka', sans-serif; background-color: #FFF5F0; margin: 0; }
+    .edit-card { border-radius: 3rem; background: white; box-shadow: 0 20px 50px rgba(0,0,0,0.05); border: 2px solid #FDF5E6; }
+    .input-field { width: 100%; padding: 1rem 1.5rem; border-radius: 1.5rem; border: 2px solid #FFF5F0; background-color: #FDFDFD; font-weight: 800; color: #444; transition: all 0.3s ease; font-size: 1.15rem; }
+    .input-field:focus { outline: none; border-color: #FF8A5B; background-color: white; box-shadow: 0 0 0 4px rgba(255, 138, 91, 0.1); }
+    .input-readonly { background-color: #f3f4f6 !important; color: #9ca3af !important; border: 2px solid #e5e7eb !important; cursor: not-allowed; }
+    .label-text { color: #FFB08E; font-size: 0.85rem; font-weight: 800; margin-left: 1rem; margin-bottom: 0.2rem; display: block; }
+    .btn-action { padding: 0 1.5rem; height: 3.8rem; border-radius: 1.5rem; background-color: #FF8A5B; color: white; font-weight: 800; transition: all 0.3s ease; white-space: nowrap; }
+    .btn-action:hover:not(:disabled) { background-color: #e67a4d; transform: scale(1.02); }
+    .btn-action:disabled { background-color: #cbd5e1; cursor: not-allowed; }
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; display: none; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s ease; }
+    .modal-overlay.active { display: flex; opacity: 1; }
+    .modal-card { background: white; width: 90%; max-width: 500px; border-radius: 2.5rem; padding: 2.5rem; transform: translateY(20px); transition: transform 0.3s ease; }
+    .modal-overlay.active .modal-card { transform: translateY(0); }
+    .peer:checked + label.like-tag { background-color: #3B82F6; color: white; border-color: #3B82F6; }
+    .peer:checked + label.dislike-tag { background-color: #EF4444; color: white; border-color: #EF4444; }
+    .content-slide-up { animation: slideUp 0.8s cubic-bezier(0.65, 0, 0.35, 1) forwards; }
+    @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+<header th:replace="~{fragments/header :: headerFragment}"></header>
+
+<main class="flex-grow container mx-auto px-6 pt-40 pb-20 max-w-6xl content-slide-up">
+  <div class="text-center mb-16">
+    <h2 class="text-6xl font-black text-[#FF8A5B] italic tracking-tighter uppercase inline-block relative">
+      Edit Profile
+      <span class="absolute -bottom-2 left-0 w-full h-2 bg-[#FF8A5B]/10 rounded-full"></span>
+    </h2>
+  </div>
+
+  <form id="editForm" th:action="@{/users/edit}" th:object="${user}" method="post">
+    <input type="hidden" th:field="*{user_id}">
+    <input type="hidden" th:field="*{id}">
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+      <div class="edit-card p-12 space-y-6">
+        <div>
+          <label class="label-text">아이디 (변경불가)</label>
+          <input type="text" th:value="${displayId}" class="input-field input-readonly" readonly disabled>
+          <input type="hidden" th:field="*{id}">
+        </div>
+        <div>
+          <label class="label-text">이메일</label>
+          <div class="flex gap-3">
+            <input type="email" id="emailDisplay"
+                   th:value="${user.email != null ? user.email.replaceAll('(^[^@]{2})[^@]+(@[^@]{1})[^@]+(\.[^@]+$)', '$1******$2*******$3') : ''}"
+                   class="input-field input-readonly" readonly>
+
+            <button th:if="${user.socialLoginSite == null or user.socialLoginSite == ''}"
+                    type="button" onclick="openModal('emailModal')" class="btn-action">수정</button>
+
+            <span th:unless="${user.socialLoginSite == null or user.socialLoginSite == ''}"
+                  class="flex items-center text-xs text-gray-400 font-bold px-2">
+              소셜 계정은 이메일 변경이 불가합니다.
+            </span>
+          </div>
+        </div>
+        <div th:if="${user.socialLoginSite == null or user.socialLoginSite == ''}">
+          <label class="label-text">비밀번호</label>
+          <div class="flex gap-3">
+            <input type="password" value="********" class="input-field input-readonly" readonly>
+            <button type="button" onclick="openModal('pwModal')" class="btn-action">수정</button>
+          </div>
+        </div>
+        <div>
+          <label class="label-text">닉네임</label>
+          <div class="flex gap-3">
+            <input type="text" th:field="*{nickname}" id="nicknameInput" class="input-field" required>
+            <button type="button" id="checkNicknameBtn" class="btn-action">중복확인</button>
+          </div>
+          <p id="nicknameStatus" class="text-xs mt-2 ml-4 font-bold"></p>
+        </div>
+        <div>
+          <label class="label-text">이름 (변경불가)</label>
+          <input type="text" th:field="*{name}" class="input-field input-readonly" readonly disabled>
+        </div>
+        <div>
+          <label class="label-text">전화번호 (변경불가)</label>
+          <input type="text"
+                 th:value="${user.phoneNumber != null ? user.phoneNumber.replaceAll('(\d{3})-(\d{1})\d{3}-(\d{1})\d{3}', '$1-$2***-$3***') : ''}"
+                 class="input-field input-readonly" readonly disabled>
+        </div>
+      </div>
+
+      <div class="edit-card p-12 bg-[#FF8A5B]/2 space-y-10">
+        <h3 class="text-3xl font-black text-[#FF8A5B] mb-10 italic uppercase tracking-tight">Taste Preference</h3>
+        <div>
+          <label class="label-text text-blue-400">좋아하는 음식 ❤️</label>
+          <div class="flex flex-wrap gap-2 mt-2 mb-4">
+            <th:block th:each="food : ${ {'한식', '일식', '중식', '양식', '치킨', '피자', '고기', '면요리', '분식', '디저트'} }">
+              <input type="checkbox" th:id="${'like-' + food}" name="likeMenuCheck" th:value="${food}"
+                     th:checked="${user.likeMenu != null and user.likeMenu.contains(food)}" class="hidden peer">
+              <label th:for="${'like-' + food}" class="like-tag px-4 py-2 border-2 border-blue-100 text-blue-400 rounded-full cursor-pointer font-bold text-xs transition-all hover:bg-blue-50">[[${food}]]</label>
+            </th:block>
+          </div>
+          <input type="text" id="likeInput" th:field="*{likeMenu}" class="input-field text-lg" placeholder="여러 개를 선택하거나 직접 입력하세요">
+        </div>
+        <div>
+          <label class="label-text text-red-400">싫어하는 음식 💔</label>
+          <div class="flex flex-wrap gap-2 mt-2 mb-4">
+            <th:block th:each="food : ${ {'고수', '오이', '가지', '민초', '매운것', '느끼한것', '해산물', '날것', '향신료'} }">
+              <input type="checkbox" th:id="${'dislike-' + food}" name="disLikeMenuCheck" th:value="${food}"
+                     th:checked="${user.disLikeMenu != null and user.disLikeMenu.contains(food)}" class="hidden peer">
+              <label th:for="${'dislike-' + food}" class="dislike-tag px-4 py-2 border-2 border-red-100 text-red-400 rounded-full cursor-pointer font-bold text-xs transition-all hover:bg-red-50">[[${food}]]</label>
+            </th:block>
+          </div>
+          <input type="text" id="dislikeInput" th:field="*{disLikeMenu}" class="input-field text-lg" placeholder="여러 개를 선택하거나 직접 입력하세요">
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-16 flex justify-center gap-6">
+      <button type="submit" id="submitBtn" class="px-12 py-5 bg-[#FF8A5B] text-white rounded-full font-black text-xl shadow-xl hover:bg-[#e67a4d] hover:scale-105 transition-all duration-300 italic uppercase">Save Changes</button>
+      <a th:href="@{/users/mypage}" class="px-12 py-5 bg-slate-200 text-slate-500 rounded-full font-black text-xl hover:bg-red-50 hover:text-red-500 transition-all duration-300 italic uppercase">Cancel</a>
+    </div>
+  </form>
+</main>
+
+<div id="emailModal" class="modal-overlay" onclick="closeModalOnOutSide(event)">
+  <div class="modal-card space-y-6">
+    <h3 class="text-3xl font-black text-[#FF8A5B]">이메일 변경</h3>
+    <div id="emailStep1">
+      <label class="label-text">현재 등록된 이메일 입력</label>
+      <div class="flex gap-2">
+        <input type="email" id="currEmail" class="input-field" placeholder="현재 이메일">
+        <button type="button" onclick="verifyEmailStep1()" class="btn-action px-6">확인</button>
+      </div>
+    </div>
+    <div id="emailStep2" class="hidden space-y-4">
+      <label class="label-text">변경할 새 이메일</label>
+      <div class="flex gap-2">
+        <input type="email" id="newEmail" class="input-field" placeholder="새 이메일">
+        <button type="button" onclick="sendCode()" class="btn-action px-6">인증번호</button>
+      </div>
+      <div class="relative">
+        <input type="text" id="verifyCode" class="input-field" placeholder="인증번호 6자리">
+        <span id="timer" class="absolute right-32 top-1/2 -translate-y-1/2 text-red-500 font-bold hidden">05:00</span>
+        <button type="button" id="codeVerifyBtn" onclick="verifyEmailCode()" class="btn-action px-6 absolute right-0 top-0">인증</button>
+      </div>
+    </div>
+    <div class="flex justify-end gap-3 mt-4 border-t pt-6">
+      <button type="button" onclick="closeModal('emailModal')" class="font-bold text-gray-400 mr-auto">취소</button>
+      <button type="button" id="emailUpdateSubmit" onclick="apiUpdateEmail()" class="btn-action px-10" disabled>수정하기</button>
+    </div>
+  </div>
+</div>
+
+<div id="pwModal" class="modal-overlay" onclick="closeModalOnOutSide(event)">
+  <div class="modal-card space-y-4">
+    <h3 class="text-3xl font-black text-[#FF8A5B]">비밀번호 변경</h3>
+
+    <div>
+      <label class="label-text">현재 비밀번호</label>
+      <input type="password" id="currPw" class="input-field" placeholder="현재 비밀번호 입력">
+      <p id="currPwError" class="text-xs mt-1 ml-4 font-bold text-red-500 hidden">현재 비밀번호가 틀렸습니다.</p>
+    </div>
+
+    <div>
+      <label class="label-text">새 비밀번호</label>
+      <input type="password" id="modalNewPw" class="input-field" placeholder="새 비밀번호 입력">
+      <p id="pwComplexityMsg" class="text-[0.7rem] mt-1 ml-4 font-bold text-gray-400">영문+숫자+특수문자 포함 8자 이상</p>
+    </div>
+
+    <div>
+      <label class="label-text">새 비밀번호 확인</label>
+      <input type="password" id="modalNewPwCheck" class="input-field" placeholder="한 번 더 입력">
+      <p id="pwMatchMsg" class="text-[0.7rem] mt-1 ml-4 font-bold text-gray-400">비밀번호를 한 번 더 입력해주세요.</p>
+    </div>
+
+    <div class="flex justify-end gap-4 mt-6 border-t pt-6">
+      <button type="button" onclick="closeModal('pwModal')" class="font-bold text-gray-400 mr-auto">취소</button>
+      <button type="button" id="pwUpdateSubmitBtn" onclick="apiUpdatePassword()" class="btn-action px-10" disabled>수정하기</button>
+    </div>
+  </div>
+</div>
+
+<script th:inline="javascript">
+  /*<![CDATA[*/
+    const csrfToken = document.querySelector('meta[name="_csrf"]')?.content;
+    const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.content;
+
+    const modalNewPw = document.getElementById('modalNewPw');
+    const modalNewPwCheck = document.getElementById('modalNewPwCheck');
+    const pwComplexityMsg = document.getElementById('pwComplexityMsg');
+    const pwMatchMsg = document.getElementById('pwMatchMsg');
+    const pwUpdateSubmitBtn = document.getElementById('pwUpdateSubmitBtn');
+
+    // 비밀번호 복잡도 정규식 (영문, 숫자, 특수문자 포함 8자 이상)
+    const pwRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/;
+
+    function openModal(id) { document.getElementById(id).classList.add('active'); }
+    function closeModal(id) { document.getElementById(id).classList.remove('active'); resetModals(); }
+    function closeModalOnOutSide(e) { if(e.target.classList.contains('modal-overlay')) closeModal(e.target.id); }
+
+    function resetModals() {
+      if (timerInterval) clearInterval(timerInterval);
+      document.getElementById('emailStep1').classList.remove('hidden');
+      document.getElementById('emailStep2').classList.add('hidden');
+      document.getElementById('emailUpdateSubmit').disabled = true;
+      document.getElementById('timer').classList.add('hidden');
+      document.querySelectorAll('.modal-card input').forEach(i => i.value = '');
+      document.querySelectorAll('.modal-card p.text-red-500').forEach(p => p.classList.add('hidden'));
+
+      // 비밀번호 메시지 초기화
+      pwComplexityMsg.innerText = "영문+숫자+특수문자 포함 8자 이상";
+      pwComplexityMsg.className = "text-[0.7rem] mt-1 ml-4 font-bold text-gray-400";
+      pwMatchMsg.innerText = "비밀번호를 한 번 더 입력해주세요.";
+      pwMatchMsg.className = "text-[0.7rem] mt-1 ml-4 font-bold text-gray-400";
+      pwUpdateSubmitBtn.disabled = true;
+    }
+
+    // [추가] 실시간 비밀번호 검증 로직
+    function validatePasswords() {
+      const p1 = modalNewPw.value;
+      const p2 = modalNewPwCheck.value;
+      let isComplexityValid = false;
+      let isMatchValid = false;
+
+      // 1. 복잡도 검사
+      if (p1.length === 0) {
+        pwComplexityMsg.innerText = "영문+숫자+특수문자 포함 8자 이상";
+        pwComplexityMsg.className = "text-[0.7rem] mt-1 ml-4 font-bold text-gray-400";
+      } else if (pwRegex.test(p1)) {
+        pwComplexityMsg.innerText = "안전한 비밀번호입니다! ✅";
+        pwComplexityMsg.className = "text-[0.7rem] mt-1 ml-4 font-bold text-green-500";
+        isComplexityValid = true;
+      } else {
+        pwComplexityMsg.innerText = "영문+숫자+특수문자 조합 8자 이상 필수 ❌";
+        pwComplexityMsg.className = "text-[0.7rem] mt-1 ml-4 font-bold text-red-500";
+      }
+
+      // 2. 일치 검사
+      if (p2.length === 0) {
+        pwMatchMsg.innerText = "비밀번호를 한 번 더 입력해주세요.";
+        pwMatchMsg.className = "text-[0.7rem] mt-1 ml-4 font-bold text-gray-400";
+      } else if (p1 === p2) {
+        pwMatchMsg.innerText = "비밀번호가 일치합니다! ✨";
+        pwMatchMsg.className = "text-[0.7rem] mt-1 ml-4 font-bold text-green-500";
+        isMatchValid = true;
+      } else {
+        pwMatchMsg.innerText = "비밀번호가 일치하지 않습니다. ❌";
+        pwMatchMsg.className = "text-[0.7rem] mt-1 ml-4 font-bold text-red-500";
+      }
+
+      // 3. 버튼 활성화 제어
+      pwUpdateSubmitBtn.disabled = !(isComplexityValid && isMatchValid);
+    }
+
+    modalNewPw.addEventListener('input', validatePasswords);
+    modalNewPwCheck.addEventListener('input', validatePasswords);
+
+    let timerInterval;
+    function startTimer(duration) {
+        clearInterval(timerInterval);
+        const timerDisplay = document.getElementById('timer');
+        const verifyBtn = document.getElementById('codeVerifyBtn');
+        timerDisplay.classList.remove('hidden');
+        verifyBtn.disabled = false;
+
+        let timer = duration, minutes, seconds;
+        timerInterval = setInterval(() => {
+            minutes = parseInt(timer / 60, 10);
+            seconds = parseInt(timer % 60, 10);
+            minutes = minutes < 10 ? "0" + minutes : minutes;
+            seconds = seconds < 10 ? "0" + seconds : seconds;
+            timerDisplay.textContent = minutes + ":" + seconds;
+
+            if (--timer < 0) {
+                clearInterval(timerInterval);
+                timerDisplay.textContent = "만료";
+                verifyBtn.disabled = true;
+                alert("인증 시간이 만료되었습니다. 다시 시도해주세요.");
+            }
+        }, 1000);
+    }
+
+    async function verifyEmailStep1() {
+      const email = document.getElementById('currEmail').value;
+      const originalEmail = /*[[${user.email}]]*/ '';
+      if(email !== originalEmail) return alert("현재 등록된 이메일과 일치하지 않습니다.");
+      document.getElementById('emailStep1').classList.add('hidden');
+      document.getElementById('emailStep2').classList.remove('hidden');
+    }
+
+async function sendCode() {
+  const newEmail = document.getElementById('newEmail').value.trim();
+  if(!newEmail) return alert("새 이메일을 입력하세요.");
+
+  try {
+      const response = await fetch('/mail/send', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded', [csrfHeader]: csrfToken },
+          body: new URLSearchParams({ email: newEmail, type: 'EDIT' })
+      });
+
+      if (response.ok) {
+          startTimer(300);
+          alert("인증번호가 발송되었습니다. ✉️");
+      }
+      // [핵심 추가] 서버에서 409 에러(중복)를 보냈을 때 처리
+      else if (response.status === 409) {
+          const errorMsg = await response.text();
+          if(errorMsg.startsWith("social_")) {
+              alert("이미 " + errorMsg.split("_")[1] + " 계정으로 가입된 이메일입니다. 😢");
+          } else {
+              alert("이미 사용 중인 이메일입니다. 다른 이메일을 입력해주세요. 😢");
+          }
+      } else {
+          alert("메일 발송에 실패했습니다. 다시 시도해주세요.");
+      }
+  } catch (e) {
+      alert("서버 통신 오류가 발생했습니다.");
+  }
+}
+
+    async function verifyEmailCode() {
+      const code = document.getElementById('verifyCode').value;
+      if(!code) return alert("인증번호를 입력하세요.");
+      try {
+          const response = await fetch('/mail/verify', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/x-www-form-urlencoded', [csrfHeader]: csrfToken },
+              body: new URLSearchParams({ code: code })
+          });
+          const result = await response.text();
+          if (result === "success") {
+              alert("인증 성공!");
+              clearInterval(timerInterval);
+              document.getElementById('timer').classList.add('hidden');
+              document.getElementById('emailUpdateSubmit').disabled = false;
+          } else if (result === "timeout") { alert("시간이 초과되었습니다."); }
+          else { alert("인증번호가 틀렸습니다."); }
+      } catch (e) { alert("인증 처리 중 오류 발생"); }
+    }
+
+    async function apiUpdateEmail() {
+  const newEmail = document.getElementById('newEmail').value.trim();
+  try {
+    const response = await fetch('/users/update-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', [csrfHeader]: csrfToken },
+      body: JSON.stringify({ email: newEmail })
+    });
+
+    if(response.ok) {
+      alert("이메일이 즉시 변경되었습니다! ✨");
+      const atIndex = newEmail.indexOf('@');
+      const idPart = newEmail.substring(0, atIndex);
+      const domainPart = newEmail.substring(atIndex);
+      let maskedId = idPart.length <= 2 ? idPart.substring(0, 1) + "******" : idPart.substring(0, 2) + "******";
+      document.getElementById('emailDisplay').value = maskedId + domainPart;
+      closeModal('emailModal');
+    } else if (response.status === 409) {
+      // [추가] 백엔드 UserController에서 보낸 409 에러 처리
+      alert("이미 사용 중인 이메일입니다. 😢");
+    } else {
+      alert("이메일 변경에 실패했습니다.");
+    }
+  } catch (e) {
+    alert("서버 통신 오류가 발생했습니다.");
+  }
+}
+
+    async function apiUpdatePassword() {
+      const currPw = document.getElementById('currPw').value;
+      const newP = modalNewPw.value;
+      const currPwError = document.getElementById('currPwError');
+      currPwError.classList.add('hidden');
+
+      if(!currPw || !newP) return alert("비밀번호를 입력해주세요.");
+
+      try {
+        const response = await fetch('/users/update-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', [csrfHeader]: csrfToken },
+          body: JSON.stringify({ currentPassword: currPw, newPassword: newP })
+        });
+        const result = await response.text();
+
+        if(response.ok && result === "success") {
+            alert("비밀번호가 성공적으로 변경되었습니다! ✨");
+            closeModal('pwModal');
+        } else if (result === "current_password_incorrect") {
+            currPwError.classList.remove('hidden');
+        } else if (result === "invalid_password_format") {
+            alert("비밀번호 형식이 올바르지 않습니다.");
+        } else {
+            alert("변경 실패: " + result);
+        }
+      } catch (e) { alert("통신 오류"); }
+    }
+
+    const nicknameInput = document.getElementById('nicknameInput');
+    const checkBtn = document.getElementById('checkNicknameBtn');
+    const statusMsg = document.getElementById('nicknameStatus');
+    const initialNickname = /*[[${user.nickname}]]*/ '';
+    let isNicknameValid = true;
+
+    nicknameInput.addEventListener('input', () => {
+      const currentVal = nicknameInput.value.trim();
+      if (currentVal === initialNickname) { isNicknameValid = true; statusMsg.innerText = ""; checkBtn.disabled = true; }
+      else { isNicknameValid = false; statusMsg.innerText = "중복 확인이 필요합니다."; statusMsg.className = "text-xs mt-2 ml-4 font-bold text-orange-400"; checkBtn.disabled = false; }
+    });
+
+    // HTML 하단 <script> 내의 checkBtn 클릭 이벤트 부분 수정
+checkBtn.addEventListener('click', async () => {
+  const nickname = nicknameInput.value.trim();
+  if (!nickname) return;
+  try {
+    // 1. 요청 주소가 정확한지 확인 (/users/check-nickname)
+    const response = await fetch(`/users/check-nickname?nickname=${encodeURIComponent(nickname)}`);
+
+    // 2. [중요] .json() 대신 .text()를 사용해야 컨트롤러의 응답을 읽을 수 있습니다.
+    const result = await response.text();
+
+    if (result === "success") { // 서비스에서 중복이 아닐 때 반환하는 값
+      statusMsg.innerText = "사용 가능한 닉네임입니다!";
+      statusMsg.className = "text-xs mt-2 ml-4 font-bold text-green-500";
+      isNicknameValid = true;
+      checkBtn.disabled = true;
+    } else {
+      statusMsg.innerText = "이미 사용 중인 닉네임입니다.";
+      statusMsg.className = "text-xs mt-2 ml-4 font-bold text-red-500";
+      isNicknameValid = false;
+    }
+  } catch (err) {
+    console.error("오류:", err);
+    alert("중복 체크 중 오류가 발생했습니다.");
+  }
+});
+
+    document.getElementById('editForm').addEventListener('submit', (e) => {
+      if (!isNicknameValid) { e.preventDefault(); return alert("닉네임 중복 확인을 완료해주세요."); }
+    });
+
+    function updateInput(groupName, inputId) {
+      const checkboxes = document.querySelectorAll(`input[name="${groupName}"]:checked`);
+      const values = Array.from(checkboxes).map(cb => cb.value);
+      document.getElementById(inputId).value = values.join(', ');
+    }
+    document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+      checkbox.addEventListener('change', (e) => {
+        if (e.target.name === 'likeMenuCheck') updateInput('likeMenuCheck', 'likeInput');
+        else if (e.target.name === 'disLikeMenuCheck') updateInput('disLikeMenuCheck', 'dislikeInput');
+      });
+    });
+  /*]]>*/
+</script>
+</body>
+</html>
