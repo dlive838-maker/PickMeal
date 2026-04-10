@@ -4,8 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1e8719c0-9992-4814-868d-92e2b0a41396" name="변경" comment="26.03.05 1738 재민 코드 병합">
-      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
+    <list default="true" id="1e8719c0-9992-4814-868d-92e2b0a41396" name="변경" comment="26.04.10 클로드 병합">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -93,9 +93,30 @@
       <updated>1772763751055</updated>
       <workItem from="1775785218222" duration="305000" />
     </task>
+    <task id="LOCAL-00001" summary="26.04.10 클로드 병합">
+      <option name="closed" value="true" />
+      <created>1775791143570</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1775791143570</updated>
+    </task>
+    <task id="LOCAL-00002" summary="26.04.10 클로드 병합">
+      <option name="closed" value="true" />
+      <created>1775791154852</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1775791154852</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="26.04.10 클로드 병합" />
+    <option name="LAST_COMMIT_MESSAGE" value="26.04.10 클로드 병합" />
   </component>
 </project>
